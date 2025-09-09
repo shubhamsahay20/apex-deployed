@@ -1,5 +1,9 @@
 import API from './api';
 
+
+
+
+
 const addNotes = async (token, id, data) => {
   try {
     if (!token) {
@@ -18,6 +22,49 @@ const addNotes = async (token, id, data) => {
   }
 };
 
+
+const getStockInInventory = async (token, page, limit) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization Token Require');
+    }
+    const res = await API.get(
+      `/inventory/getallStock2?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while geting order');
+  }
+};
+
+
+const approval = async (token, id, data) => {
+  try {
+    console.log("idd to backend",id);
+    if (!token) {
+      throw new Error('Authorization token is no valid');
+    }
+
+    const res = await API.put(`/inventory/approve/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message);
+  }
+};
+
 export default {
   addNotes,
+  approval,
+  getStockInInventory
 };
