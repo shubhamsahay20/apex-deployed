@@ -110,7 +110,9 @@ const InventoryArticalList = () => {
   };
 
   const handleEdit = (row) => {
-    navigate('/inventory-management/article-list/edit-article');
+    navigate('/inventory-management/article-list/edit-article', {
+      state: row,
+    });
   };
 
   const handleDelete = (id) => {
@@ -271,7 +273,19 @@ const InventoryArticalList = () => {
                   </td>
 
                   <td className="px-4 py-2 whitespace-nowrap">
-                    {(() => {
+                    <button
+                      onClick={() =>
+                        navigate(
+                          `/inventory-management/article-list/upload/${row._id}`,
+                         
+                        )
+                      }
+                      className="px-4 bg-blue-200 py-1 border rounded"
+                    >
+                      {' '}
+                      Update Status{' '}
+                    </button>
+                    {/* {(() => {
                       switch (row.inventoryManagerApproval) {
                         case 'APPROVED':
                           return (
@@ -305,7 +319,7 @@ const InventoryArticalList = () => {
                             </div>
                           );
                       }
-                    })()}
+                    })()} */}
                   </td>
 
                   <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">

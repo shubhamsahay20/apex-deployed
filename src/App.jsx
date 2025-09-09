@@ -100,6 +100,7 @@ import ArticalData from './components/InventoryAdmin/components/InventoryManagem
 import ArticleDataWarehouse from './components/WarehouseAdmin/components/ArticleDataWarehouse';
 import WarehouseDropdown from './components/WarehouseAdmin/components/WarehouseDropdown';
 import Internal_warehouse_transfer from './components/Administrator/components/Internal_warehouse_transfer';
+import UploadStatus from './components/InventoryAdmin/components/InventoryManagement/UploadStatus';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -1075,6 +1076,17 @@ function App() {
                     >
                       <PageTitle title="ArticalData" />
                       <ArticalData />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path="/inventory-management/article-list/upload/:id"
+                element={
+                  <>
+                    <ProtectedRoutes role={['Inventory Manager']}>
+                      <PageTitle title="upload Details" />
+                      <UploadStatus />
                     </ProtectedRoutes>
                   </>
                 }
