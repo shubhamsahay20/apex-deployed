@@ -23,6 +23,8 @@ const UploadStatus = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [stockReport, setStockReport] = useState([])
   const [allocations, setAllocations] = useState({})
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   const confirmApproved = async () => {
     try {
@@ -47,8 +49,8 @@ const UploadStatus = () => {
 
       console.log('Payload to send:', payload)
 
-      const res = await inventoryService.getStockInInventory(user.accessToken, id, payload)
-      console.log('getStockInInventory response', res)
+      const res = await inventoryService.approval(user.accessToken, id, payload)
+      console.log('approval response', res)
       toast.success(res.message || 'Order approved and allocations saved!')
       setApproveModalOpan(false)
       navigate(`/inventory-management/article-list`)
@@ -66,7 +68,7 @@ const UploadStatus = () => {
         inventoryManagerApproval: 'REJECTED'
       }
 
-      const res = await inventoryService.getStockInInventory(user.accessToken, id, payload)
+      const res = await inventoryService.approval(user.accessToken, id, payload)
 
       console.log('reject response', res)
       toast.info(res.message || 'Order Rejected Successfully')
@@ -90,9 +92,14 @@ const UploadStatus = () => {
         )
         setWarehouses(warehouseRes?.data?.data?.warehouses || [])
 
-        const stockreport = await reportService.stockReport(user.accessToken)
-        console.log('response of stock report', stockreport.data)
-        setStockReport(stockreport.data)
+        const inventoryinfo = await inventoryService.getStockInInventory(
+          user.accessToken,
+          currentPage,
+          5
+        )
+        console.log('response of inventory info', inventoryinfo)
+        setStockReport(inventoryinfo.data)
+        setTotalPage(inventoryinfo.totalPages)
       } catch (error) {
         console.error('Error fetching orders:', error)
       } finally {
@@ -101,7 +108,7 @@ const UploadStatus = () => {
     }
 
     fetchOrders()
-  }, [id, user.accessToken])
+  }, [id, user.accessToken, currentPage])
 
   // Add a new warehouse allocation row
   const addWarehouseAllocation = itemIndex => {
@@ -199,7 +206,31 @@ const UploadStatus = () => {
         ) : (
           <p className='text-gray-500 text-sm'>No stock data available.</p>
         )}
+        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          className="px-3 py-1 border rounded bg-gray-50"
+        >
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPage}
+        </span>
+        <button
+          disabled={currentPage === totalPage}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          className="px-3 py-1 border rounded bg-gray-50"
+        >
+          Next
+        </button>
+      </div>  
       </div>
+      
+      <h1 className='text-lg font-semibold text-red-600 bg-blue-50 p-2 rounded capitalize'>
+        If stock is at Production, please check with the Administrator to decide
+        which warehouse it should go to, then assign warehouse for the Order,
+      </h1>
 
       {/* Orders */}
       <div key={orders._id} className='mb-10 bg-white shadow rounded-lg p-6'>

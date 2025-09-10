@@ -81,7 +81,7 @@ const CustomersList = () => {
             placeholder="Search customer"
             className="border px-3 py-1.5 rounded-md text-sm w-48 focus:outline-none"
           />
-          <button className="border px-3 py-1.5 rounded text-sm">Today</button>
+          {/* <button className="border px-3 py-1.5 rounded text-sm">Today</button> */}
           <button className="border px-3 py-1.5 rounded text-sm">Print</button>
           <button className="border px-3 py-1.5 rounded text-sm">Export</button>
         </div>

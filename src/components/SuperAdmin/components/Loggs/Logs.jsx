@@ -1,87 +1,143 @@
-import React, { useState } from "react";
-import { FaSearch } from "react-icons/fa";
-import { CiCalendar } from "react-icons/ci";
-import { BsDownload } from "react-icons/bs";
-import { FaFilePdf } from "react-icons/fa6";
-import { exportProductionPDF, printProductionPDF } from "../../../../utils/PdfModel"; 
+import React, { useEffect, useState } from 'react';
+import { FaSearch } from 'react-icons/fa';
+import { CiCalendar } from 'react-icons/ci';
+import { BsDownload } from 'react-icons/bs';
+import { FaFilePdf } from 'react-icons/fa6';
+import {
+  exportProductionPDF,
+  printProductionPDF,
+} from '../../../../utils/PdfModel';
+import { useAuth } from '../../../../Context/AuthContext';
+import { toast } from 'react-toastify';
+import logsService from '../../../../api/logs.service';
 
 const Logs = () => {
-  const [logData] = useState([
-    {
-      date: "2025-08-11",
-      time: "10:23 AM",
-      user: { name: "John Mathew", avatar: "https://via.placeholder.com/40" },
-      activity: "Logged in to the system",
-    },
-    {
-      date: "2025-08-11",
-      time: "10:45 AM",
-      user: { name: "Sarah Lee", avatar: "https://via.placeholder.com/40" },
-      activity: "Updated order #SO/563723",
-    },
-    {
-      date: "2025-08-11",
-      time: "11:10 AM",
-      user: { name: "Mike Johnson", avatar: "https://via.placeholder.com/40" },
-      activity: "Deleted warehouse record",
-    },
-  ]);
+  const { user } = useAuth();
+  const [logData, setLogData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await logsService.getLogs(user.accessToken, currentPage, 10);
+        setLogData(res.data);
+        setTotalPage(res.pages);
+      } catch (error) {
+        toast.error(error.response?.data?.message);
+      }
+    };
+    fetchData();
+  }, [user, currentPage]);
 
   return (
-    <div className="p-4 bg-white rounded-md shadow">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Logs</h2>
-        <div className="flex items-center gap-2">
+    <div className="p-6 bg-white rounded-xl shadow-md">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 mb-6">
+        <h2 className="text-xl font-semibold text-gray-800">Logs</h2>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Search */}
           <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Search..."
-              className="border rounded pl-8 pr-2 py-1 text-sm"
+              className="border rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <FaSearch className="absolute left-2 top-2 text-gray-400" />
           </div>
-          <div className="flex items-center border rounded px-2 py-1 text-sm">
-            <CiCalendar className="mr-2" /> Filter by Date
-          </div>
+
+          {/* Date Filter */}
+          <button className="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition">
+            <CiCalendar /> Filter by Date
+          </button>
+
+          {/* Print & PDF */}
           <button
             onClick={() => printProductionPDF(logData)}
-            className="border border-gray-300 px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="border border-gray-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-gray-50 transition"
           >
             <BsDownload /> Print
           </button>
           <button
             onClick={() => exportProductionPDF(logData)}
-            className="border border-gray-300 px-4 py-2 rounded-md text-sm flex items-center gap-2"
+            className="border border-gray-300 px-4 py-2 rounded-lg text-sm flex items-center gap-2 hover:bg-gray-50 transition"
           >
             <FaFilePdf /> PDF
           </button>
         </div>
       </div>
-      <table className="w-full text-sm border border-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="p-2 border border-gray-200">Date & Time</th>
-            <th className="p-2 border border-gray-200">User</th>
-            <th className="p-2 border border-gray-200">Activity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {logData.map((log, index) => (
-            <tr key={index} className="border-b border-gray-200">
-              <td className="p-2">{`${log.date} – ${log.time}`}</td>
-              <td className="p-2 flex items-center gap-2">
-                <img
-                  src={log.user.avatar}
-                  alt={log.user.name}
-                  className="w-6 h-6 rounded-full"
-                />
-                {log.user.name}
-              </td>
-              <td className="p-2">{log.activity}</td>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-lg border border-gray-200">
+        <table className="w-full text-sm text-left border-collapse">
+          <thead className="bg-gray-100 text-gray-700">
+            <tr>
+              <th className="p-3 border-b">Date & Time</th>
+              <th className="p-3 border-b">Type</th>
+              <th className="p-3 border-b">Name</th>
+              <th className="p-3 border-b">Activity</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {logData.length > 0 ? (
+              logData.map((log, index) => (
+                <tr
+                  key={index}
+                  className={`${
+                    index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                  } hover:bg-blue-50 transition`}
+                >
+                  <td className="p-3 border-b text-gray-700">{log.updatedAt}</td>
+                  <td className="p-3 border-b text-gray-700">{log.type}</td>
+                  <td className="p-3 border-b text-gray-700">{log.name}</td>
+                  <td className="p-3 border-b text-gray-700">{log.Action}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="p-4 text-center text-gray-500 italic"
+                >
+                  No logs found
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center mt-5 text-sm text-gray-600">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === 1
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white hover:bg-gray-50'
+          }`}
+        >
+          Previous
+        </button>
+
+        <span className="font-medium">
+          Page {currentPage} of {totalPage}
+        </span>
+
+        <button
+          disabled={currentPage === totalPage}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          className={`px-4 py-2 rounded-lg border ${
+            currentPage === totalPage
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-white hover:bg-gray-50'
+          }`}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

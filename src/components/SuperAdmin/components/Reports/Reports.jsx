@@ -16,6 +16,10 @@ const Reports = () => {
   const [productionReport, setProductionReport] = useState([]);
   const [warehouseReport, setWarehouseReport] = useState([]);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
   useEffect(() => {
     const fetchsalesReport = async () => {
       try {
@@ -73,9 +77,11 @@ const Reports = () => {
       row.productionQuantity,
       row.dispatchedQuantity,
     ],
-    warehouse: (row) => [row.warehouseName, row.warehouseLocation, row.
-totalQuantity
-],
+    warehouse: (row) => [
+      row.warehouseName,
+      row.warehouseLocation,
+      row.totalQuantity,
+    ],
     customer: (row) => [row.customer, row.article, row.city, row.totalQuantity],
   };
 
@@ -102,7 +108,6 @@ totalQuantity
       'Order Date',
       'Customer',
       'Article',
-      ,
       'Quantity',
     ],
     products: [
@@ -113,7 +118,7 @@ totalQuantity
       'Dispatched Quantity',
     ],
     warehouse: ['Warehouse ID', 'Location', 'Total Quantity'],
-    customer: ['customer', 'article', 'city', 'totalQuantity'],
+    customer: ['Customer', 'Article', 'City', 'Total Quantity'],
   };
 
   const handleExportPDF = () => {
@@ -122,31 +127,33 @@ totalQuantity
     const headers = [columns[activeReport]];
     const rows = data.map((row) => Object.values(row));
 
-    // Title
     doc.setFontSize(14);
     doc.text(`${tabs.find((t) => t.key === activeReport)?.label}`, 14, 10);
 
-    // Table
     autoTable(doc, {
       head: headers,
       body: rows,
       startY: 20,
     });
 
-    // Save file
     doc.save(`${activeReport}_report.pdf`);
   };
 
   const renderTable = () => {
-    const data = reportData[activeReport];
+    const data = reportData[activeReport] || [];
 
-    if (!data || !data.length) {
+    if (!data.length) {
       return (
         <div className="bg-white text-center p-10 rounded shadow text-gray-500">
           No data available for this report.
         </div>
       );
     }
+
+    // Pagination logic
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+    const startIdx = (currentPage - 1) * itemsPerPage;
+    const paginatedData = data.slice(startIdx, startIdx + itemsPerPage);
 
     return (
       <div className="overflow-x-auto bg-white shadow rounded-lg">
@@ -176,11 +183,10 @@ totalQuantity
                     {col}
                   </th>
                 ))}
-                {/* <th className="p-4 text-center">Action</th> */}
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {data.map((row, idx) => (
+              {paginatedData.map((row, idx) => (
                 <tr key={idx} className="border-t hover:bg-gray-50">
                   {rowMappers[activeReport](row).map((val, i) => (
                     <td key={i} className="p-4 whitespace-nowrap">
@@ -191,6 +197,27 @@ totalQuantity
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* Pagination controls */}
+        <div className="flex justify-between items-center p-4 border-t text-sm text-gray-600">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50"
+          >
+            Next
+          </button>
         </div>
       </div>
     );
@@ -204,7 +231,10 @@ totalQuantity
           {tabs.map((report) => (
             <li key={report.key}>
               <button
-                onClick={() => setActiveReport(report.key)}
+                onClick={() => {
+                  setActiveReport(report.key);
+                  setCurrentPage(1); // reset to first page on tab change
+                }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeReport === report.key
                     ? 'bg-blue-600 text-white shadow'

@@ -10,68 +10,32 @@ import { toast } from 'react-toastify';
 import schemesService from '../../../../api/schemes.service';
 import { useAuth } from '../../../../Context/AuthContext';
 
-const initialschemes = [
-  {
-    date: '11/12/22',
-    name: 'Connect Enterprises',
-    completion: '86%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '1',
-  },
-  {
-    date: '21/12/22',
-    name: 'SS Enterprises',
-    completion: '65%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '2',
-  },
-  {
-    date: '5/12/22',
-    name: 'Geet Enterprises',
-    completion: '55%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '3',
-  },
-  {
-    date: '8/12/22',
-    name: 'Galaxy Enterprises',
-    completion: '84%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '4',
-  },
-  {
-    date: '9/1/23',
-    name: 'Maya Enterprises',
-    completion: '92%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '5',
-  },
-  {
-    date: '9/1/23',
-    name: 'KK Enterprises',
-    completion: '32%',
-    type: 'Norem ipsum dolor sit consect',
-    id: '6',
-  },
-];
+;
 
 const SchemeList = ({ handleAddClick, handleEditClick }) => {
   const { user } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [schemes, setSchemes] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await schemesService.getAllSchemes(user.accessToken);
+        const res = await schemesService.getAllSchemes(
+          user.accessToken,
+          currentPage,
+          10,
+        );
         console.log('res data', res?.data.schemes);
         setSchemes(res.data?.schemes);
+        setTotalPage(res.data?.pagination?.totalpages);
       } catch (error) {
         toast.error(error.response?.message);
       }
     })();
-  }, [user]);
+  }, [user, currentPage]);
 
   const handleDelete = (id) => {
     console.log('item', id);
@@ -114,7 +78,7 @@ const SchemeList = ({ handleAddClick, handleEditClick }) => {
             Filters
           </button>
           <button
-            onClick={() => exportProductionPDF(initialschemes)}
+            onClick={() => exportProductionPDF(schemes)}
             className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"
           >
             Export
@@ -165,11 +129,23 @@ const SchemeList = ({ handleAddClick, handleEditClick }) => {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-        <button className="px-3 py-1 border rounded bg-gray-50">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          className="px-3 py-1 border rounded bg-gray-50"
+        >
           Previous
         </button>
-        <span>Page 1 of 10</span>
-        <button className="px-3 py-1 border rounded bg-gray-50">Next</button>
+        <span>
+          Page {currentPage} of {totalPage}
+        </span>
+        <button
+          disabled={currentPage === totalPage}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          className="px-3 py-1 border rounded bg-gray-50"
+        >
+          Next
+        </button>
       </div>
       <DeleteModal
         name="Scheme"

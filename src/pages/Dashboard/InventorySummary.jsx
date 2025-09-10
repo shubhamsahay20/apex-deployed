@@ -57,7 +57,7 @@ export function InventorySummary({ data }) {
               <PackageIcon className="text-orange-600 w-6 h-6" />
             </div>
             <div className="text-2xl font-bold text-gray-900 mt-2">{data?.deliverables}</div>
-            <div className="text-sm text-gray-500">Quantity in Hand</div>
+            <div className="text-sm text-gray-500">Quantity for Delivery</div>
           </div>
 
           <div className="flex flex-col items-center justify-center text-center">
@@ -65,7 +65,7 @@ export function InventorySummary({ data }) {
               <TruckIcon className="text-purple-600 w-6 h-6" />
             </div>
             <div className="text-2xl font-bold text-gray-900 mt-2">{data?.totalStock}</div>
-            <div className="text-sm text-gray-500">Total Deliverables</div>
+            <div className="text-sm text-gray-500">Total Stocks</div>
           </div>
         </div>
       </div>

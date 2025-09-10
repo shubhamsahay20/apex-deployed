@@ -134,7 +134,7 @@ const ActiveSchemesOrder = () => {
                 Apply For Scheme
               </button>
               <div className="flex items-center gap-2  rounded-md text-sm hover:bg-gray-50 transition text-gray-700">
-              <CiCalendarDate  size={25}/>
+              {/* <CiCalendarDate  size={25}/> */}
               </div>
               <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition text-gray-700">
                             <IoFilter /> Filters

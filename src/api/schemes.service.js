@@ -24,9 +24,9 @@ const addSchemes = async (token,data) => {
   }
 };
 
-const getAllSchemes = async (token) => {
+const getAllSchemes = async (token,page,limit) => {
   try {
-    const res = await API.get(`/schemes/`, {
+    const res = await API.get(`/schemes/?page=${page}&limit=${limit}`, {
       headers: getToken(token),
     });
 

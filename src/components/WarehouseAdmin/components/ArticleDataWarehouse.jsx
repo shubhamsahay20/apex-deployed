@@ -50,9 +50,9 @@ const ArticleDataWarehouse = () => {
               placeholder='Search Article, order'
               className='text-sm px-3 py-1.5 border rounded-md'
             />
-            <button className='text-sm border px-3 py-1.5 rounded-md'>
+            {/* <button className='text-sm border px-3 py-1.5 rounded-md'>
               Today
-            </button>
+            </button> */}
             <button
               className='text-sm border px-3 py-1.5 rounded-md'
               onClick={() => exportProductionPDF(inventoryData)}

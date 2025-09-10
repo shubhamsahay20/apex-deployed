@@ -73,9 +73,9 @@ const CustomerManagement = () => {
               />
               <FaSearch className='absolute top-2.5 left-2.5 text-gray-400 text-sm' />
             </div>
-            <button className='flex items-center gap-1 border px-3 py-1.5 rounded-md text-sm text-gray-700 border-gray-300'>
+            {/* <button className='flex items-center gap-1 border px-3 py-1.5 rounded-md text-sm text-gray-700 border-gray-300'>
               <FaCalendarAlt className='text-sm' /> Today
-            </button>
+            </button> */}
             <button
               onClick={() => navigate('/customer/add-new-customer')}
               className='bg-blue-600 text-white text-sm px-3 py-1.5 rounded-md hover:bg-blue-700 transition'

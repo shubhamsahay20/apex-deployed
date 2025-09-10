@@ -23,6 +23,25 @@ const addNotes = async (token, id, data) => {
 };
 
 
+const updateDeliveryStatus = async (token, id, data) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization token is no valid');
+    }
+
+    const res = await API.put(`/stock/delivery/${id}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message);
+  }
+};
+
+
 const getStockInInventory = async (token, page, limit) => {
   try {
     if (!token) {
@@ -66,5 +85,6 @@ const approval = async (token, id, data) => {
 export default {
   addNotes,
   approval,
-  getStockInInventory
+  getStockInInventory,
+  updateDeliveryStatus
 };

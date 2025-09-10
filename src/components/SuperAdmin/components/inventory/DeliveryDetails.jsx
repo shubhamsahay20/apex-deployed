@@ -1,259 +1,146 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-
-import { FiTrash2 } from "react-icons/fi";
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiArrowLeft } from 'react-icons/fi';
+import { useLocation } from 'react-router-dom';
+import cartService from '../../../../api/cart.service';
+import { useAuth } from '../../../../Context/AuthContext';
 
 const DeliveryDetails = () => {
-    const { state } = useLocation();
-    const navigate = useNavigate();
+  const [orders, setOrders] = useState({});
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const{user} = useAuth()
 
-    const [activeTab, setActiveTab] = useState("Pending");
-    const [deleteId, setDeleteId] = useState(null);
-    const [products, setProducts] = useState([
-        {
-            id: 1,
-            article: "301",
-            saleRef: "SO/301652",
-            warehouse: "Warehouse 01",
-            size: "6X10",
-            color: "BK",
-            stock: 83,
-            quantity: 1,
-        },
-        {
-            id: 2,
-            article: "348",
-            saleRef: "SO/301596",
-            warehouse: "Warehouse 01",
-            size: "9X10",
-            color: "BK",
-            stock: 56,
-            quantity: 2,
-        },
-        {
-            id: 3,
-            article: "348",
-            saleRef: "SO/301596",
-            warehouse: "Warehouse 01",
-            size: "9X8",
-            color: "BK",
-            stock: 32,
-            quantity: 1,
-        },
-        {
-            id: 4,
-            article: "348",
-            saleRef: "SO/301596",
-            warehouse: "Warehouse 01",
-            size: "11X10",
-            color: "BK",
-            stock: 67,
-            quantity: 1,
-        },
-    ]);
+  const id = location.state?._id;
+  useEffect(() => {
+    const fetchOrders = async () => {
+      console.log('hii');
 
-    const updateQuantity = (id, change) => {
-        setProducts((prev) =>
-            prev.map((item) =>
-                item.id === id
-                    ? { ...item, quantity: Math.max(1, item.quantity + change) }
-                    : item
-            )
-        );
+      try {
+        // 👇 replace with your actual API endpoint
+        const res = await cartService.getSalesOrderById(user.accessToken,id);
+        console.log("response which i am gettin",res);
+        
+        setOrders(res);
+      } catch (error) {
+        console.error('Error fetching orders:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    const confirmDelete = (id) => {
-        setDeleteId(id);
-    };
+    fetchOrders();
+  }, []);
 
-    const handleDelete = () => {
-        setProducts((prev) => prev.filter((item) => item.id !== deleteId));
-        setDeleteId(null);
-    };
-
-    const handleCreateLabels = () => {
-        navigate("/inventory/scan-delivery", { state });
-    };
-
+  if (loading) {
     return (
-        <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
-            <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-800">Delivery Orders</h2>
-                <div className="flex gap-2">
-                    {["Pending", "In-Progress", "Delivered"].map((tab) => (
-                        <button
-                            key={tab}
-                            onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-1.5 rounded-md text-sm border ${activeTab === tab
-                                    ? "bg-blue-600 text-white border-blue-600"
-                                    : "bg-white text-gray-700 border-gray-300"
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label className="text-sm font-medium">Date</label>
-                    <input
-                        type="text"
-                        value={state?.date || ""}
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-medium">Article</label>
-                    <input
-                        type="text"
-                        value={state?.article || ""}
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-medium">Warehouse</label>
-                    <select
-                        value={state?.warehouse || ""}
-
-                        className="border px-4 py-2 rounded-md text-sm  w-full"
-                    >
-                        <option value="Warehouse 01">Warehouse 01</option>
-                        <option value="Warehouse 02">Warehouse 02</option>
-                    </select>
-                </div>
-                <div>
-                    <label className="text-sm font-medium">Deliverable Quantity</label>
-                    <input
-                        type="number"
-                        placeholder="Deliverable Quantity"
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-medium">Delivery Address</label>
-                    <input
-                        type="text"
-                        placeholder="Delivery Address"
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div>
-                <div>
-                    <label className="text-sm font-medium">Customer Name</label>
-                    <input
-                        type="text"
-                        value={state?.customer || ""}
-
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div>
-            </div>
-
-            <p className="text-sm text-blue-600 font-medium mt-2">
-                Sale Order Reference Number: <span className="underline cursor-pointer">{state?.saleRef}</span>
-            </p>
-
-            <div className="bg-white border rounded-lg p-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Selected Products For Delivery</h3>
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm border">
-                        <thead className="bg-gray-100 text-gray-600">
-                            <tr>
-                                <th className="px-3 py-2 text-left">
-                                    <input type="checkbox" className="mr-2" />Articles
-                                </th>
-                                <th>Sales Reference No.</th>
-                                <th>Warehouse</th>
-                                <th>Size</th>
-                                <th>Color</th>
-                                <th>Stock</th>
-                                <th>Quantity</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {products.map((prod) => (
-                                <tr key={prod.id} className="border-t">
-                                    <td className="px-3 py-2">
-                                        <input type="checkbox" className="mr-2" />
-                                        {prod.article}
-                                    </td>
-                                    <td>{prod.saleRef}</td>
-                                    <td>{prod.warehouse}</td>
-                                    <td>{prod.size}</td>
-                                    <td>{prod.color}</td>
-                                    <td>{prod.stock}</td>
-                                    <td>
-                                        <div className="flex items-center border rounded overflow-hidden w-fit">
-                                            <button
-                                                className="px-2 py-1 bg-gray-200 hover:bg-gray-300"
-                                                onClick={() => updateQuantity(prod.id, -1)}
-                                            >–</button>
-                                            <span className="px-3">{prod.quantity}</span>
-                                            <button
-                                                className="px-2 py-1 bg-gray-200 hover:bg-gray-300"
-                                                onClick={() => updateQuantity(prod.id, 1)}
-                                            >+</button>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <button
-                                            className="text-red-500 hover:text-red-700"
-                                            onClick={() => confirmDelete(prod.id)}
-                                        >
-                                            <FiTrash2 />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="flex gap-3 mt-6">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
-                        Submit
-                    </button>
-                    <button
-                        className="border px-4 py-2 rounded text-sm"
-                        onClick={handleCreateLabels}
-                    >
-                        Create Labels
-                    </button>
-                    <button className="border px-4 py-2 rounded text-sm">PDF</button>
-                </div>
-            </div>
-
-            {deleteId !== null && (
-                <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-md w-96 text-center">
-                        <div className="bg-red-100 w-16 h-16 flex items-center justify-center rounded-full mx-auto mb-4">
-                            <FiTrash2 className="text-red-500 text-2xl" />
-                        </div>
-                        <h3 className="text-lg font-semibold mb-2">Partially Cancel Delivery Orders</h3>
-                        <p className="text-sm text-gray-600 mb-6">
-                            Are you sure you want to partially cancel the Delivery Orders <strong>{deleteId}</strong>?
-                        </p>
-                        <div className="grid grid-cols-2 gap-2">
-                            <button
-                                className="px-4 py-2 text-sm border border-gray-300 rounded hover:bg-gray-100"
-                                onClick={() => setDeleteId(null)}
-                            >
-                                No
-                            </button>
-                            <button
-                                className="px-4 py-2 text-sm bg-red-600 text-white rounded hover:bg-red-700"
-                                onClick={handleDelete}
-                            >
-                                Yes
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
+      <div className="p-6 text-center text-gray-600">
+        Loading sales orders details...
+      </div>
     );
+  }
+
+  if (!orders || orders.length === 0) {
+    return (
+      <div className="p-6 text-center text-gray-600">
+        <p>No sales orders found.</p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-6xl mx-auto p-6">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <FiArrowLeft
+          className="text-gray-600 cursor-pointer"
+          size={22}
+          onClick={() => navigate(-1)}
+        />
+        <h2 className="text-xl font-semibold text-gray-800">
+          Sales Order Details
+        </h2>
+      </div>
+
+      {/* Orders */}
+        <div key={orders._id} className="mb-10 bg-white shadow rounded-lg p-6">
+          {/* Order Info */}
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold text-gray-700">
+              Sales Order No: {orders.salesOrderNo}
+            </h3>
+            <p className="text-gray-600">Customer: {orders.customer?.name}</p>
+            <p className="text-gray-600">
+              Address: {orders.Location?.[0]?.address},{' '}
+              {orders.Location?.[0]?.city}, {orders.Location?.[0]?.state},{' '}
+              {orders.Location?.[0]?.country} - {orders.Location?.[0]?.pincode}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">
+              Account Approval:{' '}
+              <span
+                className={`${
+                  orders.accountSectionApproval === 'APPROVED'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                } font-medium`}
+              >
+                {orders.accountSectionApproval}
+              </span>{' '}
+              | Inventory Approval:{' '}
+              <span
+                className={`${
+                  orders.inventoryManagerApproval === 'APPROVED'
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                } font-medium`}
+              >
+                {orders.inventoryManagerApproval}
+              </span>
+            </p>
+          </div>
+
+          {/* Items Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+              <thead className="bg-gray-100 text-gray-700">
+                <tr>
+                  <th className="px-4 py-2 text-left">Article No.</th>
+                  <th className="px-4 py-2 text-left">Category Code</th>
+                  <th className="px-4 py-2 text-left">Color</th>
+                  <th className="px-4 py-2 text-left">Size</th>
+                  <th className="px-4 py-2 text-left">Type</th>
+                  <th className="px-4 py-2 text-left">Quality</th>
+                  <th className="px-4 py-2 text-left">Quantity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.items.map((item, itemIndex) => (
+                  <tr
+                    key={itemIndex}
+                    className="border-t hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="px-4 py-2">{item.article}</td>
+                    <td className="px-4 py-2">{item.categoryCode}</td>
+                    <td className="px-4 py-2">{item.color}</td>
+                    <td className="px-4 py-2">{item.size}</td>
+                    <td className="px-4 py-2">{item.type}</td>
+                    <td className="px-4 py-2">{item.quality}</td>
+                    <td className="px-4 py-2">{item.quantity}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+    </div>
+  );
 };
 
 export default DeliveryDetails;

@@ -1045,6 +1045,19 @@ function App() {
                   </>
                 }
               />
+
+
+              <Route
+                path="/inventory-management/article-list/upload/:id"
+                element={
+                  <>
+                    <ProtectedRoutes role={['Inventory Manager']}>
+                      <PageTitle title="upload Details" />
+                      <UploadStatus />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
               <Route
                 path="/ManualProcess"
                 element={
@@ -1076,17 +1089,6 @@ function App() {
                     >
                       <PageTitle title="ArticalData" />
                       <ArticalData />
-                    </ProtectedRoutes>
-                  </>
-                }
-              />
-              <Route
-                path="/inventory-management/article-list/upload/:id"
-                element={
-                  <>
-                    <ProtectedRoutes role={['Inventory Manager']}>
-                      <PageTitle title="upload Details" />
-                      <UploadStatus />
                     </ProtectedRoutes>
                   </>
                 }

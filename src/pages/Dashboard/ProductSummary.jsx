@@ -33,7 +33,7 @@ export function ProductSummary({ data }) {
     <UsersIcon className="text-cyan-600 w-6 h-6" />
   </div>
   <div className="text-2xl font-bold text-gray-900 mt-2">{data?.numberOfArticles}</div>
-  <div className="text-sm text-gray-500">Number of Suppliers</div>
+  <div className="text-sm text-gray-500">Total Articles</div>
 </div>
 
           <div className="flex flex-col items-center justify-center text-center">
@@ -41,7 +41,7 @@ export function ProductSummary({ data }) {
     <BarChartIcon className="text-purple-600 w-6 h-6" />
   </div>
   <div className="text-2xl font-bold text-gray-900 mt-2">{data?.totalQuantity}</div>
-  <div className="text-sm text-gray-500">Number of Categories</div>
+  <div className="text-sm text-gray-500">Number of Quantities</div>
 </div>
 
         </div>
