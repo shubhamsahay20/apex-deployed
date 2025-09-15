@@ -12,7 +12,7 @@ import { useAuth } from '../../../../Context/AuthContext';
 
 ;
 
-const SchemeList = ({ handleAddClick, handleEditClick }) => {
+export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
   const { user } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
