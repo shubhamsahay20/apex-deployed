@@ -12,6 +12,7 @@ import {
   Legend,
 } from "recharts";
 
+
 // Chart Data
 const chartData = [
   { month: "Jan", monthly: 3.8, applied: 2.1 },
@@ -64,7 +65,7 @@ const SchemeApplicationForm = ({ onBack }) => {
         <input placeholder="Add Products Colors" className="border px-4 py-2 rounded" />
         <input placeholder="Add Material Type" className="border px-4 py-2 rounded" />
       </div>
-
+      
       {/* Articles List */}
       <div className="flex justify-between items-center mb-3">
         <h3 className="text-md font-semibold">Articles List</h3>

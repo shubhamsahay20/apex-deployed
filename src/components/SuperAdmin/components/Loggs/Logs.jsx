@@ -10,25 +10,33 @@ import {
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import logsService from '../../../../api/logs.service';
+import Loader from '../../../../common/Loader'; // ⬅️ import Loader
 
 const Logs = () => {
   const { user } = useAuth();
   const [logData, setLogData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [loading, setLoading] = useState(false); // ⬅️ loading state
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true); // ⬅️ show loader before API call
       try {
         const res = await logsService.getLogs(user.accessToken, currentPage, 10);
         setLogData(res.data);
         setTotalPage(res.pages);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false); // ⬅️ hide loader after API call
       }
     };
     fetchData();
   }, [user, currentPage]);
+
+  // ⬅️ show loader instead of UI
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 bg-white rounded-xl shadow-md">
@@ -88,7 +96,9 @@ const Logs = () => {
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                   } hover:bg-blue-50 transition`}
                 >
-                  <td className="p-3 border-b text-gray-700">{log.updatedAt}</td>
+                  <td className="p-3 border-b text-gray-700">
+                    {log.updatedAt}
+                  </td>
                   <td className="p-3 border-b text-gray-700">{log.type}</td>
                   <td className="p-3 border-b text-gray-700">{log.name}</td>
                   <td className="p-3 border-b text-gray-700">{log.Action}</td>

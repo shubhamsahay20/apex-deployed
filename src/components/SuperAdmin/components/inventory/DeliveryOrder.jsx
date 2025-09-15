@@ -12,10 +12,13 @@ import { toast } from 'react-toastify';
 import salesService from '../../../../api/sales.service';
 import StatusUpdateModal from '../../../../utils/StatusUpdateModal';
 import inventoryService from '../../../../api/inventory.service';
+import { useDebounce } from '../../../../hooks/useDebounce';
 
 const DeliveryOrder = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery,setSearchQuery] = useState("")
+  const debounceValue = useDebounce(searchQuery,500)
 
   const handleView = (row) => {
     navigate('/inventory/delivery-details', { state: row });
@@ -41,6 +44,7 @@ const DeliveryOrder = () => {
         user.accessToken,
         currentPage,
         10,
+        debounceValue
       );
 
       const sales = res.sellorder;
@@ -58,8 +62,11 @@ const DeliveryOrder = () => {
   };
 
   useEffect(() => {
-    getSalesOrder();
-  }, [user, currentPage]);
+    if(debounceValue.length === 0 || debounceValue.length >=2){
+
+      getSalesOrder();
+    }
+  }, [user, currentPage,debounceValue]);
 
   return (
     <div className="space-y-6">
@@ -72,6 +79,11 @@ const DeliveryOrder = () => {
             <div className="relative">
               <input
                 type="text"
+                value={searchQuery}
+                onChange={(e)=>(
+                  setSearchQuery(e.target.value),
+                  setCurrentPage(1)
+                )}
                 placeholder="Search Article, order"
                 className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
               />

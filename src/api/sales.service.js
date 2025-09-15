@@ -18,14 +18,17 @@ const getSalesOrder = async (token) => {
   }
 };
 
-const getAllSalesOrder = async (token,page,limit) => {
+const getAllSalesOrder = async (token, page, limit, searchQuery='') => {
   try {
     if (!token) {
       throw new Error('Authorization token is not valid');
     }
-    const res = await API.get(`/sale-order/getallOrders?page=${page}&limit=${limit}`, {
-      headers: AuthToken(token),
-    });
+    const res = await API.get(
+      `/sale-order/getallOrders?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: AuthToken(token),
+      },
+    );
     return res.data;
   } catch (error) {
     throw new Error('Error while getSalesOrder');
@@ -46,14 +49,17 @@ const getSalesOrderByID = async (token, id) => {
   }
 };
 
-const getAllArtical = async (token,page,limit) => {
+const getAllArtical = async (token, page, limit, searchQuery) => {
   try {
     if (!token) {
       throw new Error('Authorization token is not valid');
     }
-    const res = await API.get(`/sale-order/totalStock?page=${page}&limit=${limit}`, {
-      headers: AuthToken(token),
-    });
+    const res = await API.get(
+      `/sale-order/totalStock?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: AuthToken(token),
+      },
+    );
     return res.data;
   } catch (error) {
     throw new Error('Error while getSalesOrder');

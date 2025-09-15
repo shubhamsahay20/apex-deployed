@@ -12,47 +12,86 @@ import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import reportService from '../../api/report.service';
 import { useAuth } from '../../Context/AuthContext';
+import topsellingstockService from '../../api/topsellingstock.service';
 
-export default function Dashboard() { 
- const { user } = useAuth();
- const [salesSummary, setSalesSummary] = useState(null);
- const [productionSummary, setProductionSummary] = useState(null);
- const [salesChartData, setSalesChartData] = useState(null);
+export default function Dashboard() {
+  const { user } = useAuth();
+  const [salesSummary, setSalesSummary] = useState(null);
+  const [productionSummary, setProductionSummary] = useState(null);
+  const [salesChartData, setSalesChartData] = useState(null);
   const [inventorySummary, setInventorySummary] = useState(null);
+  const [topStock, setTopStock] = useState([]);
+  const [lowStock, setLowStock] = useState([]);
 
-  useEffect(()=>{
-    const fetchData = async()=>{
+  useEffect(() => {
+    const fetchData = async () => {
       try {
         const res = await reportService.salesSummary(user.accessToken);
         console.log('Dashboard data', res.data);
         setSalesSummary(res.data || []);
 
-        const productionres = await reportService.productionSummary(user.accessToken);
+        const productionres = await reportService.productionSummary(
+          user.accessToken,
+        );
         console.log('productionSummary', productionres.data);
         setProductionSummary(productionres.data || []);
 
-        const inventoryres = await reportService.inventorySummary(user.accessToken);
+        const inventoryres = await reportService.inventorySummary(
+          user.accessToken,
+        );
         console.log('inventorySummary', inventoryres.data);
         setInventorySummary(inventoryres.data || []);
 
-         const salesChartRes = await reportService.adminSalesChart(user.accessToken);
-                console.log('production response', salesChartRes?.data);
-                const formattedProductionData =
-                  salesChartRes.data?.map((item) => ({
-                    month: item.month,
-                    value: item.totalSales,
-                  })) || [];
-                setSalesChartData(formattedProductionData);
+        const salesChartRes = await reportService.adminSalesChart(
+          user.accessToken,
+        );
+        console.log('production response', salesChartRes?.data);
+        const formattedProductionData =
+          salesChartRes.data?.map((item) => ({
+            month: item.month,
+            value: item.totalSales,
+          })) || [];
+        setSalesChartData(formattedProductionData);
 
+        const topstockResponse = await topsellingstockService.topSellingStock(
+          user.accessToken,
+        );
+        setTopStock(
+          (topstockResponse.data || []).map((item) => ({
+            article: item.article,
+            categoryCode: item.categoryCode,
+            color: item.color,
+            quality: item.quality,
+            type: item.type,
+            totalQuantity: item.totalQuantity,
+          })),
+        );
+        console.log('topsellingstock result ', topstockResponse);
 
+        const lowStock = await topsellingstockService.lowStock(
+          user.accessToken,
+        );
+        console.log('low stock', lowStock.data);
+        setLowStock(
+          (lowStock.data || []).map((item) => ({
+            article: item.article,
+            categoryCode: item.categoryCode,
+            color: item.color,
+            quality: item.quality,
+            type: item.type,
+            size: item.size,
+            availableQty: item.availableQty,
+            orderedQty: item.orderedQty,
+          })),
+        );
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
     fetchData();
-  },[])
-  
-  
+  }, []);
+
+  console.log('usestate', topStock);
 
   const salesData = [
     { month: 'Jan', value: 55000 },
@@ -114,7 +153,6 @@ export default function Dashboard() {
   const handlePreOrdersSeeAll = () => {
     console.log('Navigate to detailed pre-orders view');
   };
-  
 
   const handleTopStockSeeAll = () => {
     console.log('Navigate to detailed stock view');
@@ -154,16 +192,16 @@ export default function Dashboard() {
 
         {/* Tables Section */}
         <div className="flex flex-col lg:flex-row gap-6">
-          <div className="w-full lg:w-[68%] ">
-            <TopSellingStock
-              data={topSellingStock}
-              onSeeAll={handleTopStockSeeAll}
-            />
-          </div>
-          <div className="w-full lg:w-[33%] ">
-            <StockAlert data={stockAlerts} onSeeAll={handleStockAlertSeeAll} />
+          <div className="w-full  ">
+            <TopSellingStock data={topStock} onSeeAll={handleTopStockSeeAll} />
           </div>
         </div>
+         <div className="flex flex-col lg:flex-row gap-6">
+          <div className='w-full'>
+
+            <StockAlert data={lowStock} onSeeAll={handleStockAlertSeeAll} />
+          </div>
+          </div>
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Loader from '../../../../common/Loader'; // Loader import added
 import { FaPlus } from 'react-icons/fa';
 import { FiEye, FiTrash2 } from 'react-icons/fi';
 import { PiPencilSimpleLineBold } from 'react-icons/pi';
@@ -13,42 +14,40 @@ const ArticleCode = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [selectId, setSelectId] = useState(null);
-
   const [selectedData, setSelectedData] = useState({
     article: '',
     categoryName: '',
     articleCode: '',
   });
   const [searchTerm, setSearchTerm] = useState('');
-
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false); // Loader state
+
   const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
+      setLoading(true); // Loader ON
       try {
         const res = await authService.getCategories(
           user.accessToken,
           currentPage,
           10,
         );
-
         if (res?.data?.data) {
           setAnnouncements(res.data.data);
           setTotalPages(res.data.pagination?.totalPages);
         } else {
           toast.error('No categories found');
         }
-        // console.log(res.data.data, 'response');
-        // setAnnouncements(res.data.data);
-        // setTotalPages(res.data.pagination.totalPages);
       } catch (error) {
         toast.error(
           error?.response?.data.message || 'Failed to fetch categories',
         );
       }
+      setLoading(false); // Loader OFF
     })();
   }, [user.accessToken, currentPage]);
 
@@ -65,23 +64,22 @@ const ArticleCode = () => {
     setDeleteModalOpen(true);
   };
 
-  const confirmDelete = async() => {
+  const confirmDelete = async () => {
     if (!selectId) {
       toast.error('No category selected to delete');
       return;
     }
-
+    setLoading(true); // Loader ON
     try {
-     await authService.DeleteCategory(selectId, user.accessToken);
+      await authService.DeleteCategory(selectId, user.accessToken);
       toast.success('Category deleted successfully');
       setAnnouncements((prev) => prev.filter((item) => item._id !== selectId));
       setDeleteModalOpen(false);
       setSelectId(null);
-
-      // setLoading(false);
     } catch (error) {
       toast.error(error?.response?.data?.message, 'Error deleting Category');
     }
+    setLoading(false); // Loader OFF
   };
 
   const handleView = (item) => {
@@ -92,6 +90,10 @@ const ArticleCode = () => {
     setSelectedData(item);
     setIsEdit(false);
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
@@ -117,7 +119,6 @@ const ArticleCode = () => {
             </button>
           </div>
         </div>
-
         {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full text-sm text-left">
@@ -187,7 +188,6 @@ const ArticleCode = () => {
           </button>
         </div>
       </div>
-
       <DeleteModal
         isOpen={deleteModalOpen}
         name="Article Code"

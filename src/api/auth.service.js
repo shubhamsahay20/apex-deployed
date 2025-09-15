@@ -14,8 +14,7 @@ const login = async ({ email, password, isdoubleVerifiedchecked }) =>
     },
   );
 
-
-  const verifyOtp = ({ phone, otp }) =>
+const verifyOtp = ({ phone, otp }) =>
   API.post('/auth/login-with-otp', { phone, otp }).then((res) => {
     console.log('user', res.data.user);
     if (res.data.accessToken) {
@@ -29,8 +28,6 @@ const login = async ({ email, password, isdoubleVerifiedchecked }) =>
     }
     return res.data;
   });
-
-
 
 const addCategory = (token, data) =>
   API.post('/product/category', data, {
@@ -97,12 +94,15 @@ const getUsers = (token) => {
   });
 };
 
-const getAllCustomers = (token, page, limit) => {
-  return API.get(`/customer/get?page=${page}&limit=${limit}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+const getAllCustomers = (token, page, limit, searchQuery = '') => {
+  return API.get(
+    `/customer/get?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 };
 
 const getAllCustomersWithoutPagination = (token) => {
@@ -166,7 +166,6 @@ const otpvalidation = async (token, data) => {
   }
 };
 
-
 const forgetOtp = async (token, data) => {
   try {
     const res = await API.post(`/auth/VerifyOTP`, data, {
@@ -180,7 +179,6 @@ const forgetOtp = async (token, data) => {
     throw new Error('Error while validating otp');
   }
 };
-
 
 const newPassword = async (token, data) => {
   try {
@@ -219,6 +217,5 @@ export default {
   getAllCustomersWithoutPagination,
   otpvalidation,
   forgetOtp,
-  newPassword
-  
+  newPassword,
 };

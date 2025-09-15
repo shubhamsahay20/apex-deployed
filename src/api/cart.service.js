@@ -34,13 +34,13 @@ const getAllWishListOrder = async (token,page,limit) => {
   }
 };
 
-const getAllSalesOrder = async (token, page, limit) => {
+const getAllSalesOrder = async (token, page, limit , searchQuery = '') => {
   try {
     if (!token) {
       throw new Error('Authorization Token Require');
     }
     const res = await API.get(
-      `/sale-order/getallOrders?page=${page}&limit=${limit}`,
+      `/sale-order/getallOrders?page=${page}&limit=${limit}&search=${searchQuery}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,

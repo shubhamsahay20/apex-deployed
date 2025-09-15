@@ -16,8 +16,8 @@ const EditWarehouse = (token, id, data) => {
   });
 };
 
-const getAllWarehouse = (token, page, limit) => {
-  return API.get(`warehouses/?page=${page}&limit=${limit}`, {
+const getAllWarehouse = (token, page, limit, searchQuery='') => {
+  return API.get(`warehouses/?page=${page}&limit=${limit}&search=${searchQuery}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

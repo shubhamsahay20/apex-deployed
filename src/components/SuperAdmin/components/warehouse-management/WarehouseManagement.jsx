@@ -7,37 +7,8 @@ import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import DeleteModal from '../../../../utils/DeleteModal';
 import warehouseService from '../../../../api/warehouse.service';
-
-const data = [
-  {
-    name: 'Factory 46',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'United States',
-    city: 'Los Angeles',
-  },
-  {
-    name: 'Warehouse 01',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa',
-  },
-  {
-    name: 'Warehouse 02',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa',
-  },
-  {
-    name: 'Warehouse 03',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa',
-  },
-];
+import Loader from '../../../../common/Loader';
+import { useDebounce } from '../../../../hooks/useDebounce';
 
 const WarehouseManagement = () => {
   const [showModal, setShowModal] = useState(false);
@@ -51,28 +22,41 @@ const WarehouseManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectId, setSelectId] = useState(null);
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ For main data loading
+  const [deleteLoading, setDeleteLoading] = useState(false); // ✅ For delete operation
   const [warehouseData, setWarehouseData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
   const navigate = useNavigate();
 
+  // ✅ Added currentPage dependency
+
+  const fetchWarehouses = async () => {
+    setLoading(true); // ✅ Start main loader
+    try {
+      const res = await warehouseService.getAllWarehouse(
+        user.accessToken,
+        currentPage,
+        10,
+        debounceValue,
+      );
+      console.log('get warehouses', res.data.data);
+      setWarehouseData(res.data?.data);
+      setTotalPage(res.data?.pagination?.totalPages);
+    } catch (error) {
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false); // ✅ Stop main loader
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await warehouseService.getAllWarehouse(
-          user.accessToken,
-          currentPage,
-          10,
-        );
-        console.log('get factory', res.data.data);
-        setWarehouseData(res.data?.data.warehouses);
-        setTotalPage(res.data?.pagination?.totalPages);
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-      }
-    })();
-  }, []);
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      fetchWarehouses();
+    }
+  }, [currentPage, debounceValue, user.accessToken]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,19 +76,22 @@ const WarehouseManagement = () => {
   };
 
   const confirmDelete = async () => {
-    setLoading(true);
+    setDeleteLoading(true); // ✅ Start delete loader
     if (!selectId) return;
 
     try {
-     const res =  await warehouseService.DeleteWarehouse(user.accessToken, selectId);
+      const res = await warehouseService.DeleteWarehouse(
+        user.accessToken,
+        selectId,
+      );
       setWarehouseData((prev) => prev.filter((item) => item._id !== selectId));
-      toast.success(res.data?.message || 'Category deleted successfully');
+      toast.success(res.data?.message || 'Warehouse deleted successfully');
       setSelectId(null);
       setShowDeleteModal(false);
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
-      setLoading(false);
+      setDeleteLoading(false); // ✅ Stop delete loader
     }
   };
 
@@ -115,7 +102,11 @@ const WarehouseManagement = () => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto mt-4 sm:mt-0">
           <input
             type="text"
-            placeholder="Search by Article or Category"
+            value={searchQuery}
+            onChange={(e) => (
+              setSearchQuery(e.target.value), setCurrentPage(1)
+            )}
+            placeholder="Search by Warehouse Name"
             className="px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring w-full sm:w-60"
           />
 
@@ -128,72 +119,82 @@ const WarehouseManagement = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm text-gray-700 border border-gray-200 rounded-md">
-          <thead className="bg-gray-100 text-left">
-            <tr>
-              <th className="p-3 font-medium">Name</th>
-              <th className="p-3 font-medium">Country</th>
-              <th className="p-3 font-medium">State</th>
-              <th className="p-3 font-medium">City</th>
-              <th className="p-3 font-medium">Pincode</th>
+      {/* ✅ Show loader when fetching data */}
+      {loading ? (
+        <div className="flex justify-center py-8">
+          <Loader />
+        </div>
+      ) : (
+        <>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm text-gray-700 border border-gray-200 rounded-md">
+              <thead className="bg-gray-100 text-left">
+                <tr>
+                  <th className="p-3 font-medium">Name</th>
+                  <th className="p-3 font-medium">Country</th>
+                  <th className="p-3 font-medium">State</th>
+                  <th className="p-3 font-medium">City</th>
+                  <th className="p-3 font-medium">Pincode</th>
+                  <th className="p-3 font-medium text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {warehouseData?.map((entry, index) => (
+                  <tr key={index} className="border-t hover:bg-gray-50">
+                    <td className="p-3">{entry.name}</td>
+                    <td className="p-3">{entry.location.country}</td>
+                    <td className="p-3">{entry.location.state}</td>
+                    <td className="p-3">{entry.location.city}</td>
+                    <td className="p-3">{entry.location.pincode}</td>
+                    <td className="p-3 flex justify-center gap-3">
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() =>
+                          navigate(`/warehouse-details/${entry._id}`)
+                        }
+                      >
+                        <FiEye size={16} />
+                      </button>
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => navigate(`/warehouse-edit/${entry._id}`)}
+                      >
+                        <PiPencilSimpleLineBold size={16} />
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => handleDelete(entry._id)}
+                      >
+                        <FiTrash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-              <th className="p-3 font-medium text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {warehouseData.map((entry, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
-                <td className="p-3">{entry.name}</td>
-                <td className="p-3">{entry.location.country}</td>
-                <td className="p-3">{entry.location.state}</td>
-                <td className="p-3">{entry.location.city}</td>
-                <td className="p-3">{entry.location.pincode}</td>
-                <td className="p-3 flex justify-center gap-3">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/warehouse-details/${entry._id}`)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/warehouse-edit/${entry._id}`)}
-                  >
-                    <PiPencilSimpleLineBold size={16} />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => handleDelete(entry._id)}
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-        <button
-          onClick={() => setCurrentPage((prev) => prev - 1)}
-          disabled={currentPage === 1}
-          className="px-3 py-1 border rounded bg-gray-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {currentPage} of {totalPage}
-        </span>
-        <button
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-          disabled={currentPage === totalPage}
-          className="px-3 py-1 border rounded bg-gray-50"
-        >
-          Next
-        </button>
-      </div>
+          <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
+            <button
+              onClick={() => setCurrentPage((prev) => prev - 1)}
+              disabled={currentPage === 1 || loading} // ✅ Disable while loading
+              className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {totalPage}
+            </span>
+            <button
+              onClick={() => setCurrentPage((prev) => prev + 1)}
+              disabled={currentPage === totalPage || loading} // ✅ Disable while loading
+              className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
 
       {/* Create Modal */}
       {showModal && (
@@ -300,10 +301,11 @@ const WarehouseManagement = () => {
 
       {/* Delete Confirmation Modal */}
       <DeleteModal
-        name="Factory"
+        name="Warehouse"
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
+        loading={deleteLoading} // ✅ Pass loading state to modal
       />
     </div>
   );

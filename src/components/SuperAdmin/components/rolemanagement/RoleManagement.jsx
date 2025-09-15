@@ -8,6 +8,7 @@ import roleService from '../../../../api/role.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import warehouseService from '../../../../api/warehouse.service';
+import Loader from '../../../../common/Loader';  // ✅ Import Loader
 
 const roles = [
   'Sales Person',
@@ -89,6 +90,12 @@ const RoleManagement = () => {
   const [salesPersonData, setSalesPersonData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
 
+  // ✅ Loading states
+  const [loading, setLoading] = useState(false);           // For main data fetching
+  const [deleteLoading, setDeleteLoading] = useState(false); // For delete operations
+  const [warehouseLoading, setWarehouseLoading] = useState(false); // For warehouse data
+  const [submitLoading, setSubmitLoading] = useState(false); // For form submission
+
   const getRoleApiMap = {
     'Sales Person': roleService.getSalesPerson,
     'Inventory Manager': roleService.getInventoryManager,
@@ -100,12 +107,20 @@ const RoleManagement = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await warehouseService.getAllWarehouse(user.accessToken);
-      setWarehouses(res.data.data.warehouses || []);
+      setWarehouseLoading(true); // ✅ Start warehouse loader
+      try {
+        const res = await warehouseService.getAllWarehouse(user.accessToken);
+        setWarehouses(res.data.data.warehouses || []);
+      } catch (error) {
+        toast.error('Failed to load warehouses');
+      } finally {
+        setWarehouseLoading(false); // ✅ Stop warehouse loader
+      }
     })();
   }, [user.accessToken]);
 
   const fetchRoleUsers = async () => {
+    setLoading(true); // ✅ Start main loader
     try {
       const apiFunc = getRoleApiMap[activeRole];
       if (apiFunc) {
@@ -114,6 +129,9 @@ const RoleManagement = () => {
       }
     } catch (error) {
       console.error(`Error fetching users for ${activeRole}:`, error);
+      toast.error(`Failed to load ${activeRole} data`);
+    } finally {
+      setLoading(false); // ✅ Stop main loader
     }
   };
 
@@ -127,6 +145,7 @@ const RoleManagement = () => {
   };
 
   const confirmDelete = async () => {
+    setDeleteLoading(true); // ✅ Start delete loader
     try {
       const res = await roleService.deleteRoleByID(user.accessToken, deleteId);
       console.log('message', res.message);
@@ -139,6 +158,7 @@ const RoleManagement = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to delete user');
     } finally {
+      setDeleteLoading(false); // ✅ Stop delete loader
       setShowConfirm(false);
       setDeleteId(null);
     }
@@ -165,7 +185,6 @@ const RoleManagement = () => {
       role: activeRole,
       location: '',
       warehouses: [], // array of warehouse IDs
-      // profileImage: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -175,7 +194,6 @@ const RoleManagement = () => {
       setForm({ ...form, [name]: value });
     };
 
-    // For react-select multi
     const handleWarehouseChange = (selectedOptions) => {
       setForm({
         ...form,
@@ -183,8 +201,6 @@ const RoleManagement = () => {
           ? selectedOptions.map((opt) => opt.value)
           : [],
       });
-
-      console.log('form data', form);
     };
 
     const validate = () => {
@@ -207,50 +223,41 @@ const RoleManagement = () => {
     const handleSubmit = async (e) => {
       e.preventDefault();
       if (validate()) {
-        if (onSubmit) {
-          onSubmit({
-            ...form,
-            id: Date.now(),
-            image: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-              form.name,
-            )}`,
-            status: 'Active',
+        setSubmitLoading(true); // ✅ Start submit loader
+        const payload = {
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
+          location: form.location,
+          password: form.password,
+          role: form.role,
+          warehouses: form.warehouses,
+        };
+
+        try {
+          const res = await roleService.AddRole(user.accessToken, payload);
+          console.log('submit', res.data);
+          toast.success(res?.message || 'Role added successfully');
+
+          await fetchRoleUsers();
+          setShowAddModal(false);
+          
+          // Reset form
+          setForm({
+            name: '',
+            phone: '',
+            email: '',
+            location: '',
+            password: '',
+            role: activeRole,
+            warehouses: [],
           });
+        } catch (error) {
+          console.log(error);
+          toast.error(error.response?.data?.message || 'Failed to add role');
+        } finally {
+          setSubmitLoading(false); // ✅ Stop submit loader
         }
-
-        setForm({
-          name: '',
-          phone: '',
-          email: '',
-          location: '',
-          password: '',
-          role: activeRole,
-          warehouses: [],
-        });
-      }
-      const payload = {
-        name: form.name,
-        phone: form.phone,
-        email: form.email,
-        location: form.location,
-        password: form.password,
-        role: form.role,
-        warehouses: form.warehouses, // send as array
-        // profileImage:form.profileImage
-      };
-
-      try {
-        const res = await roleService.AddRole(user.accessToken, payload);
-        console.log('submit', res.data);
-        toast.success(res?.message || 'Role added successfully');
-
-        await fetchRoleUsers();
-
-        // close modal
-        setShowAddModal(false);
-      } catch (error) {
-        console.log(error);
-        toast.error(error.response?.data?.message || 'Failed to add role');
       }
     };
 
@@ -259,6 +266,7 @@ const RoleManagement = () => {
         <button
           className="absolute top-3 right-4 text-gray-500 text-2xl hover:text-gray-700"
           onClick={() => setShowAddModal(false)}
+          disabled={submitLoading} // ✅ Disable while loading
         >
           &times;
         </button>
@@ -267,157 +275,164 @@ const RoleManagement = () => {
             Add {activeRole}
           </h2>
         </div>
-        <form
-          onSubmit={handleSubmit}
-          className="flex flex-col md:flex-row gap-8"
-        >
-          <div className="flex-shrink-0 flex justify-center items-start md:items-center">
-            <div className="w-40 h-40 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg
-                className="w-28 h-28 text-gray-300"
-                fill="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <circle cx="12" cy="8" r="6" />
-                <path d="M2 22c0-5.52 4.48-10 10-10s10 4.48 10 10" />
-              </svg>
-            </div>
+        
+        {/* ✅ Show loader for warehouse data if still loading */}
+        {warehouseLoading && activeRole === 'Warehouse Manager' ? (
+          <div className="flex justify-center py-8">
+            <Loader />
           </div>
+        ) : (
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col md:flex-row gap-8"
+          >
+            <div className="flex-shrink-0 flex justify-center items-start md:items-center">
+              <div className="w-40 h-40 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-28 h-28 text-gray-300"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <circle cx="12" cy="8" r="6" />
+                  <path d="M2 22c0-5.52 4.48-10 10-10s10 4.48 10 10" />
+                </svg>
+              </div>
+            </div>
 
-          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Name
-              </label>
-              <input
-                name="name"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Name"
-                value={form.name}
-                onChange={handleChange}
-              />
-              {errors.name && (
-                <div className="text-xs text-red-500 mt-1">{errors.name}</div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Phone
-              </label>
-              <input
-                name="phone"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Phone no."
-                type="number"
-                value={form.phone}
-                onChange={handleChange}
-              />
-              {errors.phone && (
-                <div className="text-xs text-red-500 mt-1">{errors.phone}</div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Email
-              </label>
-              <input
-                name="email"
-                type="email"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Email"
-                value={form.email}
-                onChange={handleChange}
-              />
-              {errors.email && (
-                <div className="text-xs text-red-500 mt-1">{errors.email}</div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Location
-              </label>
-              <input
-                name="location"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Loaction"
-                value={form.location}
-                onChange={handleChange}
-              />
-
-              {errors.location && (
-                <div className="text-xs text-red-500 mt-1">
-                  {errors.location}
-                </div>
-              )}
-            </div>
-            {activeRole === 'Warehouse Manager' ? (
+            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Warehouse(s)
+                  Name
                 </label>
-                <Select
-                  isMulti
-                  name="warehouses"
-                  options={warehouses.map((val) => ({
-                    value: val._id,
-                    label: val.name,
-                  }))}
-                  value={warehouses
-                    .filter((w) => form.warehouses.includes(w._id))
-                    .map((w) => ({ value: w._id, label: w.name }))}
-                  onChange={handleWarehouseChange}
-                  classNamePrefix="react-select"
-                  placeholder="Select warehouse(s)"
+                <input
+                  name="name"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Name"
+                  value={form.name}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
                 />
-                {errors.warehouses && (
+                {errors.name && (
+                  <div className="text-xs text-red-500 mt-1">{errors.name}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Phone
+                </label>
+                <input
+                  name="phone"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Phone no."
+                  type="number"
+                  value={form.phone}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
+                />
+                {errors.phone && (
+                  <div className="text-xs text-red-500 mt-1">{errors.phone}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Email"
+                  value={form.email}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
+                />
+                {errors.email && (
+                  <div className="text-xs text-red-500 mt-1">{errors.email}</div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Location
+                </label>
+                <input
+                  name="location"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Location"
+                  value={form.location}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
+                />
+                {errors.location && (
                   <div className="text-xs text-red-500 mt-1">
-                    {errors.warehouses}
+                    {errors.location}
                   </div>
                 )}
               </div>
-            ) : undefined}
-
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Password
-              </label>
-              <input
-                name="password"
-                type="password"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Password"
-                value={form.password}
-                onChange={handleChange}
-              />
-              {errors.password && (
-                <div className="text-xs text-red-500 mt-1">
-                  {errors.password}
+              {activeRole === 'Warehouse Manager' && (
+                <div>
+                  <label className="block text-sm font-medium mb-1 text-gray-700">
+                    Warehouse(s)
+                  </label>
+                  <Select
+                    isMulti
+                    name="warehouses"
+                    options={warehouses.map((val) => ({
+                      value: val._id,
+                      label: val.name,
+                    }))}
+                    value={warehouses
+                      .filter((w) => form.warehouses.includes(w._id))
+                      .map((w) => ({ value: w._id, label: w.name }))}
+                    onChange={handleWarehouseChange}
+                    classNamePrefix="react-select"
+                    placeholder="Select warehouse(s)"
+                    isDisabled={submitLoading} // ✅ Disable while loading
+                  />
                 </div>
               )}
+
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Password
+                </label>
+                <input
+                  name="password"
+                  type="password"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Password"
+                  value={form.password}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
+                />
+                {errors.password && (
+                  <div className="text-xs text-red-500 mt-1">
+                    {errors.password}
+                  </div>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-700">
+                  Role
+                </label>
+                <input
+                  name="role"
+                  className="border px-4 py-2 rounded w-full"
+                  placeholder="Enter Role"
+                  value={form.role}
+                  onChange={handleChange}
+                  disabled={submitLoading} // ✅ Disable while loading
+                />
+              </div>
+              <button
+                className="bg-blue-600 text-center text-white px-2 py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
+                type="submit"
+                disabled={submitLoading} // ✅ Disable while loading
+              >
+                {submitLoading ? 'Submitting...' : 'Submit'}
+              </button>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1 text-gray-700">
-                Role
-              </label>
-              <input
-                name="role"
-                className="border px-4 py-2 rounded w-full"
-                placeholder="Enter Role"
-                value={form.role}
-                onChange={handleChange}
-              />
-              {errors.name && (
-                <div className="text-xs text-red-500 mt-1">{errors.name}</div>
-              )}
-            </div>
-            <button
-              className="bg-blue-600 text-center text-white px-2 py-2 rounded hover:bg-blue-700 transition"
-              type="submit"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+          </form>
+        )}
       </div>
     );
   };
@@ -441,83 +456,90 @@ const RoleManagement = () => {
         ))}
       </div>
 
-      {/* Table Section */}
-      <div className="bg-white rounded shadow p-4 overflow-x-auto">
-        <div className="flex justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-800">
-            {activeRole} Table
-          </h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700"
-          >
-            Add Role
-          </button>
+      {/* ✅ Show loader when fetching role data */}
+      {loading ? (
+        <div className="bg-white rounded shadow p-8 flex justify-center">
+          <Loader />
         </div>
+      ) : (
+        /* Table Section */
+        <div className="bg-white rounded shadow p-4 overflow-x-auto">
+          <div className="flex justify-between mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              {activeRole} Table
+            </h2>
+            <button
+              onClick={() => setShowAddModal(true)}
+              className="bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700"
+            >
+              Add Role
+            </button>
+          </div>
 
-        <table className="w-full text-sm border min-w-[700px]">
-          <thead className="bg-gray-50 text-gray-600 font-medium">
-            <tr>
-              <th className="px-3 py-2 text-left">{headings.name}</th>
-              <th className="px-3 py-2 text-left">{headings.phone}</th>
-              <th className="px-3 py-2 text-left">{headings.email}</th>
-              <th className="px-3 py-2 text-left">{headings.location}</th>
-              <th className="px-3 py-2 text-left">{headings.status}</th>
-              <th className="px-3 py-2 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roleUsers
-              ?.filter((item) => item.isActive)
-              .map((user) => (
-                <tr key={user.id} className="border-t hover:bg-gray-50">
-                  <td className="px-3 py-2 whitespace-nowrap flex items-center gap-2">
-                    <img
-                      src={user.image}
-                      alt="avatar"
-                      className="w-8 h-8 rounded-full"
-                    />
-                    {user.name}
-                  </td>
-                  <td className="px-3 py-2">{user.phone}</td>
-                  <td className="px-3 py-2">{user.email}</td>
-                  <td className="px-3 py-2">{user.location}</td>
-                  <td
-                    className={`px-3 py-2 ${
-                      user.status === 'Active'
-                        ? 'text-green-600'
-                        : 'text-red-500'
-                    }`}
-                  >
-                    {user.status}
-                  </td>
-                  <td className="px-3 py-2 text-center flex justify-center gap-3">
-                    <FiEye
-                      className="text-green-600 cursor-pointer"
-                      onClick={() => handleViewClick(user._id)}
-                    />
-                    <PiPencilSimpleLineBold
-                      className="text-blue-600 cursor-pointer"
-                      onClick={() => navigate(`/edit-role/${user._id}`)}
-                    />
-                    <FiTrash2
-                      className="text-red-500 cursor-pointer"
-                      onClick={() => handleDeleteClick(user._id)}
-                    />
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      </div>
+          <table className="w-full text-sm border min-w-[700px]">
+            <thead className="bg-gray-50 text-gray-600 font-medium">
+              <tr>
+                <th className="px-3 py-2 text-left">{headings.name}</th>
+                <th className="px-3 py-2 text-left">{headings.phone}</th>
+                <th className="px-3 py-2 text-left">{headings.email}</th>
+                <th className="px-3 py-2 text-left">{headings.location}</th>
+                <th className="px-3 py-2 text-left">Status</th>
+                <th className="px-3 py-2 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {roleUsers
+                ?.filter((item) => item.isActive)
+                .map((user) => (
+                  <tr key={user.id} className="border-t hover:bg-gray-50">
+                    <td className="px-3 py-2 whitespace-nowrap flex items-center gap-2">
+                      <img
+                        src={user.image}
+                        alt="avatar"
+                        className="w-8 h-8 rounded-full"
+                      />
+                      {user.name}
+                    </td>
+                    <td className="px-3 py-2">{user.phone}</td>
+                    <td className="px-3 py-2">{user.email}</td>
+                    <td className="px-3 py-2">{user.location}</td>
+                    <td
+                      className={`px-3 py-2 ${
+                        user.status === 'Active'
+                          ? 'text-green-600'
+                          : 'text-red-500'
+                      }`}
+                    >
+                      {user.status}
+                    </td>
+                    <td className="px-3 py-2 text-center flex justify-center gap-3">
+                      <FiEye
+                        className="text-green-600 cursor-pointer"
+                        onClick={() => handleViewClick(user._id)}
+                      />
+                      <PiPencilSimpleLineBold
+                        className="text-blue-600 cursor-pointer"
+                        onClick={() => navigate(`/edit-role/${user._id}`)}
+                      />
+                      <FiTrash2
+                        className="text-red-500 cursor-pointer"
+                        onClick={() => handleDeleteClick(user._id)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Add Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-start z-50 px-4 py-8 overflow-auto">
           <AddSalesPerson
             onSubmit={async () => {
-              await fetchRoleUsers(); // 🔥 re-fetch data after submit
-              setShowAddModal(false); // close modal
+              await fetchRoleUsers();
+              setShowAddModal(false);
             }}
           />
         </div>
@@ -540,15 +562,17 @@ const RoleManagement = () => {
             <div className="flex justify-between gap-4">
               <button
                 onClick={() => setShowConfirm(false)}
-                className="w-full py-2 rounded border border-gray-300 text-sm"
+                className="w-full py-2 rounded border border-gray-300 text-sm disabled:opacity-50"
+                disabled={deleteLoading} // ✅ Disable while loading
               >
                 No
               </button>
               <button
                 onClick={confirmDelete}
-                className="w-full py-2 rounded bg-red-500 text-white text-sm hover:bg-red-600"
+                className="w-full py-2 rounded bg-red-500 text-white text-sm hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed"
+                disabled={deleteLoading} // ✅ Disable while loading
               >
-                Yes
+                {deleteLoading ? 'Deleting...' : 'Yes'}
               </button>
             </div>
           </div>

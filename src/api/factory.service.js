@@ -8,8 +8,8 @@ const AddFactory = (token, data) => {
   });
 };
 
-const getAllFactories = (token, page, limit) => {
-  return API.get(`/factory/get-all-factories?page=${page}&limit=${limit}`, {
+const getAllFactories = (token, page, limit ,searchQuery ='') => {
+  return API.get(`/factory/get-all-factories?page=${page}&limit=${limit}&search=${searchQuery}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

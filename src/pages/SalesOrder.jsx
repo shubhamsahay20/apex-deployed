@@ -6,6 +6,8 @@ import { exportProductionPDF, printProductionPDF } from '../utils/PdfModel';
 import { toast } from 'react-toastify';
 import { useAuth } from '../Context/AuthContext';
 import salesService from '../api/sales.service';
+import { useDebounce } from '../hooks/useDebounce';
+import Loader from '../common/Loader'; // ✅ import loader
 
 const data = [
   {
@@ -33,50 +35,55 @@ const SalesOrder = () => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 500);
+  const [loading, setLoading] = useState(false); // ✅ loader state
 
   useEffect(() => {
     const getSalesOrder = async () => {
       try {
+        setLoading(true); // ✅ start loader
         const res = await salesService.getAllSalesOrder(
           user.accessToken,
           currentPage,
           10,
+          debouncedSearch,
         );
         console.log('get sales details', res.sellorder);
         setSalesDetails(res?.sellorder);
         setTotalPages(res?.pagination.totalPages);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false); // ✅ stop loader
       }
-
-      console.log('hi');
     };
 
+    // ✅ always call API (even for 1 char)
     getSalesOrder();
-  }, [currentPage, user]);
-
-  // const handleRowClick = async (row) => {
-  //   try {
-  //     const res = await salesService.getSalesOrderByID(
-  //       user.accessToken,
-  //       row._id,
-  //     );
-  //     console.log('row res', res);
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message);
-  //   }
-  // };
+  }, [currentPage, user, debouncedSearch]);
 
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded shadow p-4">
+      <div className="bg-white rounded shadow p-4 relative">
+        {/* ✅ Loader overlay inside table container */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
+            <Loader />
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
           <h2 className="text-lg font-semibold text-gray-800">Sales List</h2>
           <div className="flex gap-2 items-center">
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search Article, order"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                }}
+                placeholder="Search Sales Order"
                 className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
               />
               <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />

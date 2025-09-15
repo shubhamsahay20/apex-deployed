@@ -1,75 +1,157 @@
 import React, { useEffect, useState } from 'react';
 import { FaFilter, FaFileExport } from 'react-icons/fa';
-import { FiEye, FiTrash2 } from 'react-icons/fi';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { toast } from 'react-toastify';
 import reportService from '../../../../api/report.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader'; // ✅ Import your Loader
 
 const Reports = () => {
   const [activeReport, setActiveReport] = useState('stock');
   const { user } = useAuth();
+
+  // Data states
   const [salesReport, setSalesReport] = useState([]);
   const [customerReport, setCustomerReport] = useState([]);
   const [stockReport, setStockReport] = useState([]);
   const [productionReport, setProductionReport] = useState([]);
   const [warehouseReport, setWarehouseReport] = useState([]);
 
-  // Pagination states
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [loading, setLoading] = useState(false); // ✅ Loader state
 
+  // Pagination per report
+  const [pagination, setPagination] = useState({
+    sales: { currentPage: 1, totalPages: 1 },
+    stock: { currentPage: 1, totalPages: 1 },
+    products: { currentPage: 1, totalPages: 1 },
+    warehouse: { currentPage: 1, totalPages: 1 },
+    customer: { currentPage: 1, totalPages: 1 },
+  });
+
+  // ✅ Fetch handlers per report
+  const fetchSalesReport = async () => {
+    try {
+      setLoading(true);
+      const res = await reportService.salesReport(
+        user.accessToken,
+        pagination.sales.currentPage,
+        5
+      );
+      setSalesReport(res?.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        sales: { ...prev.sales, totalPages: res?.pagination?.totalPages || 1 },
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch Sales Report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchCustomerReport = async () => {
+    try {
+      setLoading(true);
+      const res = await reportService.customerReport(
+        user.accessToken,
+        pagination.customer.currentPage,
+        5
+      );
+      setCustomerReport(res?.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        customer: {
+          ...prev.customer,
+          totalPages: res?.pagination?.totalPages || 1,
+        },
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch Customer Report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStockReport = async () => {
+    try {
+      setLoading(true);
+      const res = await reportService.stockReport(
+        user.accessToken,
+        pagination.stock.currentPage,
+        5
+      );
+      setStockReport(res?.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        stock: { ...prev.stock, totalPages: res?.pagination?.totalPages || 1 },
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch Stock Report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchProductionReport = async () => {
+    try {
+      setLoading(true);
+      const res = await reportService.productionReport(
+        user.accessToken,
+        pagination.products.currentPage,
+        5
+      );
+      setProductionReport(res?.products || []);
+      setPagination((prev) => ({
+        ...prev,
+        products: {
+          ...prev.products,
+          totalPages: res?.pagination?.totalPages || 1,
+        },
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch Production Report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWarehouseReport = async () => {
+    try {
+      setLoading(true);
+      const res = await reportService.warehouseReport(
+        user.accessToken,
+        pagination.warehouse.currentPage,
+        5
+      );
+      setWarehouseReport(res?.data?.data || []);
+      setPagination((prev) => ({
+        ...prev,
+        warehouse: {
+          ...prev.warehouse,
+          totalPages: res?.data.pagination?.totalPages || 1,
+        },
+      }));
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to fetch Warehouse Report');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Re-fetch whenever active tab's page changes
   useEffect(() => {
-    const fetchsalesReport = async () => {
-      try {
-        const salesreport = await reportService.salesReport(user.accessToken);
-        console.log('response of sales report', salesreport.data);
-        setSalesReport(salesreport?.data);
+    if (activeReport === 'sales') fetchSalesReport();
+    if (activeReport === 'customer') fetchCustomerReport();
+    if (activeReport === 'stock') fetchStockReport();
+    if (activeReport === 'products') fetchProductionReport();
+    if (activeReport === 'warehouse') fetchWarehouseReport();
+  }, [activeReport, pagination[activeReport].currentPage]);
 
-        const customerreport = await reportService.customerReport(
-          user.accessToken,
-        );
-        console.log('response of customer report', customerreport.data);
-        setCustomerReport(customerreport.data);
-
-        const stockreport = await reportService.stockReport(user.accessToken);
-        console.log('response of stock report', stockreport.data);
-        setStockReport(stockreport.data);
-
-        const productionreport = await reportService.productionReport(
-          user.accessToken,
-        );
-        console.log('response of production report', productionreport.products);
-        setProductionReport(productionreport.products);
-
-        const warehousereport = await reportService.warehouseReport(
-          user.accessToken,
-        );
-        console.log('response of warehouse report', warehousereport.data.data);
-        setWarehouseReport(warehousereport.data?.data);
-      } catch (error) {
-        toast.error(error.response?.message);
-      }
-    };
-
-    fetchsalesReport();
-  }, []);
-
+  // Row mappers
   const rowMappers = {
-    stock: (row) => [
-      row.article,
-      row.factory,
-      row.warehouse,
-      row.totalQuantity,
-    ],
-    sales: (row) => [
-      row.salesOrderNo,
-      row.orderDate,
-      row.customer,
-      row.article,
-      row.quantity,
-    ],
+    stock: (row) => [row.article, row.factory, row.warehouse, row.totalQuantity],
+    sales: (row) => [row.salesOrderNo, row.orderDate, row.customer, row.article, row.quantity],
     products: (row) => [
       row.productionNo,
       row.article,
@@ -77,11 +159,7 @@ const Reports = () => {
       row.productionQuantity,
       row.dispatchedQuantity,
     ],
-    warehouse: (row) => [
-      row.warehouseName,
-      row.warehouseLocation,
-      row.totalQuantity,
-    ],
+    warehouse: (row) => [row.warehouseName, row.warehouseLocation, row.totalQuantity],
     customer: (row) => [row.customer, row.article, row.city, row.totalQuantity],
   };
 
@@ -103,13 +181,7 @@ const Reports = () => {
 
   const columns = {
     stock: ['Article', 'Factory', 'Warehouse', 'Total Quantity'],
-    sales: [
-      'Sales Order No',
-      'Order Date',
-      'Customer',
-      'Article',
-      'Quantity',
-    ],
+    sales: ['Sales Order No', 'Order Date', 'Customer', 'Article', 'Quantity'],
     products: [
       'Production No.',
       'Article',
@@ -117,15 +189,16 @@ const Reports = () => {
       'Production Quantity',
       'Dispatched Quantity',
     ],
-    warehouse: ['Warehouse ID', 'Location', 'Total Quantity'],
+    warehouse: ['Warehouse Name', 'Location', 'Total Quantity'],
     customer: ['Customer', 'Article', 'City', 'Total Quantity'],
   };
 
+  // Export PDF
   const handleExportPDF = () => {
     const doc = new jsPDF();
     const data = reportData[activeReport];
     const headers = [columns[activeReport]];
-    const rows = data.map((row) => Object.values(row));
+    const rows = data.map((row) => rowMappers[activeReport](row));
 
     doc.setFontSize(14);
     doc.text(`${tabs.find((t) => t.key === activeReport)?.label}`, 14, 10);
@@ -139,10 +212,12 @@ const Reports = () => {
     doc.save(`${activeReport}_report.pdf`);
   };
 
+  // Render Table
   const renderTable = () => {
     const data = reportData[activeReport] || [];
+    const { currentPage, totalPages } = pagination[activeReport];
 
-    if (!data.length) {
+    if (!data.length && !loading) {
       return (
         <div className="bg-white text-center p-10 rounded shadow text-gray-500">
           No data available for this report.
@@ -150,13 +225,15 @@ const Reports = () => {
       );
     }
 
-    // Pagination logic
-    const totalPages = Math.ceil(data.length / itemsPerPage);
-    const startIdx = (currentPage - 1) * itemsPerPage;
-    const paginatedData = data.slice(startIdx, startIdx + itemsPerPage);
-
     return (
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
+      <div className="overflow-x-auto bg-white shadow rounded-lg relative">
+        {/* ✅ Table Loader */}
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
+            <Loader />
+          </div>
+        )}
+
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-lg font-semibold text-gray-800 capitalize">
             {tabs.find((t) => t.key === activeReport)?.label}
@@ -186,11 +263,11 @@ const Reports = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {paginatedData.map((row, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50">
-                  {rowMappers[activeReport](row).map((val, i) => (
+              {data.map((row, index) => (
+                <tr key={index} className="border-b hover:bg-gray-50">
+                  {rowMappers[activeReport](row).map((cell, i) => (
                     <td key={i} className="p-4 whitespace-nowrap">
-                      {val}
+                      {cell}
                     </td>
                   ))}
                 </tr>
@@ -199,11 +276,19 @@ const Reports = () => {
           </table>
         </div>
 
-        {/* Pagination controls */}
+        {/* Pagination */}
         <div className="flex justify-between items-center p-4 border-t text-sm text-gray-600">
           <button
             disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => prev - 1)}
+            onClick={() =>
+              setPagination((prev) => ({
+                ...prev,
+                [activeReport]: {
+                  ...prev[activeReport],
+                  currentPage: prev[activeReport].currentPage - 1,
+                },
+              }))
+            }
             className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50"
           >
             Previous
@@ -213,7 +298,15 @@ const Reports = () => {
           </span>
           <button
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => prev + 1)}
+            onClick={() =>
+              setPagination((prev) => ({
+                ...prev,
+                [activeReport]: {
+                  ...prev[activeReport],
+                  currentPage: prev[activeReport].currentPage + 1,
+                },
+              }))
+            }
             className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50"
           >
             Next
@@ -233,7 +326,10 @@ const Reports = () => {
               <button
                 onClick={() => {
                   setActiveReport(report.key);
-                  setCurrentPage(1); // reset to first page on tab change
+                  setPagination((prev) => ({
+                    ...prev,
+                    [report.key]: { ...prev[report.key], currentPage: 1 },
+                  }));
                 }}
                 className={`w-full text-left px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                   activeReport === report.key

@@ -1,94 +1,120 @@
-import React from "react";
-import SampleImage from "../../images/icon/shoes.png";
+'use client';
 
-// You can replace these with actual images or icons
-const PackageIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-    />
-  </svg>
-);
+import React from 'react';
 
-export function StockAlert({ data, onSeeAll }) {
+export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
   const defaultData = [
+    { id: '033', name: 'Blue Sneakers', quantity: '60 Cartons', status: 'Low' },
+    { id: '304', name: 'Red Sneakers', quantity: '36 Cartons', status: 'Low' },
     {
-      id: "033",
-      name: "Blue Sneakers",
-      quantity: "60 Cartons",
-      status: "Low",
-    },
-    {
-      id: "304",
-      name: "Red Sneakers",
-      quantity: "36 Cartons",
-      status: "Low",
-    },
-    {
-      id: "322",
-      name: "Green Sneakers",
-      quantity: "12 Cartons",
-      status: "Low",
+      id: '322',
+      name: 'Green Sneakers',
+      quantity: '12 Cartons',
+      status: 'Low',
     },
   ];
 
-  const alertData = data || defaultData;
+  const alertData = data && data.length > 0 ? data : defaultData;
 
-  const getStatusColor = (status) => {
+  const getStatusBadge = (status) => {
     switch (status) {
-      case "Critical":
-        return "bg-red-100 text-red-700";
-      case "Out of Stock":
-        return "bg-gray-100 text-gray-700";
+      case 'Critical':
+        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
+      case 'Out of Stock':
+        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
       default:
-        return "bg-red-100 text-red-700";
+        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
     }
   };
 
-  const getIconColor = (index) => {
-    const colors = ["from-blue-400 to-blue-600", "from-red-400 to-red-600", "from-green-400 to-green-600"];
-    return colors[index % colors.length];
-  };
-
   return (
-    <div className="bg-white dark:bg-meta-4 rounded-lg shadow-sm border border-gray-200 dark:border-gray-800">
-      <div className="p-6 flex flex-row items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-700">Stock Alert</h3>
+    <div className="bg-white dark:bg-meta-4 rounded-2xl shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden">
+      {/* Header */}
+      <div className="p-4 flex flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+          {heading}
+        </h3>
         <button
-          className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors"
+          className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md transition-colors"
           onClick={onSeeAll}
         >
           See All
         </button>
       </div>
-      <div className="px-6 pb-6">
-        <div className="space-y-4">
-          {alertData.map((item, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <img
-                  src={SampleImage}
-                  alt={item.name}
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-                <div className="flex flex-col">
-                  <div className="font-medium text-gray-900">{item.id}</div>
-                  <div className="text-sm text-gray-500">Remaining Quantity : {item.quantity}</div>
-                </div>
-              </div>
 
-              <div className={`px-2 py-1 rounded-md text-xs font-medium ${getStatusColor(item.status)}`}>
-                {item.status}
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Table */}
+      <div className="overflow-x-auto">
+        {alertData.length > 0 ? (
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0">
+              <tr>
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Article
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  CategoryCode
+                </th>{' '}
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Color
+                </th>{' '}
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Size
+                </th>{' '}
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Quality
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Type
+                </th>
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Ordered Quantity
+                </th>{' '}
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Available Quantity
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {alertData.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`border-b border-gray-100 dark:border-gray-700 ${
+                    index % 2 === 0
+                      ? 'bg-white dark:bg-meta-4'
+                      : 'bg-gray-50 dark:bg-gray-800'
+                  } hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+                >
+                  <td className="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">
+                    {item.article}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.categoryCode}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.color}
+                  </td>{' '}
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.size}
+                  </td>{' '}
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.quality}
+                  </td>{' '}
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.type}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.orderedQty}
+                  </td>
+                  <td className="py-3 px-4">{item.availableQty}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+            No stock alerts available
+          </div>
+        )}
       </div>
     </div>
   );

@@ -20,9 +20,10 @@ const Category = () => {
   const [selectId, setSelectId] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // CSV Upload Handler with loading management
   const handleCSVUpload = async (e) => {
     e.preventDefault();
-    const file = e.target.files[0];
+    const file = e.target.files;
 
     if (!file) {
       toast.error('Please select a CSV file to upload');
@@ -39,12 +40,9 @@ const Category = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    console.log(formData);
     try {
       const res = await authService.UploadCsv(user.accessToken, formData);
       toast.success(res?.data?.message || 'CSV uploaded successfully:');
-      console.log('CSV uploaded successfully:', res.data.message);
-
       await fetchCategories();
     } catch (error) {
       toast.error(error?.response?.data?.message || 'CSV upload failed');
@@ -52,7 +50,9 @@ const Category = () => {
       setLoading(false);
     }
   };
-  const confirmDelete = () => {
+
+  // Delete Handler now async and loader-enabled
+  const confirmDelete = async () => {
     if (!selectId) {
       toast.error('No category selected for deletion');
       return;
@@ -60,27 +60,27 @@ const Category = () => {
     setLoading(true);
 
     try {
-      authService.DeleteCategory(selectId, user.accessToken);
+      await authService.DeleteCategory(selectId, user.accessToken);
       toast.success('Category deleted successfully');
       setCategories((prev) => prev.filter((item) => item._id !== selectId));
       setShowDeleteModal(false);
       setSelectId(null);
-
-      setLoading(false);
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Error deleting Category');
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Fetch Categories with loader
   const fetchCategories = async () => {
+    setLoading(true);
     try {
       const response = await authService.getCategories(
         user.accessToken,
         currentPage,
         10,
       );
-      console.log('Fetched categories:', response.data);
-
       setCategories(response?.data?.data || []);
       setTotalPages(response?.data?.pagination?.totalPages || 1);
     } catch (error) {
@@ -97,19 +97,20 @@ const Category = () => {
   }, [user.accessToken, currentPage]);
 
   const handleEdit = (id) => {
-    console.log(id, 'hii');
     navigate(`/editcategory/${id}`);
   };
 
   const handleDelete = (item) => {
     setSelectId(item._id);
-    console.log(item._id, 'delete');
     setShowDeleteModal(true);
   };
 
-  return loading ? (
-    <Loader />
-  ) : (
+  // Loader conditional render
+  if (loading) {
+    return <Loader />;
+  }
+
+  return (
     <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
       <div className="w-full max-w-6xl bg-white shadow rounded-lg overflow-hidden">
         {/* Header */}
@@ -162,16 +163,8 @@ const Category = () => {
                     <td className="px-6 py-4">
                       {row.category.map((item) => item.categoryCode).join(', ')}
                     </td>
-
                     <td className="px-6 py-4">
                       <div className="flex justify-center gap-4 text-lg">
-                        {/* <button
-                          title="Add Category"
-                          className="hover:scale-110 transition-transform"
-                          onClick={() => navigate('/view-category')}
-                        >
-                          <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" />
-                        </button> */}
                         <button
                           title="Edit"
                           className="hover:scale-110 transition-transform"
@@ -214,16 +207,15 @@ const Category = () => {
             Next
           </button>
         </div>
+
+        {/* Add/Edit Modal */}
+        <DeleteModal
+          onClose={() => setShowDeleteModal(false)}
+          isOpen={showDeleteModal}
+          name="Category"
+          onConfirm={confirmDelete}
+        />
       </div>
-
-      {/* Add/Edit Modal */}
-
-      <DeleteModal
-        onClose={() => setShowDeleteModal(false)}
-        isOpen={showDeleteModal}
-        name="Category"
-        onConfirm={confirmDelete}
-      />
     </div>
   );
 };

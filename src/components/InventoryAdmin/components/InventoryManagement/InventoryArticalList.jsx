@@ -10,6 +10,7 @@ import { toast } from 'react-toastify';
 import cartService from '../../../../api/cart.service';
 import ApproveModal from '../../../../utils/ApproveModal';
 import inventoryService from '../../../../api/inventory.service';
+import { useDebounce } from '../../../../hooks/useDebounce';
 
 const InventorySummaryItem = ({ title, value, color }) => (
   <div className="text-center px-4">
@@ -54,6 +55,9 @@ const InventoryArticalList = () => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [approveModalOpan, setApproveModalOpan] = useState(false);
   const [approveModalId, setApproveModalId] = useState(null);
+  const [searchQuery,setSearchQuery] = useState("")
+  const debounceValue = useDebounce(searchQuery,500)
+
 
   const { user } = useAuth();
 
@@ -87,12 +91,14 @@ const InventoryArticalList = () => {
   };
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await cartService.getAllSalesOrder(
-          user.accessToken,
-          currentPage,
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      (async () => {
+        try {
+          const res = await cartService.getAllSalesOrder(
+            user.accessToken,
+            currentPage,
           10,
+          debounceValue
         );
         console.log('res coming ', res.sellorder);
         setOrderDetails(res.sellorder);
@@ -101,7 +107,7 @@ const InventoryArticalList = () => {
         toast.error(error.response?.data?.message);
       }
     })();
-  }, [currentPage, user.accessToken]);
+  }}, [currentPage,debounceValue, user.accessToken]);
 
   const handleView = (row) => {
     navigate('/inventory-management/OrderDetails', {
@@ -205,6 +211,11 @@ const InventoryArticalList = () => {
           <div className="flex gap-2 items-center">
             <div className="relative">
               <input
+                value={searchQuery}
+                onChange={(e)=>(
+                  setSearchQuery(e.target.value),
+                  setCurrentPage(1)
+                )}
                 type="text"
                 placeholder="Search Article, order"
                 className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"

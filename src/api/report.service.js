@@ -12,11 +12,14 @@ const getToken = (token) => {
   }
 };
 
-const salesReport = async (token) => {
+const salesReport = async (token, page, limit) => {
   try {
-    const res = await API.get(`/report-and-dashbord/sell-report`, {
-      headers: getToken(token),
-    });
+    const res = await API.get(
+      `/report-and-dashbord/sell-report?page=${page}&limit=${limit}`,
+      {
+        headers: getToken(token),
+      },
+    );
 
     return res.data;
   } catch (error) {
@@ -72,9 +75,9 @@ const accountSectionSummary = async (token) => {
   }
 };
 
-const customerReport = async (token) => {
+const customerReport = async (token,page,limit) => {
   try {
-    const res = await API.get(`/report-and-dashbord/customers-report`, {
+    const res = await API.get(`/report-and-dashbord/customers-report?page=${page}&limit=${limit}`, {
       headers: getToken(token),
     });
 
@@ -84,9 +87,9 @@ const customerReport = async (token) => {
   }
 };
 
-const stockReport = async (token) => {
+const stockReport = async (token,page,limit) => {
   try {
-    const res = await API.get(`/inventory/getallStock`, {
+    const res = await API.get(`/inventory/getallStock?page=${page}&limit=${limit}`, {
       headers: getToken(token),
     });
 
@@ -96,9 +99,9 @@ const stockReport = async (token) => {
   }
 };
 
-const productionReport = async (token) => {
+const productionReport = async (token,page,limit) => {
   try {
-    const res = await API.get(`/production/`, {
+    const res = await API.get(`/production/?page=${page}&limit=${limit}`, {
       headers: getToken(token),
     });
 
@@ -108,9 +111,9 @@ const productionReport = async (token) => {
   }
 };
 
-const warehouseReport = async (token) => {
+const warehouseReport = async (token,page,limit) => {
   try {
-    const res = await API.get(`/report-and-dashbord/warehouse-report`, {
+    const res = await API.get(`/report-and-dashbord/warehouse-report?page=${page}&limit=${limit}`, {
       headers: getToken(token),
     });
 
@@ -156,7 +159,6 @@ const adminSalesChart = async (token) => {
   }
 };
 
-
 const warehouseSummary = async (token) => {
   try {
     const res = await API.get(`/report-and-dashbord/warehouse-dashboard`, {
@@ -182,5 +184,5 @@ export default {
   Chart,
   productionChart,
   warehouseSummary,
-  adminSalesChart
+  adminSalesChart,
 };
