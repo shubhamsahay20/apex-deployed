@@ -67,7 +67,7 @@ const Header = (props) => {
     <ul className="flex items-center xsm:mr-4 xsm:gap-4 2xsm:gap-2">
     
       {/* Dark Mode Toggler */}
-      <DarkModeSwitcher />
+      {/* <DarkModeSwitcher /> */}
 
        {/* like */}
       <DropdownMessage />

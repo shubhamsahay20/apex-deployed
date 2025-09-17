@@ -1,17 +1,24 @@
 import React, { useEffect, useState } from 'react'
-import { FiTrash2 } from 'react-icons/fi'
+import { FiSearch, FiTrash2 } from 'react-icons/fi'
 import { toast } from 'react-toastify'
 import cartService from '../../../api/cart.service'
 import { useAuth } from '../../../Context/AuthContext'
 import { IoMdArrowRoundUp } from 'react-icons/io'
 import { IoMdArrowRoundDown } from 'react-icons/io'
+import DeleteModal from '../../../utils/DeleteModal'
+import salesService from '../../../api/sales.service'
+import { useDebounce } from '../../../hooks/useDebounce'
 
 const Wishlist = () => {
   const [wishListOrder, setWishListOrder] = useState([])
   const { user } = useAuth()
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [expandedRows, setExpandedRows] = useState({}) // track which rows are expanded
+  const [expandedRows, setExpandedRows] = useState({})
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const debounceValue = useDebounce(searchQuery, 500)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +26,8 @@ const Wishlist = () => {
         const res = await cartService.getAllWishListOrder(
           user.accessToken,
           currentPage,
-          10
+          10,
+          debounceValue
         )
         console.log('get all order', res.data)
         setWishListOrder(res.data.sellorder || [])
@@ -28,8 +36,10 @@ const Wishlist = () => {
         toast.error(error.response?.data?.message)
       }
     }
-    fetchData()
-  }, [user.accessToken, currentPage])
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      fetchData()
+    }
+  }, [user.accessToken, currentPage, debounceValue])
 
   const toggleExpand = idx => {
     setExpandedRows(prev => ({
@@ -38,11 +48,52 @@ const Wishlist = () => {
     }))
   }
 
+  const deleteId = id => {
+    setConfirmDeleteId(id)
+    console.log('id', id)
+    setIsDeleteOpen(true)
+  }
+
+  const confirmDelete = async () => {
+    try {
+      const res = await salesService.deleteWishlist(
+        user.accessToken,
+        confirmDeleteId
+      )
+      console.log('res after delete', res)
+      setWishListOrder(prev =>
+        prev.filter(item => item._id !== confirmDeleteId)
+      )
+      toast.success('Order Deleted Successfully')
+
+      setIsDeleteOpen(false)
+    } catch (error) {
+      toast.error(error.response?.data?.message)
+    }
+    console.log('hii')
+  }
+
   return (
     <div className='p-6 bg-white border rounded shadow-sm min-h-screen'>
-      <h2 className='text-base font-semibold text-gray-800 mb-4'>
-        My Wishlist
-      </h2>
+     <div className="flex items-center justify-between mb-4">
+  <h2 className='text-base font-semibold text-gray-800'>
+    My Wishlist
+  </h2>
+  <div className='relative'>
+     <FiSearch className="absolute left-2 top-2.5 text-gray-400" />
+  <input
+    value={searchQuery}
+    onChange={e => (
+      setSearchQuery(e.target.value),
+      setCurrentPage(1)
+    )}
+    type='text'
+    placeholder='Search Article'
+    className='text-sm px-3 py-1.5 border rounded-md'
+  />
+  </div>
+</div>
+
 
       <div className='overflow-auto'>
         <table className='w-full text-sm border-collapse'>
@@ -70,7 +121,8 @@ const Wishlist = () => {
                   <React.Fragment key={idx}>
                     <tr className='border-t hover:bg-gray-50'>
                       <td className='px-6 py-5 flex items-center gap-2'>
-                        {item.salesOrderNo}{'  '}
+                        {item.salesOrderNo}
+                        {'  '}
                         {hasMore && (
                           <button
                             onClick={() => toggleExpand(idx)}
@@ -91,7 +143,10 @@ const Wishlist = () => {
                       <td className='px-6 py-5'>{firstArticle.quality}</td>
                       <td className='px-6 py-5'>{item.customer?.name}</td>
                       <td className='px-6 py-5 flex gap-2 items-center'>
-                        <button className='text-red-500 hover:text-red-700'>
+                        <button
+                          onClick={() => deleteId(item._id)}
+                          className='text-red-500 hover:text-red-700'
+                        >
                           <FiTrash2 />
                         </button>
                         {/* {hasMore && (
@@ -148,6 +203,12 @@ const Wishlist = () => {
           Next
         </button>
       </div>
+      <DeleteModal
+        name='Wishlist'
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

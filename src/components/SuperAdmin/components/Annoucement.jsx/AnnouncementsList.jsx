@@ -7,6 +7,9 @@ import DeleteModal from '../../../../utils/DeleteModal';
 import { toast } from 'react-toastify';
 import announcementService from '../../../../api/announcement.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { FaSearch } from 'react-icons/fa';
 
 export default function AnnouncementsList({ onAddClick, onEditClick }) {
   const [announcements, setAnnouncements] = useState();
@@ -16,6 +19,8 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   const handleDeleteClick = (id) => {
     if (!id) {
@@ -51,26 +56,31 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
   };
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      try {
-        const res = await announcementService.getAnnouncement(
-          user.accessToken,
-          currentPage,
-          10,
-        );
-        console.log('res is showing', res.data?.announcement);
-        setAnnouncements(res.data?.announcement);
-        setTotalPages(res.data?.pagination?.totalpages);
-      } catch (error) {
-        toast.error(
-          error.response?.data?.message || 'Failed to fetch announcements',
-        );
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [user.accessToken, currentPage]);
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      (async () => {
+        setLoading(true);
+        try {
+          const res = await announcementService.getAnnouncement(
+            user.accessToken,
+            currentPage,
+            10,
+            debounceValue,
+          );
+          console.log('res is showing', res);
+          setAnnouncements(res.data?.announcement);
+          setTotalPages(res.data?.pagination?.totalpages);
+        } catch (error) {
+          toast.error(
+            error.response?.data?.message || 'Failed to fetch announcements',
+          );
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [user.accessToken, debounceValue, currentPage]);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -78,12 +88,24 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">Announcements</h1>
-          <button
-            onClick={onAddClick}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
-          >
-            Add Announcements
-          </button>
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Title,Description"
+              className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+            />
+            <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+            <button
+              onClick={onAddClick}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"
+            >
+              Add Announcements
+            </button>
+          </div>
         </div>
 
         {/* Table */}
@@ -96,6 +118,9 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
                 </th>
                 <th className="text-left py-3 px-6 text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Time
+                </th>
+                <th className="text-left py-3 px-6 text-sm font-medium text-gray-500 uppercase tracking-wider">
+                  For Role
                 </th>
                 <th className="text-left py-3 px-6 text-sm font-medium text-gray-500 uppercase tracking-wider">
                   Title
@@ -112,14 +137,13 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
               {announcements?.map((announcement) => (
                 <tr key={announcement.id} className="hover:bg-gray-50">
                   <td className="py-4 px-6 text-sm text-gray-900">
-                    {new Date(announcement.date).toLocaleDateString('en-GB', {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
+                    {announcement.date}
                   </td>
                   <td className="py-4 px-6 text-sm text-gray-900">
                     {announcement.time}
+                  </td>{' '}
+                  <td className="py-4 px-6 text-sm text-gray-900">
+                    {announcement.role}
                   </td>
                   <td className="py-4 px-6 text-sm text-gray-900">
                     {announcement.title}

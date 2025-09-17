@@ -8,8 +8,8 @@ const addProduction = (token, data) => {
   });
 };
 
-const getAllProduction = (token, page, limit) => {
-  return API.get(`/production/?page=${page}&limit=${limit}`, {
+const getAllProduction = (token, page, limit,searchQuery='') => {
+  return API.get(`/production/?page=${page}&limit=${limit}&search=${searchQuery}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -29,7 +29,7 @@ const EditRole = () => {
     (async () => {
       try {
         const res = await warehouseService.getAllWarehouse(user.accessToken);
-        setWarehouses(res.data.data.warehouses || []);
+        setWarehouses(res.data.data || []);
       } catch (error) {
         console.error('Failed to load warehouses', error);
       }

@@ -15,11 +15,14 @@ const addAnnouncement = (token, data) => {
   });
 };
 
-const getAnnouncement = async (token,page,limit) => {
+const getAnnouncement = async (token, page, limit, searchQueary = '') => {
   try {
-    const res = await API.get(`/announcement/get?page=${page}&limit=${limit}`, {
-      headers: getAuthHeaders(token),
-    });
+    const res = await API.get(
+      `/announcement/get?page=${page}&limit=${limit}&search=${searchQueary}`,
+      {
+        headers: getAuthHeaders(token),
+      },
+    );
 
     return res.data;
   } catch (error) {
@@ -43,7 +46,6 @@ const getAnnouncementById = async (token, id) => {
   }
 };
 
-
 const updateAnnouncementById = async (token, id, data) => {
   try {
     const res = await API.put(`/announcement/${id}/update`, data, {
@@ -57,11 +59,9 @@ const updateAnnouncementById = async (token, id, data) => {
 };
 
 const deleteAnnouncement = async (token, id) => {
- 
-
   try {
     const res = await API.delete(`/announcement/${id}`, {
-      headers: getAuthHeaders(token)
+      headers: getAuthHeaders(token),
     });
 
     return res.data;

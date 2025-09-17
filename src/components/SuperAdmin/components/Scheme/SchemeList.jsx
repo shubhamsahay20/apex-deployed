@@ -74,9 +74,9 @@ export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
           >
             Add Schemes
           </button>
-          <button className="border px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1">
+          {/* <button className="border px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1">
             Filters
-          </button>
+          </button> */}
           <button
             onClick={() => exportProductionPDF(schemes)}
             className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"
@@ -91,10 +91,12 @@ export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
         <table className="min-w-full text-sm text-gray-700 border border-gray-200 rounded-md">
           <thead className="bg-gray-100 text-left">
             <tr>
-              <th className="p-3 font-medium">Date</th>
+              <th className="p-3 font-medium"> Starting Date</th>
+              <th className="p-3 font-medium"> Ending Date</th>
               <th className="p-3 font-medium">Scheme Name</th>
               <th className="p-3 font-medium">Scheme Description</th>
               <th className="p-3 font-medium">Scheme Type</th>
+              <th className="p-3 font-medium">To Apply</th>
               <th className="p-3 font-medium text-center">Action</th>
             </tr>
           </thead>
@@ -102,9 +104,11 @@ export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
             {schemes.map((scheme, index) => (
               <tr key={index} className="border-t hover:bg-gray-50">
                 <td className="p-3">{scheme.date}</td>
+                <td className="p-3">{scheme.expireDate}</td>
                 <td className="p-3">{scheme.schemesName}</td>
                 <td className="p-3">{scheme.schemesDescription}</td>
                 <td className="p-3">{scheme.schemesType}</td>
+                <td className="p-3">{scheme.schemesQuantity}</td>
                 <td className="p-3 flex justify-center gap-3">
                   <button
                     onClick={() =>

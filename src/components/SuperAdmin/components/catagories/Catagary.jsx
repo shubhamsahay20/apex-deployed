@@ -23,7 +23,7 @@ const Category = () => {
   // CSV Upload Handler with loading management
   const handleCSVUpload = async (e) => {
     e.preventDefault();
-    const file = e.target.files;
+    const file = e.target.files[0];
 
     if (!file) {
       toast.error('Please select a CSV file to upload');
@@ -45,6 +45,7 @@ const Category = () => {
       toast.success(res?.data?.message || 'CSV uploaded successfully:');
       await fetchCategories();
     } catch (error) {
+      console.log("error for uploading",error)
       toast.error(error?.response?.data?.message || 'CSV upload failed');
     } finally {
       setLoading(false);
@@ -126,9 +127,9 @@ const Category = () => {
                 className="hidden"
               />
             </label>
-            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition text-gray-700">
+            {/* <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition text-gray-700">
               <IoFilter /> Filters
-            </button>
+            </button> */}
             <button
               onClick={() => navigate('/addcategory')}
               className=" flex items-center gap-1 bg-blue-600 text-white text-sm px-3 py-1.5 rounded-md hover:bg-blue-700 transition"

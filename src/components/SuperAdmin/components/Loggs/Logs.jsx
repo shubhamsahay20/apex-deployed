@@ -56,9 +56,9 @@ const Logs = () => {
           </div>
 
           {/* Date Filter */}
-          <button className="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition">
+          {/* <button className="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition">
             <CiCalendar /> Filter by Date
-          </button>
+          </button> */}
 
           {/* Print & PDF */}
           <button

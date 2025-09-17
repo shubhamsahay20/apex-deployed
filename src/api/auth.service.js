@@ -194,6 +194,21 @@ const newPassword = async (token, data) => {
   }
 };
 
+const getProfile = async (token) => {
+  try {
+    const res = await API.get(`/profile`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data
+  } catch (error) {
+    throw new Error("Error while geting profile");
+    
+  }
+
+};
+
 const logout = () => localStorage.removeItem('user');
 
 export default {
@@ -218,4 +233,5 @@ export default {
   otpvalidation,
   forgetOtp,
   newPassword,
+  getProfile
 };

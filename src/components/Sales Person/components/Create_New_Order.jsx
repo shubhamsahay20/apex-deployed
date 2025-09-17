@@ -1,13 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  User,
-  MapPin,
-  Package,
-  Plus,
-  Trash2,
-  ShoppingCart,
-  X,
-} from 'lucide-react';
+import { User, Package, Plus, Trash2 } from 'lucide-react';
 import authService from '../../../api/auth.service';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../../Context/AuthContext';
@@ -15,12 +7,18 @@ import { AsyncPaginate } from 'react-select-async-paginate';
 import cartService from '../../../api/cart.service';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import schemesService from '../../../api/schemes.service';
 
 const CategoryDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [product, setProduct] = useState([]);
+  const [schemes, setSchemes] = useState([]);
+  const [schemeId, setSchemeId] = useState(null);
+  const [schemeType, setSchemeType] = useState('');
+  const [schemeQuantity, setSchemeQuantity] = useState('');
+
   const [locationFields, setLocationFields] = useState({
     address: '',
     city: '',
@@ -71,6 +69,7 @@ const CategoryDashboard = () => {
         }
 
         setProduct(allProducts);
+
         console.log('All Products:', allProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -79,6 +78,20 @@ const CategoryDashboard = () => {
 
     fetchAllProducts();
   }, [user.accessToken]);
+
+  useEffect(() => {
+    const fetchScheme = async () => {
+      try {
+        const response = await schemesService.getAllSchemes(user.accessToken);
+        console.log('scheme data', response.data?.schemes);
+
+        setSchemes(response.data?.schemes);
+      } catch (error) {
+        toast.error(error.response?.data?.message);
+      }
+    };
+    fetchScheme();
+  }, []);
 
   const loadOptions = async (search, loadedOptions, { page }) => {
     try {
@@ -169,25 +182,33 @@ const CategoryDashboard = () => {
     }));
   };
 
+  const changeScheme = (e) => {
+    const id = e.target.value;
+    console.log('idd will be', id);
+    setSchemeId(id);
+    const getOneScheme = schemes.find((item) => item._id === id);
+    console.log('getOneScheme,', getOneScheme);
+
+    setSchemeType(getOneScheme.schemesType);
+    setSchemeQuantity(getOneScheme.schemesQuantity);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const customerId = selectedCustomer?.value || '';
     const customerName = selectedCustomer?.label || '';
 
-    // ✅ Validation 1: customer required
     if (!customerId && !customerName) {
       toast.error('Please select a customer before adding items.');
       return;
     }
 
-    // ✅ Validation 2: items required
     if (!formData?.items || formData.items.length === 0) {
       toast.error('Please add at least one item to the cart.');
       return;
     }
 
-    // ✅ Validation 3: filter out incomplete/empty items
     const validItems = formData.items.filter(
       (it) =>
         it.article &&
@@ -207,6 +228,7 @@ const CategoryDashboard = () => {
     try {
       const payload = {
         customer: customerName,
+        schemesId:schemeId,
         location: [
           {
             address: locationFields.address || ' ',
@@ -273,41 +295,6 @@ const CategoryDashboard = () => {
       toast.error(error.response?.data?.message || 'Checkout failed.');
     }
   };
-
-  //     // clear cart after successful checkout
-  //     // clear cart after successful checkout
-  //     setCartItems([]);
-  //     setFormData({
-  //       customer: '',
-  //       location: [
-  //         {
-  //           address: '',
-  //           country: 'India',
-  //           city: '',
-  //           state: '',
-  //           pincode: '',
-  //         },
-  //       ],
-  //       items: [
-  //         {
-  //           article: '',
-  //           categoryCode: '',
-  //           color: '',
-  //           size: '',
-  //           type: '',
-  //           quality: '',
-  //           quantity: '',
-  //         },
-  //       ],
-  //     });
-  //     setIsCartOpen(false);
-  //   } catch (error) {
-  //     console.error('Checkout error:', error);
-  //     toast.error(
-  //       error.response?.data?.message || 'Checkout failed. Try again later.',
-  //     );
-  //   }
-  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -592,6 +579,64 @@ const CategoryDashboard = () => {
                   </div>
                 </div>
               ))}
+
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto mt-4 sm:mt-0">
+                <div>
+                  <label
+                    htmlFor="type"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Scheme Name
+                  </label>
+                  <select
+                    type="text"
+                    id="type"
+                    value={schemeId}
+                    onChange={changeScheme}
+                    placeholder="Enter Scheme Type"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">select scheme</option>
+                    {schemes.map((val) => (
+                      <option key={val._id} value={val._id}>
+                        {' '}
+                        {val.schemesName}{' '}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    htmlFor="type"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Scheme Type
+                  </label>
+                  <input
+                    type="text"
+                    id="type"
+                    placeholder="Enter Scheme Type"
+                    value={schemeType}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="type"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Quantity Included
+                  </label>
+                  <input
+                    type="text"
+                    value={schemeQuantity}
+                    id="type"
+                    placeholder="Enter Scheme Type"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Submit Section */}

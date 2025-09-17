@@ -94,9 +94,9 @@ const SalesDetails = () => {
           <h2 className="text-base font-semibold text-gray-800">
             Sales Details
           </h2>
-          <button className="text-sm text-blue-600 hover:underline">
+          {/* <button className="text-sm text-blue-600 hover:underline">
             View Sales Logs
-          </button>
+          </button> */}
         </div>
 
         {/* Invoice, Article & Customer Info */}
@@ -104,9 +104,7 @@ const SalesDetails = () => {
           {/* Invoice */}
           <div>
             <h4 className="font-medium text-gray-700 mb-1">Invoice Details:</h4>
-            <p>Date: {salesDetails.
-createdAt
-}</p>
+            <p>Date: {salesDetails.createdAt}</p>
             <p>Time: 20:31</p>
             <p>Reference: 5389607</p>
             <p>Warehouse: Warehouse 01</p>
@@ -204,7 +202,7 @@ createdAt
       </div>
 
       {/* Sales Logs */}
-      <div className="bg-white p-4 rounded-md shadow-sm border">
+      {/* <div className="bg-white p-4 rounded-md shadow-sm border">
         <h3 className="text-sm font-medium text-gray-700 mb-4">Sales Logs</h3>
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
@@ -228,7 +226,7 @@ createdAt
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

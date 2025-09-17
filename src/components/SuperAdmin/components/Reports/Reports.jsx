@@ -239,9 +239,9 @@ const Reports = () => {
             {tabs.find((t) => t.key === activeReport)?.label}
           </h3>
           <div className="flex gap-2">
-            <button className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-300 text-sm rounded text-gray-700 hover:bg-gray-50">
+            {/* <button className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-300 text-sm rounded text-gray-700 hover:bg-gray-50">
               <FaFilter /> Filter
-            </button>
+            </button> */}
             <button
               onClick={handleExportPDF}
               className="flex items-center gap-1 px-3 py-1.5 bg-white border border-gray-300 text-sm rounded text-gray-700 hover:bg-gray-50"

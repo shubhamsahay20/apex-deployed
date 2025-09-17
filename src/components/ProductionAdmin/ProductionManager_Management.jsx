@@ -5,9 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import productionService from '../../api/production.service';
 import { useAuth } from '../../Context/AuthContext';
-
-// ✅ Import from utils
 import { exportProductionPDF, printProductionPDF } from '../../utils/PdfModel';
+import { useDebounce } from '../../hooks/useDebounce';
 
 const ProductionManager_Management = () => {
   const navigate = useNavigate();
@@ -18,24 +17,29 @@ const ProductionManager_Management = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [data, setData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await productionService.getAllProduction(
-          user.accessToken,
-          currentPage,
-          10,
-        );
-        setData(res?.data?.products || []);
-        setTotalPage(res?.data?.pagination?.totalPages || 1);
-      } catch (error) {
-        toast.error(
-          error?.response?.data?.message || 'Failed to fetch production data',
-        );
-      }
-    })();
-  }, [currentPage, user.accessToken]);
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      (async () => {
+        try {
+          const res = await productionService.getAllProduction(
+            user.accessToken,
+            currentPage,
+            10,
+            debounceValue,
+          );
+          setData(res?.data?.products || []);
+          setTotalPage(res?.data?.pagination?.totalPages || 1);
+        } catch (error) {
+          toast.error(
+            error?.response?.data?.message || 'Failed to fetch production data',
+          );
+        }
+      })();
+    }
+  }, [currentPage, user.accessToken, debounceValue]);
 
   const handleDelete = (id) => {
     setDeleteTarget(id);
@@ -74,10 +78,13 @@ const ProductionManager_Management = () => {
             <FiSearch className="absolute left-2 top-2.5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search Factory, order"
+              placeholder="Search Article"
               className="pl-8 pr-4 py-2 border border-gray-300 rounded-md text-sm"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value),
+                setCurrentPage(1)
+              )}
             />
           </div>
 
@@ -119,8 +126,10 @@ const ProductionManager_Management = () => {
           <thead>
             <tr className="text-left">
               <th className="px-4 py-2">Date</th>
-              <th className="px-4 py-2">Production Factory</th>
+              <th className="px-4 py-2">Production No</th>
+              <th className="px-4 py-2">Article</th>
               <th className="px-4 py-2">Production Quantity</th>
+              <th className="px-4 py-2">Production Factory</th>
               <th className="px-4 py-2">Action</th>
             </tr>
           </thead>
@@ -137,8 +146,10 @@ const ProductionManager_Management = () => {
                     year: 'numeric',
                   })}
                 </td>
-                <td className="px-4 py-3">{item.factory?.name}</td>
+                <td className="px-4 py-3">{item.productionNo}</td>
+                <td className="px-4 py-3">{item.article}</td>
                 <td className="px-4 py-3">{item.productionQuantity}</td>
+                <td className="px-4 py-3">{item.factory?.name}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-4 items-center">
                     {/* <FiEye className="text-green-600 hover:text-green-800 cursor-pointer" /> */}

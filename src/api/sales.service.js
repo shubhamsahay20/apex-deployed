@@ -18,7 +18,7 @@ const getSalesOrder = async (token) => {
   }
 };
 
-const getAllSalesOrder = async (token, page, limit, searchQuery='') => {
+const getAllSalesOrder = async (token, page, limit, searchQuery = '') => {
   try {
     if (!token) {
       throw new Error('Authorization token is not valid');
@@ -66,9 +66,24 @@ const getAllArtical = async (token, page, limit, searchQuery) => {
   }
 };
 
+const deleteWishlist = async (token, id) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization token is not valid');
+    }
+    const res = await API.delete(`/sale-order/wishlist/${id}`, {
+      headers: AuthToken(token),
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while getSalesOrder');
+  }
+};
+
 export default {
   getSalesOrder,
   getSalesOrderByID,
   getAllSalesOrder,
   getAllArtical,
+  deleteWishlist,
 };

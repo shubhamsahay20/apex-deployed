@@ -7,37 +7,7 @@ import { useAuth } from '../../../../Context/AuthContext'
 import { toast } from 'react-toastify'
 import DeleteModal from '../../../../utils/DeleteModal'
 import Loader from '../../../../common/Loader'
-
-const data = [
-  {
-    name: 'Factory 46',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'United States',
-    city: 'Los Angeles'
-  },
-  {
-    name: 'Warehouse 01',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa'
-  },
-  {
-    name: 'Warehouse 02',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa'
-  },
-  {
-    name: 'Warehouse 03',
-    phone: '990 32 64 970',
-    email: 'any1994@gmail.com',
-    country: 'Canada',
-    city: 'Ottawa'
-  }
-]
+import { useDebounce } from '../../../../hooks/useDebounce' // ✅ import debounce
 
 const FactoryManagement = () => {
   const [showModal, setShowModal] = useState(false)
@@ -56,6 +26,10 @@ const FactoryManagement = () => {
   const navigate = useNavigate()
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPage, setTotalPage] = useState(1)
+  
+  // ✅ Search state
+  const [searchQuery, setSearchQuery] = useState('')
+  const debouncedSearch = useDebounce(searchQuery, 500)
 
   useEffect(() => {
     ;(async () => {
@@ -64,7 +38,8 @@ const FactoryManagement = () => {
         const res = await factoryService.getAllFactories(
           user.accessToken,
           currentPage,
-          10
+          10,
+          debouncedSearch // ✅ pass search term to API
         )
         console.log('get factory', res.data.data)
         setFactoryData(res.data?.data.factories)
@@ -75,7 +50,7 @@ const FactoryManagement = () => {
         setLoading(false)
       }
     })()
-  }, [currentPage, user.accessToken])
+  }, [currentPage, user.accessToken, debouncedSearch]) // ✅ include debouncedSearch
 
   const handleChange = e => {
     const { name, value } = e.target
@@ -118,9 +93,13 @@ const FactoryManagement = () => {
       <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4'>
         <h2 className='text-lg font-semibold'>Factory Management</h2>
         <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto mt-4 sm:mt-0'>
+          
+          {/* ✅ Search Input */}
           <input
             type='text'
-            placeholder='Search by Article or Category'
+            placeholder='Search by Factory Name, Country, State, City'
+            value={searchQuery} // ✅ controlled input
+            onChange={e => setSearchQuery(e.target.value)}
             className='px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring w-full sm:w-60'
           />
 

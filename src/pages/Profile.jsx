@@ -2,9 +2,13 @@ import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import userSix from "../images/user/user-06.png";
 import Breadcrumb from "../components/SuperAdmin/components/Breadcrumbs/Breadcrumb";
+import useProfile from "../hooks/useProfile";
+import { useAuth } from "../Context/AuthContext";
 
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
+  const {user} = useAuth()
+  const { profileData }  = useProfile(user.accessToken)
 
   return (
     <>
@@ -34,18 +38,11 @@ const Profile = () => {
                 <label className="block mb-1 text-sm font-medium">Email</label>
                 <input className="w-full border rounded px-3 py-2" placeholder="Enter Email" />
               </div>
-              <div>
-                <label className="block mb-1 text-sm font-medium">Status</label>
-                <input className="w-full border rounded px-3 py-2" placeholder="Enter Current Status" />
-              </div>
+              
               <div className="md:col-span-2">
                 <label className="block mb-1 text-sm font-medium">Location</label>
-                <select className="w-1/2 border rounded px-3 py-2">
-                  <option>Choose Location</option>
-                  <option>United States</option>
-                  <option>India</option>
-                  <option>UK</option>
-                </select>
+                <input className="w-1/2 border rounded px-3 py-2"/>
+                  
               </div>
               <div className="md:col-span-2">
                 <button type="submit" className="bg-blue-600 text-white px-5 py-2 rounded mt-2">
@@ -78,24 +75,21 @@ const Profile = () => {
               <div className="flex flex-col gap-4 text-sm">
                 <div className="flex gap-4">
                   <div className="w-40 text-black">Name</div>
-                  <p className="text-gray-500 font-medium">John Mathew</p>
+                  <p className="text-gray-500 font-medium">{profileData?.name}</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="w-40 text-black">Phone Number</div>
-                  <p className="text-gray-500 font-medium">990 32 64 970</p>
+                  <p className="text-gray-500 font-medium">{profileData?.phone}</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="w-40 text-black">Email Address</div>
-                  <p className="text-gray-500 font-medium">Sample123@gmail.com</p>
+                  <p className="text-gray-500 font-medium">{profileData?.email}</p>
                 </div>
                 <div className="flex gap-4">
                   <div className="w-40 text-black">Location</div>
-                  <p className="text-gray-500 font-medium">United States, Los Angeles</p>
+                  <p className="text-gray-500 font-medium">{profileData.location}</p>
                 </div>
-                <div className="flex gap-4">
-                  <div className="w-40 text-black">Status</div>
-                  <p className="text-green-600 font-medium">Active</p>
-                </div>
+              
               </div>
             </div>
           </div>

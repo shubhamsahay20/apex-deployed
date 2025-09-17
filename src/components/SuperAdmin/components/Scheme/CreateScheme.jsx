@@ -12,6 +12,7 @@ export default function CreateScheme({ onSubmit, onCancel }) {
     type: '',
     description: '',
     quantity: '',
+    expireDate:''
   });
   const { user } = useAuth();
 
@@ -37,6 +38,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
       toast.error('Quantity is required');
       return;
     }
+    if (!formData.date.trim()) {
+      toast.error('Expire Date is Required');
+      return;
+    }
    
     try {
       const payload = {
@@ -44,10 +49,12 @@ export default function CreateScheme({ onSubmit, onCancel }) {
         schemesDescription: formData.description,
         schemesType: formData.type,
         schemesQuantity: formData.quantity,
+        expireDate:formData.expireDate
       };
       console.log('hello', payload);
 
       const res = await schemesService.addSchemes(user.accessToken, payload);
+      toast.success(res.data.message || "Scheme Created Successfully")
       console.log('hello1234', res);
       if (onSubmit) {
         onSubmit(formData);
@@ -79,7 +86,7 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 htmlFor="date"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Date
+              Starting  Date
               </label>
               <input
                 type="date"
@@ -87,6 +94,24 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 placeholder="dd/mm/yyyy"
                 value={formData.date}
                 onChange={(e) => handleChange('date', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+
+
+            <div>
+              <label
+                htmlFor="expireDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Ending Date
+              </label>
+              <input
+                type="date"
+                id="expireDate"
+                placeholder="dd/mm/yyyy"
+                value={formData.expireDate}
+                onChange={(e) => handleChange('expireDate', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

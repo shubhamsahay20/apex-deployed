@@ -166,7 +166,9 @@ const Internal_warehouse_transfer = () => {
   useEffect(() => {
     (async () => {
       const res = await warehouseService.getAllWarehouse(user.accessToken);
-      setWarehouseData(res.data.data.warehouses || []);
+      console.log("res warehouse",res.data.data);
+      
+      setWarehouseData(res.data.data || []);
     })();
   }, [user.accessToken]);
 

@@ -110,7 +110,7 @@ const RoleManagement = () => {
       setWarehouseLoading(true); // ✅ Start warehouse loader
       try {
         const res = await warehouseService.getAllWarehouse(user.accessToken);
-        setWarehouses(res.data.data.warehouses || []);
+        setWarehouses(res.data?.data || []);
       } catch (error) {
         toast.error('Failed to load warehouses');
       } finally {
@@ -483,7 +483,7 @@ const RoleManagement = () => {
                 <th className="px-3 py-2 text-left">{headings.phone}</th>
                 <th className="px-3 py-2 text-left">{headings.email}</th>
                 <th className="px-3 py-2 text-left">{headings.location}</th>
-                <th className="px-3 py-2 text-left">Status</th>
+                {/* <th className="px-3 py-2 text-left">Status</th> */}
                 <th className="px-3 py-2 text-center">Action</th>
               </tr>
             </thead>
@@ -503,7 +503,7 @@ const RoleManagement = () => {
                     <td className="px-3 py-2">{user.phone}</td>
                     <td className="px-3 py-2">{user.email}</td>
                     <td className="px-3 py-2">{user.location}</td>
-                    <td
+                    {/* <td
                       className={`px-3 py-2 ${
                         user.status === 'Active'
                           ? 'text-green-600'
@@ -511,7 +511,7 @@ const RoleManagement = () => {
                       }`}
                     >
                       {user.status}
-                    </td>
+                    </td> */}
                     <td className="px-3 py-2 text-center flex justify-center gap-3">
                       <FiEye
                         className="text-green-600 cursor-pointer"
