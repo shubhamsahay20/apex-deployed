@@ -36,7 +36,7 @@ export const AuthContextProvider = ({ children }) => {
   // Initialize socket when user logs in
   useEffect(() => {
     if (user) {
-      const newSocket = io('ws://apex-api.testsdlc.in', {
+      const newSocket = io('wss://apex-api.testsdlc.in', {
         transports: ['websocket'],
         withCredentials: true
       })
