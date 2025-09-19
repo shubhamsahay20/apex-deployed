@@ -90,7 +90,7 @@ const UploadStatus = () => {
         const warehouseRes = await warehouseService.getAllWarehouse(
           user.accessToken
         )
-        setWarehouses(warehouseRes?.data?.data?.warehouses || [])
+        setWarehouses(warehouseRes?.data?.data || [])
 
         const inventoryinfo = await inventoryService.getStockInInventory(
           user.accessToken,

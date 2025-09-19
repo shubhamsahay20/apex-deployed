@@ -14,12 +14,12 @@ export function TopSellingStock({ heading = "Top Selling Stock", data, onSeeAll 
       {/* Header */}
       <div className="p-4 flex flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{heading}</h3>
-        <button
+        {/* <button
           className="px-3 py-1 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-md transition-colors"
           onClick={onSeeAll}
         >
           See All
-        </button>
+        </button> */}
       </div>
 
       {/* Table */}

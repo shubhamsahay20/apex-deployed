@@ -58,15 +58,10 @@ const QRDropdownPage = () => {
 
       setSelectPN('');
     } catch (error) {
-      console.error('Full error object:', error.response?.data);
+      console.error('Full error object:', error);
+      toast.error(error.response?.data?.error);
 
-      const errorMsg =
-        error?.response?.data?.error || // show backend error details
-        error?.response?.data?.message || // fallback to message
-        error?.message || // network error
-        'Something went wrong!';
-
-      toast.error(errorMsg);
+   
     } finally {
       setLoading(false);
     }

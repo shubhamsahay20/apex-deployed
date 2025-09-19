@@ -101,6 +101,8 @@ import ArticleDataWarehouse from './components/WarehouseAdmin/components/Article
 import WarehouseDropdown from './components/WarehouseAdmin/components/WarehouseDropdown';
 import Internal_warehouse_transfer from './components/Administrator/components/Internal_warehouse_transfer';
 import UploadStatus from './components/InventoryAdmin/components/InventoryManagement/UploadStatus';
+import Admin_WishList from './components/SuperAdmin/components/WishList_Admin/Admin_WishList';
+import AdminOrders from './components/SuperAdmin/components/AdminOrders/AdminOrder';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -804,6 +806,18 @@ function App() {
                   </>
                 }
               />
+                <Route
+                path="/admin/Wishlist"
+                element={
+                  <>
+                    <ProtectedRoutes role={['Admin']}>
+                      <PageTitle title="Wishlist" />
+                      <Admin_WishList />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              
               <Route
                 path="/accounting-manager/dashboard"
                 element={
@@ -1059,7 +1073,7 @@ function App() {
                 }
               />
               <Route
-                path="/ManualProcess"
+                path="/manualProcess"
                 element={
                   <>
                     <ProtectedRoutes role={['Production Manager']}>

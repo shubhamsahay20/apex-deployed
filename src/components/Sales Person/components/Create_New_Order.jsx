@@ -158,6 +158,23 @@ const CategoryDashboard = () => {
   };
 
   const addItem = () => {
+    const lastItem = formData.items[formData.items.length - 1];
+
+    // Check if the last carton is filled
+    if (
+      !lastItem.article ||
+      !lastItem.categoryCode ||
+      !lastItem.color ||
+      !lastItem.size ||
+      !lastItem.type ||
+      !lastItem.quality ||
+      !lastItem.quantity
+    ) {
+      toast.error(
+        'Please fill all fields of the current carton before adding a new one.',
+      );
+      return;
+    }
     setFormData((prev) => ({
       ...prev,
       items: [
@@ -228,7 +245,7 @@ const CategoryDashboard = () => {
     try {
       const payload = {
         customer: customerName,
-        schemesId:schemeId,
+        schemesId: schemeId,
         location: [
           {
             address: locationFields.address || ' ',
@@ -429,7 +446,20 @@ const CategoryDashboard = () => {
                 <button
                   type="button"
                   onClick={addItem}
-                  className="flex items-center px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                  disabled={
+                    !formData.items.length ||
+                    Object.values(
+                      formData.items[formData.items.length - 1],
+                    ).some((val) => !val)
+                  }
+                  className={`flex items-center px-3 py-1 rounded-lg transition-colors ${
+                    !formData.items.length ||
+                    Object.values(
+                      formData.items[formData.items.length - 1],
+                    ).some((val) => !val)
+                      ? 'bg-gray-400 cursor-not-allowed text-white'
+                      : 'bg-purple-600 hover:bg-purple-700 text-white'
+                  }`}
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Carton

@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import { FiSearch, FiTrash2 } from 'react-icons/fi'
-import { toast } from 'react-toastify'
-import cartService from '../../../api/cart.service'
-import { useAuth } from '../../../Context/AuthContext'
-import { IoMdArrowRoundUp } from 'react-icons/io'
-import { IoMdArrowRoundDown } from 'react-icons/io'
-import DeleteModal from '../../../utils/DeleteModal'
-import salesService from '../../../api/sales.service'
-import { useDebounce } from '../../../hooks/useDebounce'
-import Loader from '../../../common/Loader' // ✅ Import Loader
+import React, { useEffect, useState } from 'react';
+import { FiSearch, FiTrash2 } from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import { IoMdArrowRoundUp } from 'react-icons/io';
+import { IoMdArrowRoundDown } from 'react-icons/io';
+import cartService from '../../../../api/cart.service';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import salesService from '../../../../api/sales.service';
+import DeleteModal from '../../../../utils/DeleteModal';
+import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
 
-const Wishlist = () => {
+const Admin_WishList = () => {
   const [wishListOrder, setWishListOrder] = useState([]);
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
@@ -24,17 +24,17 @@ const Wishlist = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // ✅ Start loader
+      setLoading(true);
       try {
-        const res = await cartService.getWishListOrderBySalesPerson(
+        const res = await cartService.getAllWishListOrder(
           user.accessToken,
           currentPage,
           10,
           debounceValue,
         );
-        console.log('get all order', res);
-        setWishListOrder(res.data || []);
-        setTotalPages(res.pagination?.totalPages);
+        console.log('get all order', res.data.sellorder);
+        setWishListOrder(res.data.sellorder || []);
+        setTotalPages(res.data.pagination?.totalPages);
       } catch (error) {
         toast.error(error.response?.data?.message);
       } finally {
@@ -83,20 +83,17 @@ const Wishlist = () => {
   return (
     <div className="p-6 bg-white border rounded shadow-sm min-h-screen">
       <div className="flex items-center justify-between mb-4">
-        <h2 className='text-base font-semibold text-gray-800'>
-          My Wishlist
-        </h2>
-        <div className='relative w-full max-w-xs'>
+        <h2 className="text-base font-semibold text-gray-800">My Wishlist</h2>
+        <div className="relative w-full max-w-xs">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={searchQuery}
-            onChange={e => (
-              setSearchQuery(e.target.value),
-              setCurrentPage(1)
+            onChange={(e) => (
+              setSearchQuery(e.target.value), setCurrentPage(1)
             )}
-            type='text'
-            placeholder='Search Article'
-            className='w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
+            type="text"
+            placeholder="Search Sales Person,Customer"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           />
         </div>
       </div>
@@ -112,6 +109,7 @@ const Wishlist = () => {
               <th className="px-6 py-5">Soft/Hard</th>
               <th className="px-6 py-5">Quality</th>
               <th className="px-6 py-5">Customer</th>
+              <th className="px-6 py-5">Sales Person</th>
               <th className="px-6 py-5">Action</th>
             </tr>
           </thead>
@@ -145,6 +143,7 @@ const Wishlist = () => {
                       <td className="px-6 py-5">{firstArticle.type}</td>
                       <td className="px-6 py-5">{firstArticle.quality}</td>
                       <td className="px-6 py-5">{item.customer?.name}</td>
+                      <td className="px-6 py-5">{item.createdBy?.name}</td>
                       <td className="px-6 py-5 flex gap-2 items-center">
                         <button
                           onClick={() => deleteId(item._id)}
@@ -208,4 +207,4 @@ const Wishlist = () => {
   );
 };
 
-export default Wishlist;
+export default Admin_WishList;

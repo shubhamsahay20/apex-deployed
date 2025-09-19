@@ -136,7 +136,7 @@ const CreateQRCode = () => {
   useEffect(() => {
     (async () => {
       const res = await warehouseService.getAllWarehouse(user.accessToken);
-      setWarehouseData(res.data.data.warehouses || []);
+      setWarehouseData(res.data.data || []);
     })();
   }, [user.accessToken]);
 

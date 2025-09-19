@@ -62,9 +62,9 @@ const DispatchScanner = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">QR Scanner</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">QR Scanner For Dispatch</h2>
         <p className="text-sm text-gray-500 mb-6">
-          Scan any QR code easily with your camera
+          Scan any QR code For Dispatch easily with your camera
         </p>
 
         {qrResult ? (

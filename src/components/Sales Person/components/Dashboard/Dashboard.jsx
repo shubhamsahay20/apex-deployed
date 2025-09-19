@@ -59,11 +59,7 @@ const Salespersondashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-xs text-gray-500 mb-1">
-                      {new Date(item.date).toLocaleDateString('en-GB', {
-                        day: '2-digit',
-                        month: 'short',
-                        year: 'numeric',
-                      })}{' '}
+                     {item.date} {' '}
                       — {item.time}
                     </div>
                     <div className="text-blue-900 font-bold">{item.title}</div>

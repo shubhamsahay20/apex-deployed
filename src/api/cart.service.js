@@ -17,6 +17,41 @@ const getAllOrder = async token => {
   }
 }
 
+const getOrderBySalesPerson = async token => {
+  try {
+    if (!token) {
+      throw new Error('Authorization Token Require')
+    }
+    const res = await API.get(`/sale-order/cart/by-salesperson`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return res.data
+  } catch (error) {
+    throw new Error('Error while geting order')
+  }
+}
+
+
+const salesPersonOrderList = async token => {
+  try {
+    if (!token) {
+      throw new Error('Authorization Token Require')
+    }
+    const res = await API.get(`/sale-order/order/by-salesperson`, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return res.data
+  } catch (error) {
+    throw new Error('Error while geting order')
+  }
+}
+
 const getAllWishListOrder = async (token, page, limit, searchQuery = '') => {
   try {
     if (!token) {
@@ -37,6 +72,26 @@ const getAllWishListOrder = async (token, page, limit, searchQuery = '') => {
   }
 }
 
+
+const getWishListOrderBySalesPerson = async (token, page, limit, searchQuery = '') => {
+  try {
+    if (!token) {
+      throw new Error('Authorization Token Require')
+    }
+    const res = await API.get(
+      `/sale-order/wishlist/by-salesperson?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    )
+
+    return res.data
+  } catch (error) {
+    throw new Error('Error while geting order')
+  }
+}
 const getAllSalesOrder = async (token, page, limit, searchQuery = '') => {
   try {
     if (!token) {
@@ -140,5 +195,8 @@ export default {
   DeleteOrder,
   getAllSalesOrder,
   getSalesOrderById,
-  getAllWishListOrder
+  getAllWishListOrder,
+  getOrderBySalesPerson,
+  getWishListOrderBySalesPerson,
+  salesPersonOrderList
 }
