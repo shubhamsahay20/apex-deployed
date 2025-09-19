@@ -41,6 +41,10 @@ export const AuthContextProvider = ({ children }) => {
         withCredentials: true
       })
 
+
+      console.log("SOCKET INIIIIIIIIIIIII");
+      
+
       setSocket(newSocket)
 
       newSocket.on('connect', () => {
