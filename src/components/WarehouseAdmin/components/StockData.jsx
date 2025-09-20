@@ -23,62 +23,43 @@ const Stock = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        console.log('user details', user.user?.warehouses);
-        console.log('warehouse id', selectWarehouseId);
+        if (!selectWarehouseId) {
+          setStockData([]); // clear when no warehouse is selected
+          return;
+        }
 
         const response = await stockService.getStockByWarehouse(
           user.accessToken,
           selectWarehouseId,
         );
-        console.log('stock data', response.data);
 
-        setStockData(response?.data);
+        // Ensure we always replace old data, even if empty
+        setStockData(response?.data || []);
       } catch (error) {
         console.error('Error fetching stock data:', error);
-        toast.error(error.response?.data?.message );
+        setStockData([]); // clear data on error too
+        toast.error(error.response?.data?.message);
       }
     };
 
     fetchData();
-  }, [selectWarehouseId]);
+  }, [selectWarehouseId, user.accessToken]);
 
   // 🔹 Group stock data (merge duplicates and sum quantity)
-  const groupedStock = [];
-  stockData.forEach((entry) => {
-    entry.stockdata.forEach((item) => {
-      const key = [
-        item.article,
-        item.categoryCode,
-        item.color,
-        entry.dispatched,
-        item.productionNo,
-        entry.factory.name,
-        item.quality,
-        item.size,
-        item.type,
-      ].join('|');
-
-      const existing = groupedStock.find((g) => g.key === key);
-
-      if (existing) {
-        existing.quantity += item.quantity;
-      } else {
-        groupedStock.push({
-          key,
-          article: item.article,
-          categoryCode: item.categoryCode,
-          color: item.color,
-          dispatched: entry.dispatched,
-          productionNo: item.productionNo,
-          factoryName: entry.factory.name,
-          quality: item.quality,
-          size: item.size,
-          type: item.type,
-          quantity: item.quantity,
-        });
-      }
-    });
-  });
+  // 🔹 Directly map API response instead of recalculating
+  const groupedStock = stockData.map((entry) => ({
+    article: entry.stockdata?.[0]?.article || '-', // take from first stock item if exists
+    categoryCode: entry.stockdata?.[0]?.categoryCode || '-',
+    color: entry.stockdata?.[0]?.color || '-',
+    productionNo: entry.stockdata?.[0]?.productionNo || '-',
+    factoryName: entry.factory?.name || '-',
+    quality: entry.stockdata?.[0]?.quality || '-',
+    size: entry.stockdata?.[0]?.size || '-',
+    type: entry.stockdata?.[0]?.type || '-',
+    totalQuantity: entry.totalQuantity,
+    availableQuantity: entry.availableQuantity,
+    dispatchStock: entry.dispatchStock,
+  }));
 
   return (
     <div className="p-6 bg-white rounded-md shadow">
@@ -109,57 +90,69 @@ const Stock = () => {
               <th className="p-3 font-medium">Article</th>
               <th className="p-3 font-medium">Category Code</th>
               <th className="p-3 font-medium">Color</th>
-              <th className="p-3 font-medium">Dispatched</th>
               <th className="p-3 font-medium">Production No</th>
               <th className="p-3 font-medium">Factory Name</th>
               <th className="p-3 font-medium">Quality</th>
-              <th className="p-3 font-medium">Quantity</th>
+              {/* <th className="p-3 font-medium">Quantity</th> */}
               <th className="p-3 font-medium">Size</th>
               <th className="p-3 font-medium">Type</th>
+              <th className="p-3 font-medium">Total Qty</th>
+              <th className="p-3 font-medium">Available Qty</th>
+              <th className="p-3 font-medium">Dispatched Qty</th>
               <th className="p-3 font-medium text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {groupedStock.map((row, idx) => (
-              <tr key={idx} className="border-t hover:bg-gray-50">
-                <td className="p-3">{row.article}</td>
-                <td className="p-3">{row.categoryCode}</td>
-                <td className="p-3">{row.color}</td>
-                <td className="p-3">
-                  {row.dispatched ? (
-                    <span className="text-green-600 font-medium">Yes</span>
-                  ) : (
-                    <span className="text-red-600 font-medium">No</span>
-                  )}
-                </td>
-                <td className="p-3">{row.productionNo}</td>
-                <td className="p-3">{row.factoryName}</td>
-                <td className="p-3">{row.quality}</td>
-                <td className="p-3">{row.quantity}</td>
-                <td className="p-3">{row.size}</td>
-                <td className="p-3">{row.type}</td>
-                <td className="p-3 flex justify-center gap-3">
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/dispatch-details/${row.article}`)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="text-blue-600 hover:text-blue-800"
-                    onClick={() => navigate(`/dispatch-edit/${row.article}`)}
-                  >
-                    <PiPencilSimpleLineBold size={16} />
-                  </button>
-                  <button
-                    className="text-red-600 hover:text-red-800"
-                    onClick={() => toast.info('Delete action here')}
-                  >
-                    <FiTrash2 size={16} />
-                  </button>
+            {groupedStock.length === 0 ? (
+              <tr>
+                <td colSpan="11" className="text-center p-4 text-gray-500">
+                  <p className=" text-red-500">
+                    No stock available for this warehouse
+                  </p>
                 </td>
               </tr>
-            ))}
+            ) : (
+              groupedStock.map((row, idx) => (
+                <tr key={idx} className="border-t hover:bg-gray-50">
+                  <td className="p-3">{row.article}</td>
+                  <td className="p-3">{row.categoryCode}</td>
+                  <td className="p-3">{row.color}</td>
+                  
+                  <td className="p-3">{row.productionNo}</td>
+                  <td className="p-3">{row.factoryName}</td>
+                  <td className="p-3">{row.quality}</td>
+                  {/* <td className="p-3">{row.quantity}</td> */}
+                  <td className="p-3">{row.size}</td>
+                  <td className="p-3">{row.type}</td>
+                  <td className="p-3">{row.totalQuantity}</td>
+                  <td className="p-3">{row.availableQuantity}</td>
+                  <td className="p-3">{row.dispatchStock}</td>
+                  
+                  <td className="p-3 flex justify-center gap-3">
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() =>
+                        navigate(`/dispatch-details/${row.article}`)
+                      }
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => navigate(`/dispatch-edit/${row.article}`)}
+                    >
+                      <PiPencilSimpleLineBold size={16} />
+                    </button>
+                    <button
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => toast.info('Delete action here')}
+                    >
+                      <FiTrash2 size={16} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

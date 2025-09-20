@@ -80,7 +80,7 @@ const Add_Production = () => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       fetchdata();
     }
-  }, [user.accessToken, currentPage, debounceValue, productionData]);
+  }, [user.accessToken, currentPage, debounceValue]);
 
   useEffect(() => {
     (async () => {

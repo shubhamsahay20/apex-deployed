@@ -102,7 +102,7 @@ function WarehouseDashboard() {
               color="text-indigo-700"
             />
             <InventorySummaryItem
-              title="Total Warehouses"
+              title="Active Warehouses Delivered"
               value={dashboardData.totalWarehouses}
               color="text-orange-500"
             />
