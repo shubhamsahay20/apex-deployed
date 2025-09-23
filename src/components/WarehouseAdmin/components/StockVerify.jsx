@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaSearch } from 'react-icons/fa';
-import { FiEdit, FiEye, FiTrash2 } from 'react-icons/fi';
+import { FaCarBattery, FaSearch } from 'react-icons/fa';
+import { FiEdit, FiX, FiEye, FiTrash2 } from 'react-icons/fi';
 
 import {
   exportProductionPDF,
@@ -12,27 +12,37 @@ import { toast } from 'react-toastify';
 import { useDebounce } from '../../../hooks/useDebounce';
 import { useAuth } from '../../../Context/AuthContext';
 import warehouseService from '../../../api/warehouse.service';
+import stockService from '../../../api/stock.service';
 
 const StockVerify = () => {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
 
-  const handleView = (row) => {
-    navigate('/inventory/delivery-details', { state: row });
-  };
-
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [scanStatus, setScanStatus] = useState(null);
+  const [scanQuantity, setScanQuantity] = useState('');
   const [salesDetails, setSalesDetails] = useState([]);
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [updateRow, setUpdateRow] = useState(null);
 
-  const handleUpdateStatus = (row) => {
-    setSelectedRow(row);
+  // open modal on click
+  const handleUpdateStatus = (data) => {
+    const selecttabledata = salesDetails.find(
+      (item) => item.orderId === data.orderId,
+    );
+    console.log('tabledata', selecttabledata);
+    setUpdateRow(selecttabledata);
+    setSelectedOrderId(selecttabledata.orderId);
     setIsStatusModalOpen(true);
+  };
+  console.log('order id,', selectedOrderId);
+
+  const handleView = (row) => {
+    navigate('/inventory/delivery-details', { state: row });
   };
 
   const getSalesOrder = async () => {
@@ -60,6 +70,35 @@ const StockVerify = () => {
       getSalesOrder();
     }
   }, [user, currentPage, debounceValue]);
+
+  const handleUpdate = async () => {
+    try {
+      if (!scanStatus) {
+        toast.error('Please Select Status');
+      }
+      const payload = {
+        article: updateRow.article,
+        warehouse: updateRow.warehouse._id,
+        quantity: updateRow.quantity,
+        ScanByorder: scanStatus,
+      };
+      console.log('payload', payload);
+      const res = await stockService.MarkWarehouseScanned(
+        user.accessToken,
+        selectedOrderId,
+        payload,
+      );
+
+      console.log('response', res);
+      toast.success(res.data?.message);
+      getSalesOrder();
+
+      setIsStatusModalOpen(false);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      console.log('error while  status updating', error);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -112,7 +151,6 @@ const StockVerify = () => {
                 <th className="px-3 py-2">Customer</th>
                 <th className="px-3 py-2">Quantity</th>
                 <th className="px-3 py-2">Status</th>
-                <th className="px-3 py-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -129,22 +167,29 @@ const StockVerify = () => {
                   <td className="px-3 py-2 whitespace-nowrap">
                     {row.customer?.name}
                   </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
+                  <td className="px-3 py-2 whitespace-nowrap">
                     {row.quantity}
                   </td>
 
-                    <td className="px-3 py-2 whitespace-nowrap">
-                    {row.ScanByorder}
+                  <td className="px-3 py-2 whitespace-nowrap">
+                    <button
+                      className={`underline ${
+                        row.ScanByorder === 'SCANNED'
+                          ? 'text-gray-400 cursor-not-allowed'
+                          : 'text-blue-600 hover:text-blue-800'
+                      }`}
+                      onClick={() => {
+                        if (row.ScanByorder !== 'SCANNED') {
+                          handleUpdateStatus(row);
+                        }
+                      }}
+                      disabled={row.ScanByorder === 'SCANNED'}
+                    >
+                      {row.ScanByorder || 'Click'}
+                    </button>
                   </td>
 
-
-                  <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">
-                    <FiEye
-                      className="text-green-600 cursor-pointer"
-                      onClick={() => handleView(row)}
-                    />
-                    <FiTrash2 className="text-red-500 cursor-pointer" />
-                  </td>
+                 
                 </tr>
               ))}
             </tbody>
@@ -172,6 +217,46 @@ const StockVerify = () => {
           </button>
         </div>
       </div>
+      {isStatusModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40">
+          <div className="bg-white p-6 rounded-lg shadow-md w-96">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold mb-4">Scan Details</h2>
+              <FiX onClick={() => setIsStatusModalOpen(false)} />
+            </div>
+
+            {/* Status field */}
+            <label className="block mb-2 text-sm font-medium">Status</label>
+            <select
+              value={scanStatus}
+              onChange={(e) => setScanStatus(e.target.value)}
+              className="border p-2 rounded w-full mb-4"
+            >
+              <option value="">Please Update Status</option>
+              <option value="SCANNED">SCANNED</option>
+              <option value="UNSCANNED">UNSCANNED</option>
+            </select>
+
+            {/* Quantity field */}
+            {/* <label className="block mb-2 text-sm font-medium">Quantity</label>
+            <input
+              type="number"
+              value={scanQuantity}
+              onChange={(e) => setScanQuantity(e.target.value)}
+              className="border p-2 rounded w-full mb-4"
+            /> */}
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={handleUpdate}
+                className="px-4 py-2 text-white bg-blue-400 border rounded"
+              >
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

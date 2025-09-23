@@ -56,23 +56,42 @@ const getAllStock = async (token) => {
   }
 };
 
-const getInternalStock = async (token,page,limit,searchQueary = '') => {
+const getInternalStock = async (token, page, limit, searchQueary = '') => {
   try {
-    const res = await API.get(`/qr-code/stock-Transfer?page=${page}&limit=${limit}&search=${searchQueary}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await API.get(
+      `/qr-code/stock-Transfer?page=${page}&limit=${limit}&search=${searchQueary}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     return res.data;
   } catch (error) {
     throw new Error('Error while geting qr scan');
   }
 };
+
+const MarkWarehouseScanned = async (token, warehouseid, data) => {
+  try {
+    const res = await API.put(`/stock/scanned/${warehouseid}`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    throw error
+  }
+};
+
 export default {
   addStockQrScan,
   getStockByWarehouse,
   dispatchStockQrScan,
   getAllStock,
-  getInternalStock
+  getInternalStock,
+  MarkWarehouseScanned,
 };

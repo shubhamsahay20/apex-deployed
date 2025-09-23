@@ -23,8 +23,8 @@ const UploadStatus = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [stockReport, setStockReport] = useState([])
   const [allocations, setAllocations] = useState({})
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPage, setTotalPage] = useState(1)
 
   const confirmApproved = async () => {
     try {
@@ -206,27 +206,27 @@ const UploadStatus = () => {
         ) : (
           <p className='text-gray-500 text-sm'>No stock data available.</p>
         )}
-        <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-        <button
-          disabled={currentPage === 1}
-          onClick={() => setCurrentPage((prev) => prev - 1)}
-          className="px-3 py-1 border rounded bg-gray-50"
-        >
-          Previous
-        </button>
-        <span>
-          Page {currentPage} of {totalPage}
-        </span>
-        <button
-          disabled={currentPage === totalPage}
-          onClick={() => setCurrentPage((prev) => prev + 1)}
-          className="px-3 py-1 border rounded bg-gray-50"
-        >
-          Next
-        </button>
-      </div>  
+        <div className='flex justify-between items-center mt-4 text-sm text-gray-600'>
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage(prev => prev - 1)}
+            className='px-3 py-1 border rounded bg-gray-50'
+          >
+            Previous
+          </button>
+          <span>
+            Page {currentPage} of {totalPage}
+          </span>
+          <button
+            disabled={currentPage === totalPage}
+            onClick={() => setCurrentPage(prev => prev + 1)}
+            className='px-3 py-1 border rounded bg-gray-50'
+          >
+            Next
+          </button>
+        </div>
       </div>
-      
+
       <h1 className='text-lg font-semibold text-red-600 bg-blue-50 p-2 rounded capitalize'>
         If stock is at Production, please check with the Administrator to decide
         which warehouse it should go to, then assign warehouse for the Order,
@@ -291,11 +291,20 @@ const UploadStatus = () => {
                           className='border rounded p-1'
                         >
                           <option value=''>Select warehouse</option>
-                          {warehouses.map(wh => (
-                            <option key={wh._id} value={wh._id}>
-                              {wh.name}
-                            </option>
-                          ))}
+                          {warehouses
+                            .filter(
+                              wh =>
+                                // Show warehouse if it's not already selected OR it is the current one
+                                !allocations[itemIndex]?.some(
+                                  (a, i) =>
+                                    a.warehouseId === wh._id && i !== allocIndex
+                                )
+                            )
+                            .map(wh => (
+                              <option key={wh._id} value={wh._id}>
+                                {wh.name}
+                              </option>
+                            ))}
                         </select>
 
                         <input

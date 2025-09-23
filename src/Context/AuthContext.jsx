@@ -20,6 +20,13 @@ export const AuthContextProvider = ({ children }) => {
       'Account Section',
       'Sales Person',
     ],
+    qrgeneratedRequest: [
+      'Admin',
+      'Administrator',
+      'Account Section',
+      'Sales Person',
+      'Warehouse Manager',
+    ],
     warehouseFulfillment: ['Warehouse Manager'],
     inventoryRejected: [
       'Inventory Manager',
@@ -93,6 +100,8 @@ export const AuthContextProvider = ({ children }) => {
           console.log(`📩 Event ${event}:`, data);
 
           if (event === 'productionSuccess') {
+            console.log('after production data', data);
+
             toast.success(data?.message || 'Got Data');
             addNotification('success', data?.message, data);
           } else if (event === 'AccountSectionApproval') {
@@ -112,6 +121,11 @@ export const AuthContextProvider = ({ children }) => {
 
             toast.error(`${data?.message}`);
             addNotification('error', data?.message, data.data);
+          } else if (event === 'qrgeneratedRequest') {
+            console.log('qr generated successfully ', data);
+
+            toast.error(`${data?.message}`);
+            addNotification('info', data?.message, data.data);
           }
         }
       });

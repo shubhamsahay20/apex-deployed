@@ -18,7 +18,7 @@ const DeleteModal = ({ name, isOpen, onClose, onConfirm }) => {
 
           {/* Title and message */}
           <h2 className="mt-4 text-center text-lg font-semibold px-4 text-gray-700 dark:text-white">
-            Cancel {name}
+            Delete {name}
           </h2>
           <p className="mt-2 text-center text-sm px-4 text-gray-600 dark:text-gray-300">
             Are you sure you want to delete this {name}?
