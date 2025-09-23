@@ -7,6 +7,7 @@ import qrService from '../../../api/qr.service';
 import { toast } from 'react-toastify';
 import jsPDF from 'jspdf';
 import Loader from '../../../common/Loader';
+import Select from 'react-select'; // ✅ import React Select
 
 const CreateQRCode = () => {
   const { user } = useAuth();
@@ -19,7 +20,7 @@ const CreateQRCode = () => {
   const [quantities, setQuantities] = useState({});
   const [qrData, setQrData] = useState([]);
   const [isPrinting, setIsPrinting] = useState(false);
-  const [loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const printRef = useRef();
 
@@ -42,7 +43,7 @@ const CreateQRCode = () => {
       productIds: [selectedProd.article],
     };
 
-     setLoading(true); 
+    setLoading(true);
 
     try {
       const res = await qrService.AddQrCode(user.accessToken, payload);
@@ -51,14 +52,15 @@ const CreateQRCode = () => {
     } catch (error) {
       toast.error(error.response?.data?.error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   };
 
-  // ✅ Updated print function to download QR codes instead of table
   const handlePrint = async () => {
     if (!qrData || (Array.isArray(qrData) && qrData.length === 0)) {
-      toast.error('No QR data available to print. Please create QR codes first.');
+      toast.error(
+        'No QR data available to print. Please create QR codes first.',
+      );
       return;
     }
 
@@ -83,30 +85,32 @@ const CreateQRCode = () => {
       }
 
       const doc = new jsPDF();
-      let x = 10, y = 20; 
-      const qrSize = 40; // QR image size
-      const gap = 10;    // Gap between labels
+      let x = 10,
+        y = 20;
+      const qrSize = 40;
+      const gap = 10;
 
       qrCodes.forEach((qr, index) => {
-        // Add QR Image
         if (qr.qrData) {
           doc.addImage(qr.qrData, 'PNG', x, y, qrSize, qrSize);
         }
 
-        // Add text below QR
         doc.setFontSize(10);
         doc.text(`Article: ${qr.article || 'N/A'}`, x, y + qrSize + 5);
         doc.text(`Size: ${qr.size || 'N/A'}`, x, y + qrSize + 10);
         doc.text(`Color: ${qr.color || 'N/A'}`, x, y + qrSize + 15);
         doc.text(`Type: ${qr.type || 'N/A'}`, x, y + qrSize + 20);
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, x, y + qrSize + 25);
+        doc.text(
+          `Date: ${new Date().toLocaleDateString()}`,
+          x,
+          y + qrSize + 25,
+        );
 
-        // Layout: 3 per row
         x += qrSize + gap + 30;
         if ((index + 1) % 3 === 0) {
           x = 10;
           y += qrSize + 40;
-          if (y > 250) { // Add new page if page is full
+          if (y > 250) {
             doc.addPage();
             x = 10;
             y = 20;
@@ -114,9 +118,7 @@ const CreateQRCode = () => {
         }
       });
 
-      // ✅ Download PDF instead of opening print dialog
       doc.save('qr-codes.pdf');
-
       toast.success('QR codes downloaded');
     } catch (error) {
       console.error('Print error:', error);
@@ -140,11 +142,9 @@ const CreateQRCode = () => {
     })();
   }, [user.accessToken]);
 
-  const handleProductionChange = (e) => {
-    const id = e.target.value;
-    setSelectedProduction(id);
-
-    const selected = productData.find((item) => item._id === id);
+  const handleProductionSelect = (selectedOption) => {
+    setSelectedProduction(selectedOption?.value || '');
+    const selected = productData.find((item) => item._id === selectedOption?.value);
     if (selected) {
       setFactory(selected.factory?.name || '');
       setArticleNo(selected.article || '');
@@ -175,38 +175,67 @@ const CreateQRCode = () => {
     setArticleNo('');
     setWarehouse('');
     setQuantities({});
-    setQrData([]); // Clear QR data on reset
+    setQrData([]);
   };
 
-  const hasQrData = qrData && (
-    Array.isArray(qrData) 
-      ? qrData.some(prod => prod.qrCodes && prod.qrCodes.length > 0)
-      : qrData.qrCodes && qrData.qrCodes.length > 0
-  );
+  const hasQrData =
+    qrData &&
+    (Array.isArray(qrData)
+      ? qrData.some((prod) => prod.qrCodes && prod.qrCodes.length > 0)
+      : qrData.qrCodes && qrData.qrCodes.length > 0);
 
-  return loading ? (<Loader/>):(
+  const productionOptions = productData.map((item) => ({
+    value: item._id,
+    label: item.productionNo,
+  }));
+
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      borderRadius: '0.375rem', // Tailwind rounded
+      borderColor: '#D1D5DB', // Tailwind gray-300
+      padding: '0.25rem',
+      minHeight: '2.5rem',
+      boxShadow: 'none',
+      '&:hover': { borderColor: '#9CA3AF' },
+    }),
+    // menu: (provided) => ({
+    //   ...provided,
+    //   borderRadius: '0.375rem',
+    //   maxHeight: '200px',
+    //   overflowY: 'auto',
+    // }),
+    option: (provided, state) => ({
+      ...provided,
+      backgroundColor: state.isFocused ? '#E0E7FF' : 'white',
+      color: '#111827',
+      cursor: 'pointer',
+    }),
+    placeholder: (provided) => ({ ...provided, color: '#6B7280' }),
+    singleValue: (provided) => ({ ...provided, color: '#111827' }),
+  };
+
+  return loading ? (
+    <Loader />
+  ) : (
     <div className="max-w-6xl mx-auto py-5 px-4 bg-gray-50 min-h-screen">
       <h2 className="text-lg font-semibold mb-4">Create QR Code</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {/* ✅ Searchable and styled Production No. */}
         <div>
           <label className="block mb-1 text-sm text-gray-700">
             Production No.
           </label>
-          <select
-            className="w-full p-2 rounded border border-gray-300"
-            value={selectedProduction}
-            onChange={handleProductionChange}
-          >
-            <option value="">Choose Production No.</option>
-            {productData.map((item) => (
-              <option key={item._id} value={item._id}>
-                {item.productionNo}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={productionOptions}
+            value={productionOptions.find(opt => opt.value === selectedProduction)}
+            onChange={handleProductionSelect}
+            isClearable
+            placeholder="Choose Production No."
+            styles={customStyles}
+          />
         </div>
-
         <div>
           <label className="block mb-1 text-sm text-gray-700">Article No</label>
           <input
@@ -242,6 +271,7 @@ const CreateQRCode = () => {
         </div>
       </div>
 
+      {/* Rest of your code remains unchanged */}
       <div className="bg-white shadow rounded p-6">
         <div className="mb-4 font-medium">
           Select Products For Creating QR Code
@@ -346,7 +376,7 @@ const CreateQRCode = () => {
                 e.target.style.display = 'none';
               }}
             />
-            <div>QR ID: {(qr.qrId).split('-')[1]}</div>
+            <div>QR ID: {qr.qrId.split('-')[1]}</div>
             <div>Date: {new Date().toLocaleDateString()}</div>
             <div>Size: {qr.size}</div>
             <div>Color: {qr.color}</div>

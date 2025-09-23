@@ -103,6 +103,7 @@ import Internal_warehouse_transfer from './components/Administrator/components/I
 import UploadStatus from './components/InventoryAdmin/components/InventoryManagement/UploadStatus';
 import Admin_WishList from './components/SuperAdmin/components/WishList_Admin/Admin_WishList';
 import AdminOrders from './components/SuperAdmin/components/AdminOrders/AdminOrder';
+import StockVerify from './components/WarehouseAdmin/components/StockVerify';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -1033,6 +1034,17 @@ function App() {
                     <ProtectedRoutes role={['Warehouse Manager']}>
                       <PageTitle title="DispatchScanner" />
                       <DispatchScanner />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path="/warehouse-management/StockVerify"
+                element={
+                  <>
+                    <ProtectedRoutes role={['Warehouse Manager']}>
+                      <PageTitle title="StockVerify" />
+                      <StockVerify />
                     </ProtectedRoutes>
                   </>
                 }

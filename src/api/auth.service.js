@@ -105,6 +105,17 @@ const getAllCustomers = (token, page, limit, searchQuery = '') => {
   );
 };
 
+const getCustomersBySalesPerson = (token, page, limit, searchQuery = '') => {
+  return API.get(
+    `/customer/get/bysalesperson?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
 const getAllCustomersWithoutPagination = (token) => {
   return API.get(`/customer/get`, {
     headers: {
@@ -233,5 +244,6 @@ export default {
   otpvalidation,
   forgetOtp,
   newPassword,
-  getProfile
+  getProfile,
+  getCustomersBySalesPerson
 };

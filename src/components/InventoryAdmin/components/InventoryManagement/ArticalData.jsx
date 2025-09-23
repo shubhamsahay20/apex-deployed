@@ -89,26 +89,33 @@ const ArticalData = () => {
               </tr>
             </thead>
             <tbody>
-              {articledetails.map((row, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50">
-                  <td className="p-2 text-black font-medium">{row.article}</td>
-                  <td className="text-black font-medium">{row.categoryCode}</td>
-                  <td className="text-black font-medium">{row.size}</td>
-                  <td className="font-semibold">{row.color}</td>
-                  <td className="text-black font-medium">{row.type}</td>
-                  <td className="text-black font-medium">{row.quality}</td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Production_Qty}
-                  </td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Warehouse_Qty}
-                  </td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Total_Available}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {articledetails.map((row, idx) => {
+    const isLowStock =
+      row.Production_Qty < 10 &&
+      row.Warehouse_Qty < 10 &&
+      row.Total_Available < 10;
+
+    return (
+      <tr
+        key={idx}
+        className={`border-t hover:bg-gray-50 ${
+          isLowStock ? "bg-teal-200" : ""
+        }`}
+      >
+        <td className="p-2 text-black font-medium">{row.article}</td>
+        <td className="text-black font-medium">{row.categoryCode}</td>
+        <td className="text-black font-medium">{row.size}</td>
+        <td className="font-semibold">{row.color}</td>
+        <td className="text-black font-medium">{row.type}</td>
+        <td className="text-black font-medium">{row.quality}</td>
+        <td className="text-blue-600 font-medium">{row.Production_Qty}</td>
+        <td className="text-blue-600 font-medium">{row.Warehouse_Qty}</td>
+        <td className="text-blue-600 font-medium">{row.Total_Available}</td>
+      </tr>
+    );
+  })}
+</tbody>
+
           </table>
         </div>
 

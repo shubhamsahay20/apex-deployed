@@ -24,6 +24,15 @@ const getAllWarehouse = (token, page, limit, searchQuery='') => {
   });
 };
 
+
+const getOrderByWarehouse = (token, page, limit, searchQuery='') => {
+  return API.get(`/warehouses/order?page=${page}&limit=${limit}&search=${searchQuery}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 const getWarehouseById = async (token, id) => {
   try {
     if (!token) {
@@ -55,4 +64,5 @@ export default {
   getAllWarehouse,
   getWarehouseById,
   DeleteWarehouse,
+  getOrderByWarehouse
 };

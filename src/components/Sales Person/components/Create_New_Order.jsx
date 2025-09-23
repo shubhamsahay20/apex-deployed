@@ -8,6 +8,7 @@ import cartService from '../../../api/cart.service';
 import { FiShoppingCart } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import schemesService from '../../../api/schemes.service';
+import Cart_WishList from '../../../utils/Cart_WishList_Modal';
 
 const CategoryDashboard = () => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ const CategoryDashboard = () => {
   const [schemeId, setSchemeId] = useState(null);
   const [schemeType, setSchemeType] = useState('');
   const [schemeQuantity, setSchemeQuantity] = useState('');
+  const [showChoiceModal, setShowChoiceModal] = useState(false);
 
   const [locationFields, setLocationFields] = useState({
     address: '',
@@ -96,12 +98,15 @@ const CategoryDashboard = () => {
   const loadOptions = async (search, loadedOptions, { page }) => {
     try {
       const limit = 10;
-      const res = await authService.getAllCustomers(
+      const res = await authService.getCustomersBySalesPerson(
         user.accessToken,
         page,
         limit,
       );
-      const customers = res?.data?.data || [];
+
+      console.log('hiii', res.data);
+
+      const customers = res?.data?.customers || [];
 
       return {
         options: customers.map((c) => ({
@@ -306,7 +311,16 @@ const CategoryDashboard = () => {
         pincode: '',
       });
 
-      navigate('/salesPerson/cart');
+      // ✅ Both have data → ask user
+      if (res?.data?.items?.length > 0 && res?.data?.WishList?.length > 0) {
+        setShowChoiceModal(true);
+      } else if (res?.data?.items?.length > 0) {
+        navigate('/salesPerson/cart');
+      } else if (res?.data?.WishList?.length > 0) {
+        navigate('/salesPerson/Wishlist');
+      }
+
+      // navigate('/salesPerson/cart')
     } catch (error) {
       console.error('❌ Checkout error:', error);
       toast.error(error.response?.data?.message || 'Checkout failed.');
@@ -316,6 +330,10 @@ const CategoryDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-4xl mx-auto">
+        <p className="text-center font-bold text-red-600 text-2xl mb-4">
+          Notes :- Before Creating Order Kindly Check The Article Data
+        </p>
+
         <div className="bg-white rounded-xl shadow-xl p-8">
           <div className="flex justify-between">
             <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
@@ -691,7 +709,20 @@ const CategoryDashboard = () => {
             </div>
           </div>
 
-          {/* JSON Preview */}
+          {showChoiceModal && (
+            <Cart_WishList
+              title="Choose Destination"
+              message="You have items in both Cart and Wishlist. Where do you want to go?"
+              onConfirm={() => {
+                navigate('/salesPerson/cart');
+                setShowChoiceModal(false);
+              }}
+              onCancel={() => {
+                navigate('/salesPerson/Wishlist');
+                setShowChoiceModal(false);
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

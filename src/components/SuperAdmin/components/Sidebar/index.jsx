@@ -741,6 +741,31 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
+               {user?.user?.role === 'Warehouse Manager' && (
+                <li>
+                  <NavLink
+                    to="/warehouse-management/StockVerify"
+                    className={({ isActive }) =>
+                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
+                      (isActive && '!text-blue-500')
+                    }
+                  >
+                    <svg
+                      className="fill-current"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.325 0h13.35C18.51 0 20 1.49 20 3.325v13.35C20 18.51 18.51 20 16.675 20H3.325C1.49 20 0 18.51 0 16.675V3.325C0 1.49 1.49 0 3.325 0Zm6.675 4L4 7v8.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V7l-6-3Zm0 2.18L14 8v7H6V8l4-1.82ZM10 9.5c.28 0 .5.22.5.5v1.5h1.5c.28 0 .5.22.5.5s-.22.5-.5.5H10.5V14c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-1.5H8c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1.5V10c0-.28.22-.5.5-.5Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    Stock Verify
+                  </NavLink>
+                </li>
+              )}
 
               {user?.user?.role === 'Admin' && (
                 <li>

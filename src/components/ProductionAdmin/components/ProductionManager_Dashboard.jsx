@@ -88,7 +88,7 @@ const ProductionManager_Dashboard = () => {
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Inventory Summary */}
-        <div className="bg-white rounded-lg p-4 text shadow-sm">
+        {/* <div className="bg-white rounded-lg p-4 text shadow-sm">
           <h2 className="text-gray-800 text-base font-semibold mb-4">
             Inventory
           </h2>
@@ -114,7 +114,7 @@ const ProductionManager_Dashboard = () => {
               color="text-green-600"
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Production Chart */}
         <div className="w-full">

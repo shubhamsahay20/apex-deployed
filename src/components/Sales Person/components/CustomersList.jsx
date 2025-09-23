@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-// import { FiEye, FiTrash2 } from "react-icons/fi";
+import { FiEye, FiTrash2 } from "react-icons/fi";
 // import { PiPencilSimpleLineBold } from "react-icons/pi";
 import { useNavigate } from 'react-router-dom';
 import authService from '../../../api/auth.service';
 import { useAuth } from '../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import Loader from '../../../common/Loader'; // ✅ Import Loader
+import { useDebounce } from '../../../hooks/useDebounce';
 
 const CustomersList = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -15,23 +16,36 @@ const CustomersList = () => {
   const [customers, setCustomers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
-  const [loading, setLoading] = useState(false); // ✅ Loader state
+  const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   useEffect(() => {
+  if (debounceValue.length === 0 || debounceValue.length >= 2) {
     (async () => {
-      setLoading(true); // ✅ Show loader while fetching
+      setLoading(true);
       try {
-        const res = await authService.getAllCustomers(user.accessToken, currentPage, 9);
-        setCustomers(res.data?.data || []);
+        const res = await authService.getCustomersBySalesPerson(
+          user.accessToken,
+          currentPage,
+          9,
+          debounceValue
+        );
+        console.log('respo', res.data);
+
+        setCustomers(res.data?.customers || []);
         setTotalPages(res.data?.pagination?.totalPages || 1);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Error fetching customers");
+        toast.error(
+          error.response?.data?.message || 'Error fetching customers',
+        );
       } finally {
         setLoading(false); // ✅ Hide loader after fetching
       }
     })();
-  }, [user.accessToken, currentPage]);
+  }
+}, [user.accessToken, debounceValue, currentPage]);
+
 
   const handleDelete = (index) => {
     setDeleteIndex(index);
@@ -59,13 +73,22 @@ const CustomersList = () => {
           <div className="flex flex-col md:flex-row justify-between items-center mb-4 gap-3">
             <h2 className="text-xl font-semibold">Customers List</h2>
             <div className="flex flex-wrap items-center gap-2">
-              <input
-                type="text"
-                placeholder="Search customer"
-                className="border px-3 py-1.5 rounded-md text-sm w-48 focus:outline-none"
+               <input
+                type='text'
+                value={searchQuery}
+                onChange={e => (
+                  setSearchQuery(e.target.value), setCurrentPage(1)
+                )}
+                placeholder='Search Article, order'
+                className='pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm'
               />
-              <button className="border px-3 py-1.5 rounded text-sm">Print</button>
-              <button className="border px-3 py-1.5 rounded text-sm">Export</button>
+              {/* <FaSearch className='absolute top-2.5 left-2.5 text-gray-400 text-sm' /> */}
+              <button className="border px-3 py-1.5 rounded text-sm">
+                Print
+              </button>
+              <button className="border px-3 py-1.5 rounded text-sm">
+                Export
+              </button>
             </div>
           </div>
 
@@ -87,8 +110,10 @@ const CustomersList = () => {
                     <td className="p-3">{entry.phone}</td>
                     <td className="p-3">{entry.email}</td>
                     <td className="p-3">
-                      {entry.location.map((item) => item.address).join(", ")} ,{" "}
-                      {entry.location.map((item) => item.city.toUpperCase()).join(", ")}
+                      {entry.location.map((item) => item.address).join(', ')} ,{' '}
+                      {entry.location
+                        .map((item) => item.city.toUpperCase())
+                        .join(', ')}
                     </td>
                   </tr>
                 ))}
