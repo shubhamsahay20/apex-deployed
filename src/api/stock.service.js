@@ -28,9 +28,9 @@ const dispatchStockQrScan = async (token, data) => {
   }
 };
 
-const getStockByWarehouse = async (token, id) => {
+const getStockByWarehouse = async (token, id,page,limit) => {
   try {
-    const res = await API.get(`/stock/warehouse/${id}`, {
+    const res = await API.get(`/stock/warehouse/${id}?page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -45,6 +45,20 @@ const getStockByWarehouse = async (token, id) => {
 const getAllStock = async (token) => {
   try {
     const res = await API.get(`/stock/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while geting qr scan');
+  }
+};
+
+const getStockByPn = async (token) => {
+  try {
+    const res = await API.get(`/stock/get`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -94,4 +108,5 @@ export default {
   getAllStock,
   getInternalStock,
   MarkWarehouseScanned,
+  getStockByPn
 };

@@ -13,20 +13,17 @@ const Internal_warehouse_transfer = () => {
   const { user } = useAuth();
 
   const [warehouseData, setWarehouseData] = useState([]);
-
-  // keep both id + name for server + UI
-  const [selectedFactory, setSelectedFactory] = useState(''); // id for payload
-  const [factoryName, setFactoryName] = useState(''); // name for payload/UI
+  const [selectedFactory, setSelectedFactory] = useState('');
+  const [factoryName, setFactoryName] = useState('');
   const [factory, setFactory] = useState({ id: '', name: '' });
-  const [warehouses, setWarehouse] = useState({ id: '', name: '' });
 
-  const [fromWarehouse, setFromWarehouse] = useState(''); // id for payload
-  const [toWarehouse, setToWarehouse] = useState(''); // id for payload
+  const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
+  const [toWarehouse, setToWarehouse] = useState(''); // warehouseId
 
   const [productionNo, setProductionNo] = useState('');
   const [article, setArticle] = useState('');
-  const [quantity, setQuantity] = useState(1);
-  const [availableQty, setAvailableQty] = useState(0); // ✅ cap for quantity
+  const [quantity, setQuantity] = useState(0);
+  const [availableQty, setAvailableQty] = useState(0);
   const [pnNumber, setPnNumber] = useState([]);
 
   const [category, setCategory] = useState({
@@ -43,7 +40,37 @@ const Internal_warehouse_transfer = () => {
 
   const printRef = useRef();
 
-  // ✅ Create QR
+  // Fetch stock data
+  useEffect(() => {
+    (async () => {
+      const prores = await stockService.getStockByPn(user.accessToken);
+      const allStockData = prores.items.map((item) => ({
+        productionNo: item.productionNo,
+        article: item.article,
+        categoryCode: item.categoryCode,
+        size: item.size,
+        type: item.type,
+        color: item.color,
+        quality: item.quality,
+        factory: item.factory,
+        warehouseData: item.warehouseData,
+      }));
+
+      const uniquePn = Array.from(
+        new Map(allStockData.map((item) => [item.productionNo, item])).values(),
+      );
+      setPnNumber(uniquePn);
+    })();
+  }, [user.accessToken]);
+
+  // Fetch warehouses
+  useEffect(() => {
+    (async () => {
+      const res = await warehouseService.getAllWarehouse(user.accessToken);
+      setWarehouseData(res.data.data || []);
+    })();
+  }, [user.accessToken]);
+
   const handleCreateQr = async () => {
     if (
       !selectedFactory ||
@@ -57,42 +84,82 @@ const Internal_warehouse_transfer = () => {
       return;
     }
 
-    // Build the payload exactly like you want
+    const selectedPN = pnNumber.find((pn) => pn.productionNo === productionNo);
+    const selectedWarehouse = selectedPN?.warehouseData.find(
+      (w) => w.warehouseId === fromWarehouse,
+    );
+
     const payload = {
       factory: factory.id,
       factory_name: factoryName,
       fromWarehouse,
       toWarehouse,
       productionNo,
-      article,
+      article: selectedPN?.article || article,
       quantity,
-      category,
+      category: {
+        categoryCode: selectedWarehouse?.categoryCode || category.categoryCode,
+        color: selectedWarehouse?.color || category.color,
+        size: selectedWarehouse?.size || category.size,
+        type: selectedWarehouse?.type || category.type,
+        quality: selectedWarehouse?.quality || category.quality,
+      },
     };
 
-    console.log('my payload', payload);
-
-    setLoading(true);
     try {
       const res = await qrService.internalStockTransfer(
         user.accessToken,
         payload,
       );
-
-      console.log('response after internal transfer', res);
-
       toast.success(res.data?.message || 'QR generated successfully!');
-      setQrData(res.data); // store response to show QR codes
-    } catch (error) {
-      console.error(error);
-      toast.error(error.response?.data?.message || 'Error generating QR');
-    } finally {
-      setLoading(false);
+
+      console.log('res is after qr', res.data);
+
+      setQrData(res.data);
+      setSelectedFactory('');
+      setFactoryName('');
+      setFactory({ id: '', name: '' });
+      setFromWarehouse('');
+      setToWarehouse('');
+      setProductionNo('');
+      setArticle('');
+      setAvailableQty(0);
+      setQuantity(0);
+      setCategory({
+        categoryCode: '',
+        color: '',
+        size: '',
+        type: '',
+        quality: '',
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Error generating QR');
     }
   };
 
-  // ✅ Print QR
+  const handleReset = () => {
+    setSelectedFactory('');
+    setFactoryName('');
+    setFactory({ id: '', name: '' });
+    setFromWarehouse('');
+    setToWarehouse('');
+    setProductionNo('');
+    setArticle('');
+    setAvailableQty(0);
+    setQuantity(0);
+    setCategory({
+      categoryCode: '',
+      color: '',
+      size: '',
+      type: '',
+      quality: '',
+    });
+    setQrData([]);
+  };
+
   const handlePrint = async () => {
-    if (!qrData || !qrData.qrCodes || qrData.qrCodes.length === 0) {
+    if (!qrData?.qrCodes || qrData.qrCodes.length === 0) {
       toast.error('No QR data available to print.');
       return;
     }
@@ -102,13 +169,11 @@ const Internal_warehouse_transfer = () => {
       const doc = new jsPDF();
       let x = 10,
         y = 20;
-      const qrSize = 40;
-      const gap = 10;
+      const qrSize = 40,
+        gap = 10;
 
       qrData.qrCodes.forEach((qr, index) => {
-        if (qr.qrData) {
-          doc.addImage(qr.qrData, 'PNG', x, y, qrSize, qrSize);
-        }
+        if (qr.qrData) doc.addImage(qr.qrData, 'PNG', x, y, qrSize, qrSize);
         doc.setFontSize(10);
         doc.text(`Article: ${qr.article || 'N/A'}`, x, y + qrSize + 5);
         doc.text(`Size: ${qr.size || 'N/A'}`, x, y + qrSize + 10);
@@ -131,69 +196,10 @@ const Internal_warehouse_transfer = () => {
       doc.save('transfer-qr-codes.pdf');
       toast.success('QR codes downloaded');
     } catch (error) {
-      console.error(error);
       toast.error('Error printing QR');
     } finally {
       setIsPrinting(false);
     }
-  };
-
-  // ✅ Fetch Stock Data and extract unique Production Numbers (attach availableQuantity)
-  useEffect(() => {
-    (async () => {
-      const prores = await stockService.getAllStock(user.accessToken);
-
-      // Flatten with factory & warehouse & availableQuantity attached
-      const allStockData = prores.stock.stock.flatMap((item) =>
-        item.stockdata.map((stock) => ({
-          ...stock,
-          factory: item.factory,
-          warehouse: item.warehouse,
-          availableQuantity: item.availableQuantity ?? 0, // ✅ attach
-        })),
-      );
-
-      // Deduplicate by productionNo (keep first occurrence)
-      const uniquePn = Array.from(
-        new Map(allStockData.map((item) => [item.productionNo, item])).values(),
-      );
-
-      setPnNumber(uniquePn);
-    })();
-  }, [user.accessToken]);
-
-  // ✅ Fetch Warehouses
-  useEffect(() => {
-    (async () => {
-      const res = await warehouseService.getAllWarehouse(user.accessToken);
-      console.log("res warehouse",res.data.data);
-      
-      setWarehouseData(res.data.data || []);
-    })();
-  }, [user.accessToken]);
-
-  const handleReset = () => {
-    setSelectedFactory('');
-    setFactoryName('');
-    setFactory({ id: '', name: '' });
-
-    setFromWarehouse('');
-    setWarehouse({ id: '', name: '' });
-
-    setToWarehouse('');
-    setProductionNo('');
-    setArticle('');
-    setAvailableQty(0);
-    setQuantity(1);
-
-    setCategory({
-      categoryCode: '',
-      color: '',
-      size: '',
-      type: '',
-      quality: '',
-    });
-    setQrData([]);
   };
 
   return loading ? (
@@ -202,7 +208,6 @@ const Internal_warehouse_transfer = () => {
     <div className="max-w-6xl mx-auto py-5 px-4 bg-gray-50 min-h-screen">
       <h2 className="text-lg font-semibold mb-4">Create Transfer QR Code</h2>
 
-      {/* Form Fields */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {/* Production No */}
         <div>
@@ -217,8 +222,12 @@ const Internal_warehouse_transfer = () => {
               const selected = pnNumber.find((pn) => pn.productionNo === value);
               setProductionNo(value);
 
+              // ✅ Reset warehouse + qty every time Production No changes
+              setFromWarehouse('');
+              setQuantity(0);
+              setAvailableQty(0);
+
               if (selected) {
-                // Fill main details
                 setArticle(selected.article || '');
                 setCategory({
                   categoryCode: selected.categoryCode || '',
@@ -228,36 +237,25 @@ const Internal_warehouse_transfer = () => {
                   quality: selected.quality || '',
                 });
 
-                // ✅ available qty from parent
-                const avail = Number(selected.availableQuantity || 0);
-                setAvailableQty(avail);
-
-                // default quantity within bounds
-                setQuantity(avail > 0 ? Math.min(1, avail) : 0);
-
-                // ✅ factory + warehouse (both id + name)
+                // ✅ Factory still comes from Production No
                 setSelectedFactory(selected.factory?._id || '');
                 setFactoryName(selected.factory?.name || '');
                 setFactory({
                   id: selected.factory?._id || '',
                   name: selected.factory?.name || '',
                 });
-
-                // fromWarehouse id for payload, name for UI
-                const fwId = selected.warehouse?._id || '';
-                const fwName = selected.warehouse?.name || '';
-                setFromWarehouse(fwId);
-                setWarehouse({ id: fwId, name: fwName });
               } else {
-                // clear if none
                 setArticle('');
-                setAvailableQty(0);
-                setQuantity(0);
-                setFactory({ id: '', name: '' });
+                setCategory({
+                  categoryCode: '',
+                  color: '',
+                  size: '',
+                  type: '',
+                  quality: '',
+                });
                 setSelectedFactory('');
                 setFactoryName('');
-                setWarehouse({ id: '', name: '' });
-                setFromWarehouse('');
+                setFactory({ id: '', name: '' });
               }
             }}
           >
@@ -267,6 +265,55 @@ const Internal_warehouse_transfer = () => {
                 {pn.productionNo}
               </option>
             ))}
+          </select>
+        </div>
+
+        {/* From Warehouse */}
+        <div>
+          <label className="block mb-1 text-sm text-gray-700">
+            From Warehouse
+          </label>
+          <select
+            className="w-full p-2 rounded border border-gray-300"
+            value={fromWarehouse}
+            onChange={(e) => {
+              const value = e.target.value;
+              setFromWarehouse(value);
+
+              const selectedPN = pnNumber.find(
+                (pn) => pn.productionNo === productionNo,
+              );
+              if (selectedPN) {
+                const wh = selectedPN.warehouseData.find(
+                  (w) => w.warehouseId === value,
+                );
+                if (wh) {
+                  setAvailableQty(wh.availableQuantity || 0);
+                  setQuantity(wh.availableQuantity > 0 ? 1 : 0); // ✅ reset quantity
+                  setCategory({
+                    categoryCode:
+                      wh.categoryCode || selectedPN.categoryCode || '',
+                    color: wh.color || selectedPN.color || '',
+                    size: wh.size || selectedPN.size || '',
+                    type: wh.type || selectedPN.type || '',
+                    quality: wh.quality || selectedPN.quality || '',
+                  });
+                  setArticle(selectedPN.article || '');
+                } else {
+                  setAvailableQty(0);
+                  setQuantity(0);
+                }
+              }
+            }}
+          >
+            <option value="">Select Warehouse</option>
+            {pnNumber
+              .find((pn) => pn.productionNo === productionNo)
+              ?.warehouseData.map((w) => (
+                <option key={w.warehouseId} value={w.warehouseId}>
+                  {w.warehouseName} (Available: {w.availableQuantity})
+                </option>
+              ))}
           </select>
         </div>
 
@@ -285,7 +332,7 @@ const Internal_warehouse_transfer = () => {
               <option
                 key={w._id}
                 value={w._id}
-                disabled={w._id === warehouses.id} // prevent same as fromWarehouse
+                disabled={w._id === fromWarehouse}
               >
                 {w.name}
               </option>
@@ -293,7 +340,7 @@ const Internal_warehouse_transfer = () => {
           </select>
         </div>
 
-        {/* Factory (read-only, auto-filled) */}
+        {/* Factory */}
         <div>
           <label className="block mb-1 text-sm text-gray-700">Factory</label>
           <input
@@ -301,20 +348,6 @@ const Internal_warehouse_transfer = () => {
             className="w-full p-2 rounded border border-gray-300 bg-gray-100"
             value={factory.name}
             readOnly
-            placeholder="Auto-filled from production no."
-          />
-        </div>
-
-        {/* From Warehouse (read-only, auto-filled) */}
-        <div>
-          <label className="block mb-1 text-sm text-gray-700">
-            From Warehouse
-          </label>
-          <input
-            className="w-full p-2 rounded border border-gray-300 bg-gray-100"
-            value={warehouses.name}
-            readOnly
-            placeholder="Auto-filled from production no."
           />
         </div>
 
@@ -324,19 +357,14 @@ const Internal_warehouse_transfer = () => {
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={article}
-            onChange={(e) => setArticle(e.target.value)}
+            readOnly
           />
         </div>
 
-        {/* Quantity with cap */}
+        {/* Quantity */}
         <div>
           <label className="block mb-1 text-sm text-gray-700">
-            Quantity{' '}
-            {availableQty > 0 && (
-              <span className="text-xs text-gray-500">
-                (Available: {availableQty})
-              </span>
-            )}
+            Quantity {availableQty > 0 && `(Available: ${availableQty})`}
           </label>
           <input
             type="number"
@@ -346,26 +374,11 @@ const Internal_warehouse_transfer = () => {
             max={availableQty}
             onChange={(e) => {
               const val = Number(e.target.value);
-              if (Number.isNaN(val)) return;
-
-              if (availableQty <= 0) {
-                setQuantity(0);
-                toast.error('No available quantity.');
-                return;
-              }
-
-              if (val < 1) {
-                setQuantity(1);
-                return;
-              }
-
-              if (val > availableQty) {
+              if (val < 1) setQuantity(1);
+              else if (val > availableQty) {
                 setQuantity(availableQty);
                 toast.error(`Quantity cannot exceed ${availableQty}`);
-                return;
-              }
-
-              setQuantity(val);
+              } else setQuantity(val);
             }}
           />
         </div>
@@ -378,49 +391,39 @@ const Internal_warehouse_transfer = () => {
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={category.categoryCode}
-            onChange={(e) =>
-              setCategory({ ...category, categoryCode: e.target.value })
-            }
+            readOnly
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm text-gray-700">Color</label>
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={category.color}
-            onChange={(e) =>
-              setCategory({ ...category, color: e.target.value })
-            }
+            readOnly
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm text-gray-700">Size</label>
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={category.size}
-            onChange={(e) => setCategory({ ...category, size: e.target.value })}
+            readOnly
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm text-gray-700">Type</label>
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={category.type}
-            onChange={(e) => setCategory({ ...category, type: e.target.value })}
+            readOnly
           />
         </div>
-
         <div>
           <label className="block mb-1 text-sm text-gray-700">Quality</label>
           <input
             className="w-full p-2 rounded border border-gray-300"
             value={category.quality}
-            onChange={(e) =>
-              setCategory({ ...category, quality: e.target.value })
-            }
+            readOnly
           />
         </div>
       </div>
@@ -434,8 +437,8 @@ const Internal_warehouse_transfer = () => {
           Reset
         </button>
         <button
-          className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
           onClick={handleCreateQr}
+          className="bg-blue-600 text-white rounded px-4 py-2 hover:bg-blue-700"
         >
           Create QR Code
         </button>
@@ -453,9 +456,6 @@ const Internal_warehouse_transfer = () => {
           {isPrinting ? 'Printing...' : 'Print QR Codes'}
         </button>
       </div>
-
-      {/* QR Preview */}
-      {/* QR Preview */}
       {qrData?.createdInDestination?.length > 0 && (
         <div
           ref={printRef}
@@ -466,6 +466,7 @@ const Internal_warehouse_transfer = () => {
         >
           {qrData.createdInDestination.map((qr, i) => {
             // Find matching stockCreated to get article
+
             const stockItem = qrData.stockCreated?.find(
               (s) => s.qrId === qr.qrId,
             );
@@ -488,18 +489,24 @@ const Internal_warehouse_transfer = () => {
                     className="w-20 h-20 mb-2"
                     onError={(e) => {
                       console.error('QR image failed to load:', e);
+
                       e.target.style.display = 'none';
                     }}
                   />
                 )}
 
                 {qr.qrId && <div>QR ID: {qr.qrId.split('-')[1]}</div>}
+
                 {qr.createdAt && (
                   <div>Date: {new Date(qr.createdAt).toLocaleDateString()}</div>
                 )}
+
                 {qr.size && <div>Size: {qr.size}</div>}
+
                 {qr.color && <div>Color: {qr.color}</div>}
+
                 {qr.type && <div>Type: {qr.type}</div>}
+
                 {qr.quality && <div>Quality: {qr.quality}</div>}
               </div>
             );

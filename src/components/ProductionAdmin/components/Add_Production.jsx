@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FaTrash } from 'react-icons/fa';
+import { FaSearch, FaTrash } from 'react-icons/fa';
 import factoryService from '../../../api/factory.service';
 import { useAuth } from '../../../Context/AuthContext';
 import authService from '../../../api/auth.service';
@@ -11,6 +11,7 @@ import productionService from '../../../api/production.service';
 import DeleteModal from '../../../utils/DeleteModal';
 import { toast } from 'react-toastify';
 import { useDebounce } from '../../../hooks/useDebounce';
+import Select from 'react-select';
 
 const Add_Production = () => {
   const { state } = useLocation();
@@ -24,27 +25,6 @@ const Add_Production = () => {
   const [selectId, setSelectId] = useState(null);
 
   const [deleteId, setDeleteId] = useState(null);
-  const [products, setProducts] = useState([
-    {
-      id: 301,
-      article: '301',
-      warehouse: 'Factory 46',
-      stock: '1,834',
-      size: '6X10',
-      color: 'Black',
-      type: 'S/H',
-    },
-
-    {
-      id: 302,
-      article: '302',
-      warehouse: 'Factory 46',
-      stock: '1,834',
-      size: '6X10',
-      color: 'Black',
-      type: 'S/H',
-    },
-  ]);
 
   const [factoryData, setFactoryData] = useState([]);
   const [articleData, setArticleData] = useState([]);
@@ -57,6 +37,7 @@ const Add_Production = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
   const [productionData, setProductionData] = useState([]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -64,21 +45,23 @@ const Add_Production = () => {
       [name]: value,
     }));
   };
-  useEffect(() => {
-    const fetchdata = async () => {
-      const res = await productionService.getAllProduction(
-        user.accessToken,
-        currentPage,
-        10,
-        debounceValue,
-      );
-      console.log('heloooooooooo', res.data);
-      setProductionData(res?.data?.products);
-      setTotalPages(res?.data?.pagination?.totalPages);
-    };
 
+  // ✅ reusable fetchData
+  const fetchData = async (page = currentPage, query = debounceValue) => {
+    const res = await productionService.getAllProduction(
+      user.accessToken,
+      page,
+      10,
+      query,
+    );
+    console.log('heloooooooooo', res.data);
+    setProductionData(res?.data?.products);
+    setTotalPages(res?.data?.pagination?.totalPages);
+  };
+
+  useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
-      fetchdata();
+      fetchData();
     }
   }, [user.accessToken, currentPage, debounceValue]);
 
@@ -94,12 +77,12 @@ const Add_Production = () => {
             user.accessToken,
             Page,
           );
-          console.log('res data', res.data?.data?.factories);
           factoryInfo = [...factoryInfo, ...res.data.data.factories];
           totalPages = res.data.pagination.totalPages;
           Page++;
         }
         setFactoryData(factoryInfo);
+
         let allData = [];
         let page2 = 1;
         let totalPages2 = 1;
@@ -109,7 +92,6 @@ const Add_Production = () => {
             user.accessToken,
             page2,
           );
-          console.log('this is second', response.data.data);
           allData = [...allData, ...response.data.data];
           totalPages2 = response.data.pagination.totalPages;
           page2++;
@@ -123,18 +105,24 @@ const Add_Production = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.article.trim()) {
+
+    if (!formData.article || !String(formData.article).trim()) {
       toast.error('Article code is required');
+      return;
     }
     if (!formData.date.trim()) {
       toast.error('Date is required');
+      return;
     }
-     if (!formData.factory.trim()) {
+    if (!formData.factory.trim()) {
       toast.error('Factory is required');
+      return;
     }
-     if (!formData.production.trim()) {
+    if (!formData.production.trim()) {
       toast.error('Production Number is required');
+      return;
     }
+
     try {
       const payload = {
         factory: formData.factory,
@@ -143,14 +131,13 @@ const Add_Production = () => {
         productionQuantity: formData.production,
       };
 
-      console.log(payload);
-
       const res = await productionService.addProduction(
         user.accessToken,
         payload,
       );
 
-      console.log('res coming after submit', res.data);
+      toast.success(res.data?.message || 'Production Added Successfully');
+
       setFormData({
         date: '',
         factory: '',
@@ -158,8 +145,9 @@ const Add_Production = () => {
         production: '',
       });
 
-      toast.success(res.data?.message || 'Production Added Successfully');
-      console.log('res backend', res);
+      // ✅ reload the list after adding
+      setCurrentPage(1); // optional: go to page 1 to see the latest
+      await fetchData(1, ''); // fetch again without filters
     } catch (error) {
       toast.error(error.response?.data?.message);
     }
@@ -180,6 +168,7 @@ const Add_Production = () => {
   const handleCreateLabels = () => {
     navigate('/production-manager/management/create-label', { state });
   };
+
   const handleDownloadPDF = () => {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -273,19 +262,48 @@ const Add_Production = () => {
             ))}
           </select>
         </div>
+
         <div>
-          <label className="text-sm font-medium">Article </label>
-          <select
+          <label className="text-sm font-medium">Article</label>
+          <Select
             name="article"
-            value={formData.article || ''}
-            onChange={handleChange}
-            className="border px-4 py-2 rounded-md text-sm  w-full"
-          >
-            <option value="Warehouse 01">Select Article</option>
-            {articleData?.map((item) => (
-              <option value={item.article}>{item.article}</option>
-            ))}
-          </select>
+            value={
+              formData.article
+                ? { label: formData.article, value: formData.article }
+                : null
+            }
+            onChange={(selected) =>
+              handleChange({
+                target: {
+                  name: 'article',
+                  value: selected ? selected.value : '',
+                },
+              })
+            }
+            options={articleData.map((item) => ({
+              label: item.article,
+              value: item.article,
+            }))}
+            isClearable
+            isSearchable
+            placeholder="Select Article"
+            styles={{
+              control: (base) => ({
+                ...base,
+                borderColor: '#d1d5db',
+                borderRadius: '0.375rem',
+                padding: '2px',
+                minHeight: '38px',
+                fontSize: '0.875rem',
+              }),
+              // menu: (base) => ({
+              //   ...base,
+              //   maxHeight: "200px", // 👈 scroll limit
+              //   overflowY: "auto",
+              //   zIndex: 9999,
+              // }),
+            }}
+          />
         </div>
 
         <div>
@@ -309,9 +327,23 @@ const Add_Production = () => {
       </div>
 
       <div className="bg-white border rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">
-          Selected Products For Delivery
-        </h3>
+        <div className="relative mb-4 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            Selected Products For Delivery
+          </h3>
+          <div className='relative'>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Production No."
+              className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+            />
+            <FaSearch className="absolute top-2.5 left-2.5  text-gray-400 text-sm" />
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border">
             <thead className="bg-gray-100 text-gray-600">

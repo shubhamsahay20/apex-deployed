@@ -1,67 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { FiRefreshCcw } from 'react-icons/fi';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../../Context/AuthContext';
 import productionService from '../../../api/production.service';
 import { toast } from 'react-toastify';
 import Loader from '../../../common/Loader';
 
 const QRDropdownPage = () => {
-  const [selectPN, setSelectPN] = useState(null);
+  const [selectPN, setSelectPN] = useState('');
   const [parsedData, setParsedData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [apiResponse, setApiResponse] = useState(null);
   const { user } = useAuth();
+
   const [productData, setProductData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [search, setSearch] = useState('');
+  const [fetching, setFetching] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        let allNumber = [];
-        let currentPage = 1;
-        let totalPages = 1;
+  const [open, setOpen] = useState(false); // dropdown open/close
+  const wrapperRef = useRef(null);
 
-        while (currentPage <= totalPages) {
-          const res = await productionService.getAllProduction(
-            user.accessToken,
-            currentPage,
-          );
+  // 🔹 Fetch products
+  const fetchProducts = async (pageNo = 1, searchTerm = '') => {
+    if (fetching) return;
+    setFetching(true);
+    try {
+      const res = await productionService.getAllProduction(
+        user.accessToken,
+        pageNo,
+        20,
+        searchTerm
+      );
 
-          console.log('res is', res.data?.pagination);
+      const products = res.data?.products || [];
+      const pagination = res.data?.pagination;
 
-          allNumber = [...allNumber, ...res.data?.products];
-          console.log('total pages', res.data?.pagination?.totalPages);
-
-          totalPages = res.data?.pagination?.totalPages;
-          currentPage++;
-        }
-        setProductData(allNumber);
-      } catch (error) {
-        toast.error(error.response?.data?.message);
+      if (pageNo === 1) {
+        setProductData(products);
+      } else {
+        setProductData((prev) => [...prev, ...products]);
       }
-    })();
-  }, [user.accessToken]);
+
+      setHasMore(pageNo < (pagination?.totalPages || 1));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to fetch');
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // 🔹 Initial + search change
+  useEffect(() => {
+    if (open) {
+      setPage(1);
+      fetchProducts(1, search);
+    }
+  }, [search, open]);
+
+  // 🔹 On page change
+  useEffect(() => {
+    if (page > 1) fetchProducts(page, search);
+  }, [page]);
+
+  // 🔹 Infinite scroll
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !fetching) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  // 🔹 Close dropdown when clicked outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const payload = {
-        productionNo: selectPN,
-      };
-
-      const res = await productionService.byPassWithoutQr(
-        user.accessToken,
-        payload,
-      );
-      console.log('after submit', res);
+      const payload = { productionNo: selectPN };
+      const res = await productionService.byPassWithoutQr(user.accessToken, payload);
 
       toast.success(res?.message || 'New Stock Created');
-
       setSelectPN('');
     } catch (error) {
-      console.error('Full error object:', error);
-      toast.error(error.response?.data?.error);
-
-   
+      console.error(error);
+      toast.error(error.response?.data?.error || 'Submit failed');
     } finally {
       setLoading(false);
     }
@@ -69,6 +98,7 @@ const QRDropdownPage = () => {
 
   const handleSelect = (value) => {
     setSelectPN(value);
+    setOpen(false); // close after selection
 
     try {
       const jsonData = JSON.parse(value);
@@ -86,26 +116,55 @@ const QRDropdownPage = () => {
     <Loader />
   ) : (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          Manual Process
-        </h2>
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center" ref={wrapperRef}>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manual Process</h2>
         <p className="text-sm text-gray-500 mb-6">
           Select Production No for Manual Process Without Qr Scan
         </p>
 
-        <select
-          onChange={(e) => handleSelect(e.target.value)}
-          value={selectPN}
-          className="w-full px-4 py-3 border rounded-lg text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 mb-4"
-        >
-          <option value="">-- Select Production No --</option>
-          {productData.map((qr, idx) => (
-            <option key={idx} value={qr.productionNo}>
-              {qr.productionNo}
-            </option>
-          ))}
-        </select>
+        {/* 🔹 Custom select box */}
+        <div className="relative text-left mb-4">
+          <div
+            onClick={() => setOpen((prev) => !prev)}
+            className="w-full px-4 py-2 border rounded-lg bg-white text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500"
+          >
+            {selectPN || '-- Select Production No --'}
+          </div>
+
+          {open && (
+            <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg z-10">
+              {/* search box inside dropdown */}
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-3 py-2 border-b outline-none"
+              />
+
+              {/* list with scroll */}
+              <div
+                onScroll={handleScroll}
+                className="max-h-48 overflow-y-auto"
+              >
+                {productData.map((qr, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => handleSelect(qr.productionNo)}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                  >
+                    {qr.productionNo}
+                  </div>
+                ))}
+
+                {fetching && <p className="px-4 py-2 text-sm text-gray-500">Loading...</p>}
+                {!fetching && productData.length === 0 && (
+                  <p className="px-4 py-2 text-sm text-gray-500">No results found</p>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         <button
           type="submit"

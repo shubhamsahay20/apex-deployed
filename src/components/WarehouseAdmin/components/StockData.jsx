@@ -31,10 +31,16 @@ const Stock = () => {
         const response = await stockService.getStockByWarehouse(
           user.accessToken,
           selectWarehouseId,
+          currentPage,
+          10
         );
+
+        console.log("response",response);
+        
 
         // Ensure we always replace old data, even if empty
         setStockData(response?.data || []);
+        setTotalPage(response?.pagination.totalPages)
       } catch (error) {
         console.error('Error fetching stock data:', error);
         setStockData([]); // clear data on error too
@@ -43,7 +49,7 @@ const Stock = () => {
     };
 
     fetchData();
-  }, [selectWarehouseId, user.accessToken]);
+  }, [selectWarehouseId, currentPage, user.accessToken]);
 
   // 🔹 Group stock data (merge duplicates and sum quantity)
   // 🔹 Directly map API response instead of recalculating
