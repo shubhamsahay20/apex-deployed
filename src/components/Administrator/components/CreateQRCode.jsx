@@ -7,7 +7,6 @@ import qrService from '../../../api/qr.service';
 import { toast } from 'react-toastify';
 import jsPDF from 'jspdf';
 import Loader from '../../../common/Loader';
-import Select from 'react-select'; // ✅ import React Select
 
 const CreateQRCode = () => {
   const { user } = useAuth();
@@ -23,6 +22,62 @@ const CreateQRCode = () => {
   const [loading, setLoading] = useState(false);
 
   const printRef = useRef();
+
+  // 🔹 search + scroll states
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [search, setSearch] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  // 🔹 Fetch products
+  const fetchProducts = async (pageNo = 1, searchTerm = '') => {
+    if (fetching) return;
+    setFetching(true);
+    try {
+      const res = await productionService.getAllProduction(
+        user.accessToken,
+        pageNo,
+        20,
+        searchTerm
+      );
+
+      const products = res.data?.products || [];
+      const pagination = res.data?.pagination;
+
+      if (pageNo === 1) {
+        setProductData(products);
+      } else {
+        setProductData(prev => [...prev, ...products]);
+      }
+
+      setHasMore(pageNo < (pagination?.totalPages || 1));
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to fetch');
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // search + open trigger
+  useEffect(() => {
+    if (open) {
+      setPage(1);
+      fetchProducts(1, search);
+    }
+  }, [search, open]);
+
+  // load more when page changes
+  useEffect(() => {
+    if (page > 1) fetchProducts(page, search);
+  }, [page]);
+
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !fetching) {
+      setPage(prev => prev + 1);
+    }
+  };
 
   const handleCreateQr = async () => {
     const selectedProd = productData.find((p) => p._id === selectedProduction);
@@ -130,13 +185,6 @@ const CreateQRCode = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await productionService.getAllProduction(user.accessToken);
-      setProductData(res.data?.products || []);
-    })();
-  }, [user.accessToken]);
-
-  useEffect(() => {
-    (async () => {
       const res = await warehouseService.getAllWarehouse(user.accessToken);
       setWarehouseData(res.data.data || []);
     })();
@@ -149,6 +197,7 @@ const CreateQRCode = () => {
       setFactory(selected.factory?.name || '');
       setArticleNo(selected.article || '');
       setQuantities({ [selected._id]: selected.productionQuantity || 1 });
+      setOpen(false); // close dropdown after select
     } else {
       setFactory('');
       setArticleNo('');
@@ -184,37 +233,6 @@ const CreateQRCode = () => {
       ? qrData.some((prod) => prod.qrCodes && prod.qrCodes.length > 0)
       : qrData.qrCodes && qrData.qrCodes.length > 0);
 
-  const productionOptions = productData.map((item) => ({
-    value: item._id,
-    label: item.productionNo,
-  }));
-
-  const customStyles = {
-    control: (provided) => ({
-      ...provided,
-      borderRadius: '0.375rem', // Tailwind rounded
-      borderColor: '#D1D5DB', // Tailwind gray-300
-      padding: '0.25rem',
-      minHeight: '2.5rem',
-      boxShadow: 'none',
-      '&:hover': { borderColor: '#9CA3AF' },
-    }),
-    // menu: (provided) => ({
-    //   ...provided,
-    //   borderRadius: '0.375rem',
-    //   maxHeight: '200px',
-    //   overflowY: 'auto',
-    // }),
-    option: (provided, state) => ({
-      ...provided,
-      backgroundColor: state.isFocused ? '#E0E7FF' : 'white',
-      color: '#111827',
-      cursor: 'pointer',
-    }),
-    placeholder: (provided) => ({ ...provided, color: '#6B7280' }),
-    singleValue: (provided) => ({ ...provided, color: '#111827' }),
-  };
-
   return loading ? (
     <Loader />
   ) : (
@@ -222,20 +240,50 @@ const CreateQRCode = () => {
       <h2 className="text-lg font-semibold mb-4">Create QR Code</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {/* ✅ Searchable and styled Production No. */}
-        <div>
-          <label className="block mb-1 text-sm text-gray-700">
-            Production No.
-          </label>
-          <Select
-            options={productionOptions}
-            value={productionOptions.find(opt => opt.value === selectedProduction)}
-            onChange={handleProductionSelect}
-            isClearable
-            placeholder="Choose Production No."
-            styles={customStyles}
-          />
+        {/* ✅ Search + Infinite Scroll Dropdown for Production No. */}
+        <div className="relative text-left">
+          <label className="block mb-1 text-sm text-gray-700">Production No.</label>
+          <div
+            onClick={() => setOpen(prev => !prev)}
+            className="w-full px-4 py-2 border rounded-lg bg-white text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500"
+          >
+            {selectedProduction
+              ? productData.find(p => p._id === selectedProduction)?.productionNo
+              : "-- Select Production No --"}
+          </div>
+
+          {open && (
+            <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg z-10">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full px-3 py-2 border-b outline-none"
+              />
+
+              <div onScroll={handleScroll} className="max-h-48 overflow-y-auto">
+                {productData.map((prod) => (
+                  <div
+                    key={prod._id}
+                    onClick={() => handleProductionSelect({ value: prod._id })}
+                    className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                  >
+                    {prod.productionNo}
+                  </div>
+                ))}
+
+                {fetching && (
+                  <p className="px-4 py-2 text-sm text-gray-500">Loading...</p>
+                )}
+                {!fetching && productData.length === 0 && (
+                  <p className="px-4 py-2 text-sm text-gray-500">No results found</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
+
         <div>
           <label className="block mb-1 text-sm text-gray-700">Article No</label>
           <input

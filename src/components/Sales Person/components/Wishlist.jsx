@@ -111,6 +111,7 @@ const Wishlist = () => {
               <th className="px-6 py-5">Color</th>
               <th className="px-6 py-5">Soft/Hard</th>
               <th className="px-6 py-5">Quality</th>
+              <th className="px-6 py-5">Quantity</th>
               <th className="px-6 py-5">Customer</th>
               <th className="px-6 py-5">Action</th>
             </tr>
@@ -144,6 +145,7 @@ const Wishlist = () => {
                       <td className="px-6 py-5">{firstArticle.color}</td>
                       <td className="px-6 py-5">{firstArticle.type}</td>
                       <td className="px-6 py-5">{firstArticle.quality}</td>
+                      <td className="px-6 py-5">{firstArticle.quantity}</td>
                       <td className="px-6 py-5">{item.customer?.name}</td>
                       <td className="px-6 py-5 flex gap-2 items-center">
                         <button

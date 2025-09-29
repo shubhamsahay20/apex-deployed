@@ -28,7 +28,7 @@ const Logs = () => {
         setTotalPage(res.pages);
       } catch (error) {
         toast.error(error.response?.data?.message);
-      } finally {
+      } finally { 
         setLoading(false); // ⬅️ hide loader after API call
       }
     };
