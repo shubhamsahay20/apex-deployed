@@ -127,7 +127,7 @@ export default function CreateAnnouncement({ onSubmit, onCancel }) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Select Role</option>
-                <option value="Super Admin">Super Admin</option>
+                {/* <option value="Super Admin">Super Admin</option> */}
                 <option value="Production Manager">Production Manager</option>
                 <option value="Inventory Manager">Inventory Manager</option>
                 <option value="Accounting Manager">Accounting Manager</option>

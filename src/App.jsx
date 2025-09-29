@@ -610,7 +610,7 @@ function App() {
                 path="/warehouse-details/:id"
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Warehouse Manager']}>
+                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
                       <PageTitle title="Tables " />
                       <WarehouseDetails />
                     </ProtectedRoutes>
@@ -621,7 +621,7 @@ function App() {
                 path="/factory-details/:id"
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Warehouse Manager']}>
+                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
                       <PageTitle title=" Factory " />
                       <FactoryDetails />
                     </ProtectedRoutes>
@@ -998,7 +998,7 @@ function App() {
                 path="/warehouse-edit/:id"
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Warehouse Manager']}>
+                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
                       <PageTitle title="EditWarehouse" />
                       <EditWarehouse />
                     </ProtectedRoutes>

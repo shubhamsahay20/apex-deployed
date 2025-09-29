@@ -36,8 +36,8 @@ const addCategory = (token, data) =>
     },
   });
 
-const getCategories = (token, page = 1, limit = 10) =>
-  API.get(`/product?page=${page}&limit=${limit}`, {
+const getCategories = (token, page = 1, limit = 10,searchQuery='') =>
+  API.get(`/product?page=${page}&limit=${limit}&search=${searchQuery}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -148,7 +148,7 @@ const EditCustomer = (token, id, data) => {
 };
 
 const getCustomerById = (token, id) => {
-  return API.get(`/customer/${id}`, {
+  return API.get(`/sale-order/customerOrderHistory/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

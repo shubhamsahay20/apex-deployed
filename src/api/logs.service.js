@@ -1,8 +1,8 @@
 import API from './api';
 
-const getLogs = async (token,page,limit) => {
+const getLogs = async (token,page,limit,searchQuery='') => {
   try {
-    const res = await API.get(`/log?page=${page}&limit=${limit}`, {
+    const res = await API.get(`/log?page=${page}&limit=${limit}&search=${searchQuery}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

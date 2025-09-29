@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../../../../Context/AuthContext';
 import authService from '../../../../api/auth.service';
 import { useNavigate } from 'react-router-dom';
@@ -9,83 +9,92 @@ import { toast } from 'react-toastify';
 export default function AddArticleCode() {
   const { user } = useAuth();
   const navigate = useNavigate();
+
   const [article, setArticle] = useState([]);
   const [articleData, setArticleData] = useState({});
   const [addArticleCode, setAddArticleCode] = useState();
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [fetching, setFetching] = useState(false);
+  const [search, setSearch] = useState('');
+  const [open, setOpen] = useState(false);
 
-  const fetchArticles = async (pageNum) => {
+  const wrapperRef = useRef(null);
+
+  const [formData, setFormData] = useState({
+    articleName: '',
+    categoryName: '',
+    size: '',
+    color: '',
+    soft_hard: '',
+    A_B: '',
+  });
+
+  // 🔹 Fetch articles
+  const fetchArticles = async (pageNum = 1, searchTerm = '') => {
+    if (fetching) return;
+    setFetching(true);
     try {
-      const res = await authService.getCategories(user.accessToken, pageNum);
+      const res = await authService.getCategories(
+        user.accessToken,
+        pageNum,
+        searchTerm,
+      );
       const newData = res?.data?.data || [];
 
-      if (newData.length === 0) {
-        setHasMore(false);
-        return;
-      }
+      if (pageNum === 1) setArticle(newData);
+      else setArticle((prev) => [...prev, ...newData]);
 
-      setArticle((prev) => [...prev, ...newData]);
+      setHasMore(newData.length > 0);
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || 'Failed to fetch categories',
-      );
+      toast.error(error.response?.data?.message || 'Failed to fetch articles');
+    } finally {
+      setFetching(false);
     }
   };
 
-  useEffect(() => {
-    fetchArticles(page);
-  }, [page]);
-
+  // 🔹 Infinite scroll
   const handleScroll = (e) => {
-    const target = e.target;
-    console.log('scrollTop:', target.scrollTop); // how far user scrolled
-    console.log('clientHeight:', target.clientHeight); // visible height of box
-    console.log('scrollHeight:', target.scrollHeight);
-    if (
-      hasMore &&
-      target.scrollTop + target.clientHeight >= target.scrollHeight - 10
-    ) {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (hasMore && scrollTop + clientHeight >= scrollHeight - 5 && !fetching) {
       setPage((prev) => prev + 1);
     }
   };
 
-  const handleSelectChange = (e) => {
-    const selectedArticle = article.find(
-      (item) => item.article === parseInt(e.target.value),
-    );
-    if (!selectedArticle) {
-      setArticleData({});
-      setFormData((prev) => ({ ...prev, articleName: e.target.value }));
-      return;
-    }
-    setArticleData(selectedArticle);
-    const cat =
-      selectedArticle.category && selectedArticle.category[0]
-        ? selectedArticle.category[0]
-        : {};
-    setFormData((prev) => ({
-      ...prev,
-      articleName: selectedArticle.article
-        ? String(selectedArticle.article)
-        : '',
-      categoryName:
-        cat.categoryCode !== undefined && cat.categoryCode !== null
-          ? String(cat.categoryCode)
-          : '',
-      size: cat.size !== undefined && cat.size !== null ? String(cat.size) : '',
-      color:
-        cat.color !== undefined && cat.color !== null ? String(cat.color) : '',
-      soft_hard:
-        cat.type !== undefined && cat.type !== null ? String(cat.type) : '',
-      A_B:
-        cat.quality !== undefined && cat.quality !== null
-          ? String(cat.quality)
-          : '',
-    }));
+  // 🔹 Select article
+  const handleSelect = (item) => {
+    setArticleData(item);
+    setOpen(false);
+
+    const cat = item.category && item.category[0] ? item.category[0] : {};
+    setFormData({
+      articleName: item.article ? String(item.article) : '',
+      categoryName: cat.categoryCode ? String(cat.categoryCode) : '',
+      size: cat.size ? String(cat.size) : '',
+      color: cat.color ? String(cat.color) : '',
+      soft_hard: cat.type ? String(cat.type) : '',
+      A_B: cat.quality ? String(cat.quality) : '',
+    });
   };
 
+  // 🔹 Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // 🔹 Fetch articles on page or search change
+  useEffect(() => {
+    fetchArticles(page, search);
+  }, [page, search]);
+
+  // 🔹 Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -95,73 +104,88 @@ export default function AddArticleCode() {
         articleCode: addArticleCode,
       };
       const res = await authService.addArticleCode(user.accessToken, payload);
-      console.log('response', res);
       toast.success(res?.data?.message || 'Article Code Added');
       navigate('/article-codes');
     } catch (error) {
       toast.error(
-        error.resopnse?.data?.message || 'Failed to add article code',
+        error.response?.data?.message || 'Failed to add article code',
       );
     }
   };
 
   return (
     <div className=" w-full h-full">
-      <div className="w-full h-[600px] bg-white rounded-lg shadow-sm  mx-auto">
+      <div className="w-full h-[600px] bg-white rounded-lg shadow-sm mx-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-900">Add Article </h1>
+          <h1 className="text-xl font-semibold text-gray-900">Add Article</h1>
         </div>
 
         {/* Form */}
         <form className="p-6" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Article Name */}
-            <div>
+            {/* Article Number */}
+            <div ref={wrapperRef}>
               <label
                 htmlFor="articleName"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Article Number
               </label>
-              {!articleData.article ? (
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
-                 focus:outline-none focus:ring-2 focus:ring-blue-500 
-                 focus:border-blue-500 h-10 overflow-hidden 
-                 focus:h-auto focus:overflow-auto transition-all duration-200"
-                  id="articlename"
-                  onChange={handleSelectChange}
-                  onScroll={handleScroll}
-                  size={6}
-                  required
+
+              <div className="relative text-left">
+                <div
+                  onClick={() => setOpen((prev) => !prev)}
+                  className="w-full px-3 py-2 border rounded-md bg-white text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="">Select an Article</option>
-                  <br />
-                  {article.map((item) => (
-                    <option key={item._id} value={item.article}>
-                      {item.article}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className="p-2 border rounded bg-gray-100 flex justify-between items-center">
-                  <span>
-                    Selected:{' '}
-                    <span className="font-semibold">{articleData.article}</span>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setArticleData({});
-                      setFormData((prev) => ({ ...prev, articleName: '' }));
-                    }}
-                    className="ml-2 px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    ›
-                  </button>
+                  {articleData.article || '-- Select Article --'}
                 </div>
-              )}
+
+                {open && (
+                  <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-lg z-10">
+                    {/* Search box */}
+                    <input
+                      type="text"
+                      placeholder="Search article..."
+                      value={search}
+                      onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                        setArticle([]);
+                      }}
+                      className="w-full px-3 py-2 border-b outline-none"
+                    />
+
+                    {/* List */}
+                    <div
+                      onScroll={handleScroll}
+                      className="max-h-48 overflow-y-auto"
+                    >
+                      {article.map((item) => (
+                        <div
+                          key={item._id}
+                          onClick={() => handleSelect(item)}
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                        >
+                          {item.article}
+                        </div>
+                      ))}
+
+                      {fetching && (
+                        <p className="px-4 py-2 text-sm text-gray-500">
+                          Loading...
+                        </p>
+                      )}
+
+                      {!fetching && article.length === 0 && (
+                        <p className="px-4 py-2 text-sm text-gray-500">
+                          No results found
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Category Name */}
@@ -176,13 +200,7 @@ export default function AddArticleCode() {
                 type="number"
                 id="categoryName"
                 placeholder="Enter Category Name"
-                value={
-                  articleData.category &&
-                  articleData.category[0] &&
-                  articleData.category[0].categoryCode !== undefined
-                    ? String(articleData.category[0].categoryCode)
-                    : ''
-                }
+                value={formData.categoryName}
                 readOnly
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
                 required
@@ -201,15 +219,9 @@ export default function AddArticleCode() {
                 type="text"
                 id="size"
                 placeholder="Enter Size"
-                value={
-                  articleData.category &&
-                  articleData.category[0] &&
-                  articleData.category[0].size !== undefined
-                    ? String(articleData.category[0].size)
-                    : ''
-                }
+                value={formData.size}
                 readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
@@ -226,15 +238,9 @@ export default function AddArticleCode() {
                 type="text"
                 id="color"
                 placeholder="Enter Color"
-                value={
-                  articleData.category &&
-                  articleData.category[0] &&
-                  articleData.category[0].color !== undefined
-                    ? String(articleData.category[0].color)
-                    : ''
-                }
+                value={formData.color}
                 readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
@@ -249,17 +255,11 @@ export default function AddArticleCode() {
               </label>
               <input
                 id="soft_hard"
-                value={
-                  articleData.category &&
-                  articleData.category[0] &&
-                  articleData.category[0].type !== undefined
-                    ? String(articleData.category[0].type)
-                    : ''
-                }
+                value={formData.soft_hard}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
-              ></input>
+              />
             </div>
 
             {/* A/B */}
@@ -272,25 +272,20 @@ export default function AddArticleCode() {
               </label>
               <input
                 id="A_B"
-                value={
-                  articleData.category &&
-                  articleData.category[0] &&
-                  articleData.category[0].quality !== undefined
-                    ? String(articleData.category[0].quality)
-                    : ''
-                }
+                value={formData.A_B}
                 disabled
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
 
+            {/* Article Code */}
             <div>
               <label
-                htmlFor="A_B"
+                htmlFor="Article-code"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Article code
+                Article Code
               </label>
               <input
                 type="number"

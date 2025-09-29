@@ -217,7 +217,7 @@ const InventoryArticalList = () => {
                   setCurrentPage(1)
                 )}
                 type="text"
-                placeholder="Search Article, order"
+                placeholder="Search Order"
                 className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
               />
               <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />

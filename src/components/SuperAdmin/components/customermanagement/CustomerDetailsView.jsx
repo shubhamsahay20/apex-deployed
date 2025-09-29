@@ -5,47 +5,13 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../../Context/AuthContext';
 
 // ⬇️ Import PDF utils
-import { exportProductionPDF, printProductionPDF } from "../../../../utils/PdfModel";
+import {
+  exportProductionPDF,
+  printProductionPDF,
+} from '../../../../utils/PdfModel';
 
 const CustomerDetailsView = () => {
-  const [orderHistory, setOrderHistory] = useState([
-    {
-      id: 1,
-      article: '301',
-      quantity: 83,
-      size: '6X10',
-      color: 'BK',
-      type: 'S/H',
-      status: 'Delivered',
-    },
-    {
-      id: 2,
-      article: '348',
-      quantity: 56,
-      size: '9X10',
-      color: 'BK',
-      type: 'S/H',
-      status: 'Delivered',
-    },
-    {
-      id: 3,
-      article: '369',
-      quantity: 30,
-      size: '6X9',
-      color: 'BK',
-      type: 'H',
-      status: 'Cancelled',
-    },
-    {
-      id: 4,
-      article: '442',
-      quantity: 45,
-      size: '6X11',
-      color: 'BK',
-      type: 'S/H',
-      status: 'Delivered',
-    },
-  ]);
+  const [orderHistory, setOrderHistory] = useState([]);
 
   const { id } = useParams();
   const { user } = useAuth();
@@ -54,9 +20,13 @@ const CustomerDetailsView = () => {
   useEffect(() => {
     (async () => {
       const res = await authService.getCustomerById(user.accessToken, id);
+      console.log('response of customer', res.data.data);
       setCustomer(res.data.data);
+      setOrderHistory(res.data?.data?.orders);
     })();
   }, []);
+
+  console.log('order history', orderHistory);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
@@ -74,27 +44,31 @@ const CustomerDetailsView = () => {
 
   // 👉 Format data for PDF export/print
   const handleExportPDF = () => {
-    const headers = [["Article", "Quantity", "Size", "Color", "Type", "Status"]];
-    const rows = orderHistory.map(item => [
+    const headers = [
+      ['Article', 'Quantity', 'Size', 'Color', 'Type', 'Status'],
+    ];
+    const rows = orderHistory.map((item) => [
       item.article,
       item.quantity,
       item.size,
       item.color,
       item.type,
-      item.status
+      item.status,
     ]);
-    exportProductionPDF(rows, headers, "Customer_OrderHistory.pdf");
+    exportProductionPDF(rows, headers, 'Customer_OrderHistory.pdf');
   };
 
   const handlePrintPDF = () => {
-    const headers = [["Article", "Quantity", "Size", "Color", "Type", "Status"]];
-    const rows = orderHistory.map(item => [
+    const headers = [
+      ['Article', 'Quantity', 'Size', 'Color', 'Type', 'Status'],
+    ];
+    const rows = orderHistory.map((item) => [
       item.article,
       item.quantity,
       item.size,
       item.color,
       item.type,
-      item.status
+      item.status,
     ]);
     printProductionPDF(rows, headers);
   };
@@ -106,13 +80,13 @@ const CustomerDetailsView = () => {
           Customer Details
         </h2>
         <div className="flex gap-2">
-          <button 
+          <button
             onClick={handlePrintPDF}
             className="bg-white border border-gray-300 text-sm px-4 py-1.5 rounded shadow-sm"
           >
             Print
           </button>
-          <button 
+          <button
             onClick={handleExportPDF}
             className="bg-white border border-gray-300 text-sm px-4 py-1.5 rounded shadow-sm"
           >
@@ -161,7 +135,7 @@ const CustomerDetailsView = () => {
       <div className="bg-white border rounded-md">
         <div className="flex justify-between items-center px-4 py-3 border-b">
           <h3 className="text-sm font-semibold text-gray-700">Order History</h3>
-          <button 
+          <button
             onClick={handlePrintPDF}
             className="bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700"
           >
@@ -173,44 +147,40 @@ const CustomerDetailsView = () => {
           <thead className="bg-gray-100 text-gray-600">
             <tr>
               <th className="px-3 py-2 text-left">Article</th>
+              <th className="px-3 py-2 text-left">Category Code</th>
               <th className="text-left">Quantity Ordered</th>
               <th className="text-left">Size</th>
               <th className="text-left">Color</th>
               <th className="text-left">Soft/Hard</th>
               <th className="text-left">Status</th>
-              <th className="text-center">Action</th>
             </tr>
           </thead>
           <tbody>
-            {orderHistory.map((item) => (
-              <tr key={item.id} className="border-t hover:bg-gray-50">
-                <td className="py-2 px-3">{item.article}</td>
-                <td>{item.quantity}</td>
-                <td>{item.size}</td>
-                <td>{item.color}</td>
-                <td>{item.type}</td>
-                <td
-                  className={
-                    item.status === 'Delivered'
-                      ? 'text-green-600 font-medium'
-                      : item.status === 'Cancelled'
-                      ? 'text-red-500 font-medium'
-                      : ''
-                  }
-                >
-                  {item.status}
-                </td>
-                <td className="text-center">
-                  <button
-                    className="text-red-500 hover:text-red-700"
-                    onClick={() => handleDeleteClick(item.id)}
-                  >
-                    <FiTrash2 />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+  {orderHistory && orderHistory.length > 0 ? (
+    orderHistory.map((item) => (
+      <tr key={item.id} className="border-t hover:bg-gray-50">
+        <td className="py-2 px-3">
+          {item.items.map((i) => i.article)}
+        </td>
+        <td className="py-2 px-3">
+          {item.items.map((i) => i.categoryCode)}
+        </td>
+        <td>{item.items.map((i) => i.quantity)}</td>
+        <td>{item.items.map((i) => i.size)}</td>
+        <td>{item.items.map((i) => i.color)}</td>
+        <td>{item.items.map((i) => i.type)}</td>
+        <td>{item.inventoryManagerApproval}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="6" className="text-center py-4 text-gray-500">
+        No order history available for this order
+      </td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Loader from '../../../../common/Loader';
-import { FaFilter, FaPlus } from 'react-icons/fa';
+import { FaFilter, FaPlus, FaSearch } from 'react-icons/fa';
 import { FiEye, FiTrash2 } from 'react-icons/fi';
 import { PiPencilSimpleLineBold } from 'react-icons/pi';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { useAuth } from '../../../../Context/AuthContext';
 import DeleteModal from '../../../../utils/DeleteModal';
 import { toast } from 'react-toastify';
 import { IoFilter } from 'react-icons/io5';
+import { useDebounce } from '../../../../hooks/useDebounce';
 
 const Category = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const Category = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectId, setSelectId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   // CSV Upload Handler with loading management
   const handleCSVUpload = async (e) => {
@@ -45,7 +48,7 @@ const Category = () => {
       toast.success(res?.data?.message || 'CSV uploaded successfully:');
       await fetchCategories();
     } catch (error) {
-      console.log("error for uploading",error)
+      console.log('error for uploading', error);
       toast.error(error?.response?.data?.message || 'CSV upload failed');
     } finally {
       setLoading(false);
@@ -81,6 +84,7 @@ const Category = () => {
         user.accessToken,
         currentPage,
         10,
+        debounceValue,
       );
       setCategories(response?.data?.data || []);
       setTotalPages(response?.data?.pagination?.totalPages || 1);
@@ -94,8 +98,10 @@ const Category = () => {
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, [user.accessToken, currentPage]);
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      fetchCategories();
+    }
+  }, [user.accessToken, debounceValue, currentPage]);
 
   const handleEdit = (id) => {
     navigate(`/editcategory/${id}`);
@@ -117,7 +123,19 @@ const Category = () => {
         {/* Header */}
         <div className="flex justify-between items-center px-6 py-4 border-b bg-white">
           <h2 className="text-xl font-medium text-gray-700">Category</h2>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => (
+                  setSearchQuery(e.target.value), setCurrentPage(1)
+                )}
+                placeholder="Search Article"
+                className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+              />
+              <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+            </div>
             <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition text-gray-700 cursor-pointer">
               <FaPlus /> Upload CSV
               <input
@@ -148,7 +166,7 @@ const Category = () => {
                   Article
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Category 
+                  Category
                 </th>
                 <th scope="col" className="px-6 py-3 text-center">
                   Action

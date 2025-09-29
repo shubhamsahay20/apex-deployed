@@ -11,31 +11,40 @@ import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import logsService from '../../../../api/logs.service';
 import Loader from '../../../../common/Loader'; // ⬅️ import Loader
+import { useDebounce } from '../../../../hooks/useDebounce';
 
 const Logs = () => {
   const { user } = useAuth();
   const [logData, setLogData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debouncedValue = useDebounce(searchQuery, 500);
   const [loading, setLoading] = useState(false); // ⬅️ loading state
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true); // ⬅️ show loader before API call
       try {
-        const res = await logsService.getLogs(user.accessToken, currentPage, 10);
+        const res = await logsService.getLogs(
+          user.accessToken,
+          currentPage,
+          10,
+          debouncedValue,
+        );
         setLogData(res.data);
         setTotalPage(res.pages);
       } catch (error) {
         toast.error(error.response?.data?.message);
-      } finally { 
+      } finally {
         setLoading(false); // ⬅️ hide loader after API call
       }
     };
-    fetchData();
-  }, [user, currentPage]);
+    if (debouncedValue.length === 0 || debouncedValue.length >= 2) {
+      fetchData();
+    }
+  }, [user, debouncedValue, currentPage]);
 
-  // ⬅️ show loader instead of UI
   if (loading) return <Loader />;
 
   return (
@@ -50,7 +59,11 @@ const Logs = () => {
             <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Name,Activity"
               className="border rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>

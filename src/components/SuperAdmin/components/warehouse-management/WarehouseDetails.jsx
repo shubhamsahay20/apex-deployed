@@ -6,7 +6,11 @@ import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 
 // ⬇️ import PDF utils
-import { exportProductionPDF, printProductionPDF } from "../../../../utils/PdfModel";
+import {
+  exportProductionPDF,
+  printProductionPDF,
+} from '../../../../utils/PdfModel';
+import stockService from '../../../../api/stock.service';
 
 const WarehouseDetails = () => {
   const { state } = useLocation();
@@ -22,8 +26,14 @@ const WarehouseDetails = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await warehouseService.getWarehouseById(user.accessToken, id);
-        setUserData(res);
+        const res = await stockService.getStockByWarehouse(
+          user.accessToken,
+          id,
+        );
+
+        console.log('response warehouse', res.data);
+
+        setUserData(res.data);
       } catch (error) {
         toast.error(error?.response?.data?.message);
       }
@@ -37,25 +47,25 @@ const WarehouseDetails = () => {
 
   // 👉 Format stock data for PDF/Print
   const handleExportPDF = () => {
-    const headers = [["Article", "Size", "Color", "Type", "Quantity"]];
-    const rows = stockData.map(item => [
+    const headers = [['Article', 'Size', 'Color', 'Type', 'Quantity']];
+    const rows = stockData.map((item) => [
       item.article,
       item.size,
       item.color,
       item.type,
-      item.quantity
+      item.quantity,
     ]);
-    exportProductionPDF(rows, headers, "Warehouse_Stock.pdf");
+    exportProductionPDF(rows, headers, 'Warehouse_Stock.pdf');
   };
 
   const handlePrintPDF = () => {
-    const headers = [["Article", "Size", "Color", "Type", "Quantity"]];
-    const rows = stockData.map(item => [
+    const headers = [['Article', 'Size', 'Color', 'Type', 'Quantity']];
+    const rows = stockData.map((item) => [
       item.article,
       item.size,
       item.color,
       item.type,
-      item.quantity
+      item.quantity,
     ]);
     printProductionPDF(rows, headers);
   };
@@ -66,8 +76,11 @@ const WarehouseDetails = () => {
       <div className="flex justify-between items-start">
         <div className="text-sm text-[#1F2937] w-full max-w-xl space-y-2">
           <div className="grid grid-cols-2 gap-y-2">
-            <p className="text-[#6B7280] font-medium">Warehouse/Factory Name</p>
-            <p className="text-[#6B7280]">{userData?.name || 'Warehouse 01'}</p>
+            <p className="text-[#6B7280] font-medium">Warehouse Name</p>
+            <p className="text-[#6B7280]">
+              {/* {userData.
+ || 'Warehouse 01'} */}
+            </p>
 
             <p className="text-[#6B7280] font-medium">Phone Number</p>
             <p className="text-[#6B7280]">{userData?.phone}</p>
