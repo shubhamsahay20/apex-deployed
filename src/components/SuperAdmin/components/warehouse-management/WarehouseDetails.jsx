@@ -10,35 +10,41 @@ import {
   exportProductionPDF,
   printProductionPDF,
 } from '../../../../utils/PdfModel';
-import stockService from '../../../../api/stock.service';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { FaSearch } from 'react-icons/fa';
 
 const WarehouseDetails = () => {
   const { state } = useLocation();
   const [deleteIndex, setDeleteIndex] = useState(null);
   const { id } = useParams();
   const { user } = useAuth();
-  const [userData, setUserData] = useState({});
-  const [stockData, setStockData] = useState([
-    { article: '301', size: '6X10', color: 'BK', type: 'S/H', quantity: 183 },
-    { article: '348', size: '9X10', color: 'BK', type: 'S/H', quantity: 256 },
-  ]);
+  const [userData, setUserData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await stockService.getStockByWarehouse(
-          user.accessToken,
-          id,
-        );
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      (async () => {
+        try {
+          const res = await warehouseService.getWarehouseDetailsById(
+            user.accessToken,
+            id,
+            currentPage,
+            10,
+            debounceValue,
+          );
+          console.log('warehouse response', res);
 
-        console.log('response warehouse', res.data);
-
-        setUserData(res.data);
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-      }
-    })();
-  }, [user.accessToken, id]);
+          setUserData(res);
+          setTotalPage(res.pagination?.totalPages);
+        } catch (error) {
+          toast.error(error?.response?.data?.message);
+        }
+      })();
+    }
+  }, [user.accessToken, debounceValue, currentPage, id]);
 
   const handleDelete = () => {
     setStockData((prev) => prev.filter((_, idx) => idx !== deleteIndex));
@@ -72,42 +78,54 @@ const WarehouseDetails = () => {
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen space-y-6">
-      {/* Header Section */}
-      <div className="flex justify-between items-start">
-        <div className="text-sm text-[#1F2937] w-full max-w-xl space-y-2">
-          <div className="grid grid-cols-2 gap-y-2">
-            <p className="text-[#6B7280] font-medium">Warehouse Name</p>
-            <p className="text-[#6B7280]">
-              {/* {userData.
- || 'Warehouse 01'} */}
-            </p>
+      <div className="w-full bg-[#F5F6FA] py-8 px-6">
+        <div className="max-w-[1400px] mx-auto flex flex-col lg:flex-row justify-between items-start gap-6">
+          {/* Warehouse Info Card */}
+          <div className="bg-white p-8 rounded-xl shadow-lg w-full space-y-6">
+            <h2 className="text-3xl font-bold text-gray-800 border-b pb-4 mb-6">
+              Warehouse Details
+            </h2>
 
-            <p className="text-[#6B7280] font-medium">Phone Number</p>
-            <p className="text-[#6B7280]">{userData?.phone}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-gray-700">
+              <div>
+                <p className="text-sm font-medium text-gray-800">
+                  Warehouse Name
+                </p>
+                <p className="text-base font-semibold">
+                  {userData?.warehouse?.warehouseName || '-'}
+                </p>
+              </div>
 
-            <p className="text-[#6B7280] font-medium">Email Address</p>
-            <p className="text-[#6B7280]">angela326@gmail.com</p>
+              <div>
+                <p className="text-sm font-medium text-gray-800">Address</p>
+                <p className="text-base font-semibold">
+                  {userData?.warehouse?.warehouseLocation?.address || '-'}
+                </p>
+              </div>
 
-            <p className="text-[#6B7280] font-medium">Location</p>
-            <p className="text-[#6B7280]">Australia, Canberra</p>
+              <div>
+                <p className="text-sm font-medium text-gray-800">State</p>
+                <p className="text-base font-semibold">
+                  {userData?.warehouse?.warehouseLocation?.state || '-'}
+                </p>
+              </div>
 
-            <p className="text-[#6B7280] font-medium">Zip Code</p>
-            <p className="text-[#6B7280]">434 246</p>
+              <div>
+                <p className="text-sm font-medium text-gray-800">City</p>
+                <p className="text-base font-semibold">
+                  {userData?.warehouse?.warehouseLocation?.city || '-'}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm font-medium text-gray-800">Pincode</p>
+                <p className="text-base font-semibold">
+                  {userData?.warehouse?.warehouseLocation?.pincode || '-'}
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={handlePrintPDF}
-            className="px-4 py-1.5 border border-gray-300 rounded bg-white text-sm text-gray-700"
-          >
-            Print
-          </button>
-          <button
-            onClick={handleExportPDF}
-            className="px-4 py-1.5 border border-gray-300 rounded bg-white text-sm text-gray-700"
-          >
-            PDF
-          </button>
+          {/* Action Buttons */}
         </div>
       </div>
 
@@ -117,38 +135,52 @@ const WarehouseDetails = () => {
           <h3 className="text-md font-semibold text-[#1F2937]">
             Stock Availability Details
           </h3>
-          <button
-            onClick={handlePrintPDF}
-            className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded"
-          >
-            Print
-          </button>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Article "
+              className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+            />
+            <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />{' '}
+            <button
+              onClick={handlePrintPDF}
+              className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded"
+            >
+              Print
+            </button>
+          </div>
         </div>
         <table className="w-full text-sm text-left">
           <thead className="bg-[#F9FAFB] text-[#6B7280]">
             <tr>
               <th className="p-3 font-normal">Article</th>
+              <th className="p-3 font-normal">Category Code</th>
               <th className="p-3 font-normal">Size</th>
               <th className="p-3 font-normal">Color</th>
               <th className="p-3 font-normal">Soft/Hard</th>
               <th className="p-3 font-normal">Quantity Available</th>
-              <th className="p-3 font-normal">Action</th>
+              {/* <th className="p-3 font-normal">Action</th> */}
             </tr>
           </thead>
           <tbody className="text-[#1F2937]">
-            {stockData.map((item, index) => (
+            {userData?.aggregatedStock?.map((item, index) => (
               <tr key={index} className="border-t hover:bg-[#F9FAFB]">
                 <td className="p-3">{item.article}</td>
+                <td className="p-3">{item.categoryCode}</td>
                 <td className="p-3">{item.size}</td>
                 <td className="p-3">{item.color}</td>
                 <td className="p-3">{item.type}</td>
-                <td className="p-3">{item.quantity}</td>
-                <td
+                <td className="p-3">{item.AvailableQuantity}</td>
+                {/* <td
                   className="p-3 text-center text-red-500 cursor-pointer"
                   onClick={() => setDeleteIndex(index)}
                 >
                   <FiTrash2 />
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>
@@ -156,11 +188,23 @@ const WarehouseDetails = () => {
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <button className="px-3 py-1 border rounded bg-gray-50">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            className="px-3 py-1 border rounded bg-gray-50"
+          >
             Previous
           </button>
-          <span>Page 1 of 10</span>
-          <button className="px-3 py-1 border rounded bg-gray-50">Next</button>
+          <span>
+            Page {currentPage} of {totalPage}
+          </span>
+          <button
+            disabled={currentPage === totalPage}
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            className="px-3 py-1 border rounded bg-gray-50"
+          >
+            Next
+          </button>
         </div>
       </div>
 

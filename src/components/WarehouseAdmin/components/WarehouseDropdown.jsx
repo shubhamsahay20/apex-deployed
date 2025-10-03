@@ -3,6 +3,7 @@ import { useAuth } from '../../../Context/AuthContext';
 import productionService from '../../../api/production.service';
 import { toast } from 'react-toastify';
 import Loader from '../../../common/Loader';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 const WarehouseDropdown = () => {
   const [selectPN, setSelectPN] = useState('');
@@ -19,6 +20,8 @@ const WarehouseDropdown = () => {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [search, setSearch] = useState('');
+  const debounceValue = useDebounce(search, 500);
+
   const [fetching, setFetching] = useState(false);
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
@@ -54,11 +57,14 @@ const WarehouseDropdown = () => {
 
   // 🔹 Initial + search change
   useEffect(() => {
-    if (open) {
+    if (!open) return; // Only fetch if dropdown is open
+
+    // Call API only if debounced value length is 0 or >= 2
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
       setPage(1);
-      fetchProducts(1, search);
+      fetchProducts(1, debounceValue);
     }
-  }, [search, open]);
+  }, [debounceValue, open]);
 
   // 🔹 On page change
   useEffect(() => {
@@ -139,7 +145,9 @@ const WarehouseDropdown = () => {
         className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center"
         ref={wrapperRef}
       >
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Manual Dispatch</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Manual Dispatch
+        </h2>
         <p className="text-sm text-gray-500 mb-6">
           Select Production No from the manual dispatch
         </p>

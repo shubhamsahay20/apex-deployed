@@ -1,46 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useRef, useDebugValue } from 'react';
 import { User, Package, Plus, Trash2 } from 'lucide-react';
-import authService from '../../../api/auth.service';
-import { toast } from 'react-toastify';
-import { useAuth } from '../../../Context/AuthContext';
-import { AsyncPaginate } from 'react-select-async-paginate';
-import cartService from '../../../api/cart.service';
 import { FiShoppingCart } from 'react-icons/fi';
+import { AsyncPaginate } from 'react-select-async-paginate';
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+
+import { useAuth } from '../../../Context/AuthContext';
+import authService from '../../../api/auth.service';
 import schemesService from '../../../api/schemes.service';
+import cartService from '../../../api/cart.service';
 import Cart_WishList from '../../../utils/Cart_WishList_Modal';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 const CategoryDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
-  const [product, setProduct] = useState([]);
+
+  const [products, setProducts] = useState([]);
   const [schemes, setSchemes] = useState([]);
-  const [schemeId, setSchemeId] = useState(null);
-  const [schemeType, setSchemeType] = useState('');
-  const [schemeQuantity, setSchemeQuantity] = useState('');
-  const [showChoiceModal, setShowChoiceModal] = useState(false);
-
-  const [locationFields, setLocationFields] = useState({
-    address: '',
-    city: '',
-    state: '',
-    pincode: '',
-  });
-
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [scheme, setScheme] = useState({ id: '', type: '', quantity: '' });
   const [formData, setFormData] = useState({
-    customer: '',
     location: [
-      {
-        address: '',
-        country: 'India',
-        city: '',
-        state: '',
-        pincode: '',
-      },
+      { address: '', city: '', state: '', pincode: '', country: 'India' },
     ],
     items: [
       {
+        articleId: '',
         article: '',
         categoryCode: '',
         color: '',
@@ -51,86 +37,88 @@ const CategoryDashboard = () => {
       },
     ],
   });
+  const [showChoiceModal, setShowChoiceModal] = useState(false);
 
+  // Product dropdown states
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [fetching, setFetching] = useState(false);
+  const [search, setSearch] = useState('');
+  const debounceValue = useDebounce(search, 500);
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  // Fetch products page-wise
+  const fetchProducts = async (pageNo = 1, debounceValue = '') => {
+    if (fetching) return;
+    setFetching(true);
+    try {
+      const res = await authService.getCategories(
+        user.accessToken,
+        pageNo,
+        20,
+        debounceValue,
+      );
+      const data = res.data?.data || [];
+      const pagination = res.data?.pagination;
+
+      if (pageNo === 1) setProducts(data);
+      else setProducts((prev) => [...prev, ...data]);
+
+      setHasMore(pageNo < (pagination?.totalPages || 1));
+    } catch (err) {
+      toast.error('Failed to fetch products');
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  // Fetch schemes
   useEffect(() => {
-    const fetchAllProducts = async () => {
+    const fetchSchemes = async () => {
       try {
-        let allProducts = [];
-        let currentPage = 1;
-        let totalPages = 1;
-
-        while (currentPage <= totalPages) {
-          const res = await authService.getCategories(
-            user.accessToken,
-            currentPage,
-          );
-
-          allProducts = [...allProducts, ...res.data.data];
-          totalPages = res.data.pagination.totalPages; // backend tells how many pages exist
-          currentPage++;
-        }
-
-        setProduct(allProducts);
-
-        console.log('All Products:', allProducts);
-      } catch (error) {
-        console.error('Error fetching products:', error);
+        const res = await schemesService.getAllSchemes(user.accessToken);
+        setSchemes(res.data?.schemes || []);
+      } catch {
+        toast.error('Failed to load schemes');
       }
     };
-
-    fetchAllProducts();
+    fetchSchemes();
   }, [user.accessToken]);
 
-  useEffect(() => {
-    const fetchScheme = async () => {
-      try {
-        const response = await schemesService.getAllSchemes(user.accessToken);
-        console.log('scheme data', response.data?.schemes);
-
-        setSchemes(response.data?.schemes);
-      } catch (error) {
-        toast.error(error.response?.data?.message);
-      }
-    };
-    fetchScheme();
-  }, []);
-
-  const loadOptions = async (search, loadedOptions, { page }) => {
+  // Async customer loader
+  const loadCustomers = async (search, loadedOptions, { page }) => {
     try {
-      const limit = 10;
       const res = await authService.getCustomersBySalesPerson(
         user.accessToken,
         page,
-        limit,
+        10,
       );
-
-      console.log('hiii', res.data);
-
-      const customers = res?.data?.customers || [];
-
+      const customers = res.data?.customers || [];
       return {
         options: customers.map((c) => ({
           label: c.name,
           value: c._id,
-          location: c.location, // keep location for later
+          location: c.location,
         })),
-        hasMore: customers.length === limit,
-        additional: {
-          page: page + 1,
-        },
+        hasMore: customers.length === 10,
+        additional: { page: page + 1 },
       };
-    } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error loading customers');
-      return {
-        options: [],
-        hasMore: false,
-        additional: {
-          page,
-        },
-      };
+    } catch {
+      toast.error('Failed to load customers');
+      return { options: [], hasMore: false, additional: { page } };
     }
   };
 
+  // Customer selection
+  const handleCustomerChange = (selected) => {
+    setSelectedCustomer(selected);
+    if (selected?.location?.length) {
+      setFormData((prev) => ({ ...prev, location: [selected.location[0]] }));
+    }
+  };
+
+  // Update location
   const updateLocation = (index, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -140,44 +128,11 @@ const CategoryDashboard = () => {
     }));
   };
 
-  const handleCustomerChange = (selected) => {
-    setSelectedCustomer(selected);
-    setFormData((prev) => ({ ...prev, customer: selected?.value }));
-    if (selected?.location?.length) {
-      setLocationFields({
-        address: selected.location[0]?.address || '',
-        city: selected.location[0]?.city || '',
-        state: selected.location[0]?.state || '',
-        pincode: selected.location[0]?.pincode || '',
-      });
-    }
-  };
-
-  const removeLocation = (index) => {
-    if (formData.location.length > 1) {
-      setFormData((prev) => ({
-        ...prev,
-        location: prev.location.filter((_, i) => i !== index),
-      }));
-    }
-  };
-
+  // Add / Remove item
   const addItem = () => {
-    const lastItem = formData.items[formData.items.length - 1];
-
-    // Check if the last carton is filled
-    if (
-      !lastItem.article ||
-      !lastItem.categoryCode ||
-      !lastItem.color ||
-      !lastItem.size ||
-      !lastItem.type ||
-      !lastItem.quality ||
-      !lastItem.quantity
-    ) {
-      toast.error(
-        'Please fill all fields of the current carton before adding a new one.',
-      );
+    const last = formData.items[formData.items.length - 1];
+    if (Object.values(last).some((val) => !val)) {
+      toast.error('Fill all fields before adding a new carton');
       return;
     }
     setFormData((prev) => ({
@@ -185,6 +140,7 @@ const CategoryDashboard = () => {
       items: [
         ...prev.items,
         {
+          articleId: '',
           article: '',
           categoryCode: '',
           color: '',
@@ -197,102 +153,54 @@ const CategoryDashboard = () => {
     }));
   };
 
-  const removeItem = (index) => {
+  const removeItem = (index) =>
     setFormData((prev) => ({
       ...prev,
       items: prev.items.filter((_, i) => i !== index),
     }));
-  };
 
+  // Change scheme
   const changeScheme = (e) => {
     const id = e.target.value;
-    console.log('idd will be', id);
-    setSchemeId(id);
-    const getOneScheme = schemes.find((item) => item._id === id);
-    console.log('getOneScheme,', getOneScheme);
-
-    setSchemeType(getOneScheme.schemesType);
-    setSchemeQuantity(getOneScheme.schemesQuantity);
+    const selected = schemes.find((s) => s._id === id) || {};
+    setScheme({
+      id,
+      type: selected.schemesType || '',
+      quantity: selected.schemesQuantity || '',
+    });
   };
 
+  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const customerId = selectedCustomer?.value || '';
-    const customerName = selectedCustomer?.label || '';
-
-    if (!customerId && !customerName) {
-      toast.error('Please select a customer before adding items.');
-      return;
-    }
-
-    if (!formData?.items || formData.items.length === 0) {
-      toast.error('Please add at least one item to the cart.');
-      return;
-    }
-
-    const validItems = formData.items.filter(
-      (it) =>
-        it.article &&
-        it.categoryCode &&
-        it.color &&
-        it.size &&
-        it.type &&
-        it.quality &&
-        it.quantity > 0,
+    if (!selectedCustomer) return toast.error('Select a customer');
+    const validItems = formData.items.filter((it) =>
+      Object.values(it).every((v) => v && v !== ''),
     );
+    if (!validItems.length) return toast.error('Fill all item fields');
 
-    if (validItems.length === 0) {
-      toast.error('Please fill all item fields before adding to cart.');
-      return;
-    }
+    const payload = {
+      customer: selectedCustomer.label,
+      schemesId: scheme.id,
+      location: formData.location,
+      items: validItems.map((it) => ({
+        ...it,
+        quantity: parseInt(it.quantity),
+      })),
+    };
 
     try {
-      const payload = {
-        customer: customerName,
-        schemesId: schemeId,
-        location: [
-          {
-            address: locationFields.address || ' ',
-            country: locationFields.country || 'India',
-            city: locationFields.city || ' ',
-            state: locationFields.state || ' ',
-            pincode: locationFields.pincode || '000000',
-          },
-        ],
-
-        items: validItems.map((it) => ({
-          article: it.article,
-          categoryCode: it.categoryCode,
-          color: it.color,
-          size: it.size,
-          type: it.type,
-          quality: it.quality,
-          quantity: parseInt(it.quantity),
-        })),
-      };
-
-      console.log('🚀 Sending Payload:', payload);
-
       const res = await cartService.createOrder(user.accessToken, payload);
-      console.log('✅ Backend Response:', res);
+      toast.success(res.message || 'Order added to cart');
 
-      toast.success(res.message || 'Order add to cart successful!');
-
-      // reset form after submit
+      // Reset form
       setFormData({
-        customer: '',
         location: [
-          {
-            address: '',
-            country: 'India',
-            city: '',
-            state: '',
-            pincode: '',
-          },
+          { address: '', city: '', state: '', pincode: '', country: 'India' },
         ],
         items: [
           {
+            articleId: '',
             article: '',
             categoryCode: '',
             color: '',
@@ -304,426 +212,338 @@ const CategoryDashboard = () => {
         ],
       });
       setSelectedCustomer(null);
-      setLocationFields({
-        address: '',
-        city: '',
-        state: '',
-        pincode: '',
-      });
+      setScheme({ id: '', type: '', quantity: '' });
 
-      // ✅ Both have data → ask user
-      if (res?.data?.items?.length > 0 && res?.data?.WishList?.length > 0) {
+      if (res.data?.items?.length && res.data?.WishList?.length)
         setShowChoiceModal(true);
-      } else if (res?.data?.items?.length > 0) {
-        navigate('/salesPerson/cart');
-      } else if (res?.data?.WishList?.length > 0) {
-        navigate('/salesPerson/Wishlist');
-      }
-
-      // navigate('/salesPerson/cart')
-    } catch (error) {
-      console.error('❌ Checkout error:', error);
-      toast.error(error.response?.data?.message || 'Checkout failed.');
+      else if (res.data?.items?.length) navigate('/salesPerson/cart');
+      else if (res.data?.WishList?.length) navigate('/salesPerson/Wishlist');
+    } catch {
+      toast.error('Checkout failed');
     }
   };
 
+  // Fetch products when dropdown opens or search changes
+  // Fetch products when dropdown opens or search changes
+  useEffect(() => {
+    if (!open) return;
+
+    // Only call API if search is empty or has 2+ characters
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      setPage(1);
+      fetchProducts(1, debounceValue);
+    }
+  }, [open, debounceValue]);
+
+  // Fetch next page
+  useEffect(() => {
+    if (page > 1) fetchProducts(page, search);
+  }, [page]);
+
+  // Scroll for infinite products
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !fetching) {
+      setPage((prev) => prev + 1);
+    }
+  };
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target))
+        setOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <div className="max-w-4xl mx-auto">
-        <p className="text-center font-bold text-red-600 text-2xl mb-4">
-          Notes :- Before Creating Order Kindly Check The Article Data
-        </p>
+      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800 text-center flex-1">
+            Customer Order Form
+          </h1>
+          <FiShoppingCart
+            onClick={() => navigate('/salesPerson/cart')}
+            className="text-2xl cursor-pointer"
+          />
+        </div>
 
-        <div className="bg-white rounded-xl shadow-xl p-8">
-          <div className="flex justify-between">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-              Customer Order Form
-            </h1>
-            <FiShoppingCart
-              onClick={() => navigate('/salesPerson/cart')}
-              className="text-2xl"
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Customer */}
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-center mb-2">
+              <User className="w-5 h-5 text-blue-600 mr-2" />
+              <span className="font-semibold">Customer</span>
+            </div>
+            <AsyncPaginate
+              value={selectedCustomer}
+              loadOptions={loadCustomers}
+              onChange={handleCustomerChange}
+              additional={{ page: 1 }}
+              placeholder="Select Customer..."
             />
           </div>
 
-          <div className="space-y-8">
-            {/* Customer Section */}
-            <div className="bg-blue-50 rounded-lg p-6">
-              <div className="flex items-center mb-4">
-                <User className="w-6 h-6 text-blue-600 mr-2" />
-                <h2 className="text-xl font-semibold text-gray-800">
-                  Customer Information
-                </h2>
-              </div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Customer Name
-              </label>
-
-              <AsyncPaginate
-                value={selectedCustomer}
-                loadOptions={loadOptions}
-                onChange={handleCustomerChange}
-                additional={{ page: 1 }}
-                placeholder="Select Customer..."
-              />
-            </div>
-
-            {/* Location Section */}
-            <div className="bg-green-50 rounded-lg p-6">
-              {formData.location.map((location, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg p-4 mb-4 border border-green-200"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium text-gray-800">Location</h3>
-                    {formData.location.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeLocation(index)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Address
-                      </label>
-                      <textarea
-                        value={locationFields.address}
-                        readOnly
-                        onChange={(e) =>
-                          updateLocation(index, 'address', e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        rows="2"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        City
-                      </label>
-                      <input
-                        type="text"
-                        value={locationFields.city}
-                        onChange={(e) =>
-                          updateLocation(index, 'city', e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        State
-                      </label>
-                      <input
-                        type="text"
-                        value={locationFields.state}
-                        onChange={(e) =>
-                          updateLocation(index, 'state', e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        pincode
-                      </label>
-                      <input
-                        type="text"
-                        value={locationFields.pincode}
-                        onChange={(e) =>
-                          updateLocation(index, 'pincode', e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Items Section */}
-            <div className="bg-purple-50 rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <Package className="w-6 h-6 text-purple-600 mr-2" />
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    Carton
-                  </h2>
-                </div>
-                <button
-                  type="button"
-                  onClick={addItem}
-                  disabled={
-                    !formData.items.length ||
-                    Object.values(
-                      formData.items[formData.items.length - 1],
-                    ).some((val) => !val)
-                  }
-                  className={`flex items-center px-3 py-1 rounded-lg transition-colors ${
-                    !formData.items.length ||
-                    Object.values(
-                      formData.items[formData.items.length - 1],
-                    ).some((val) => !val)
-                      ? 'bg-gray-400 cursor-not-allowed text-white'
-                      : 'bg-purple-600 hover:bg-purple-700 text-white'
-                  }`}
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Add Carton
-                </button>
-              </div>
-
-              {formData.items.map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-white rounded-lg p-4 mb-4 border border-purple-200"
-                >
-                  <div className="flex justify-between items-center mb-3">
-                    <h3 className="font-medium text-gray-800">
-                      Cartan {index + 1}
-                    </h3>
-                    {formData.items.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeItem(index)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {/* Article Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Article
-                      </label>
-                      <select
-                        value={item.articleId || ''}
-                        onChange={(e) => {
-                          const selected = product.find(
-                            (p) => p._id === e.target.value,
-                          );
-                          const updatedItems = [...formData.items];
-                          updatedItems[index] = {
-                            ...updatedItems[index],
-                            articleId: selected._id,
-                            article: selected.article,
-                            categoryCode:
-                              selected.category[0]?.categoryCode || '',
-                            color: selected.category[0]?.color || '',
-                            size: selected.category[0]?.size || '',
-                            type: selected.category[0]?.type || '',
-                            quality: selected.category[0]?.quality || '',
-                          };
-                          setFormData({ ...formData, items: updatedItems });
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      >
-                        <option value="">Select Article</option>
-                        {product.map((p) => (
-                          <option key={p._id} value={p._id}>
-                            {p.article}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    {/* Category Code */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Category Code
-                      </label>
-                      <input
-                        type="text"
-                        value={item.categoryCode || ''}
-                        readOnly
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Color */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Color
-                      </label>
-                      <input
-                        type="text"
-                        value={item.color || ''}
-                        readOnly
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Size */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Size
-                      </label>
-                      <input
-                        type="text"
-                        value={item.size || ''}
-                        readOnly
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Type */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Type
-                      </label>
-                      <input
-                        type="text"
-                        value={item.type || ''}
-                        readOnly
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Quality */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Quality
-                      </label>
-                      <input
-                        type="text"
-                        value={item.quality || ''}
-                        readOnly
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    {/* Quantity */}
-                    <div className="md:col-span-3">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Quantity
-                      </label>
-                      <input
-                        type="number"
-                        value={item.quantity || ''}
-                        onChange={(e) => {
-                          const updatedItems = [...formData.items];
-                          updatedItems[index].quantity = e.target.value;
-                          setFormData({ ...formData, items: updatedItems });
-                        }}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto mt-4 sm:mt-0">
-                <div>
-                  <label
-                    htmlFor="type"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Scheme Name
-                  </label>
-                  <select
-                    type="text"
-                    id="type"
-                    value={schemeId}
-                    onChange={changeScheme}
-                    placeholder="Enter Scheme Type"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  >
-                    <option value="">select scheme</option>
-                    {schemes.map((val) => (
-                      <option key={val._id} value={val._id}>
-                        {' '}
-                        {val.schemesName}{' '}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label
-                    htmlFor="type"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Scheme Type
-                  </label>
-                  <input
-                    type="text"
-                    id="type"
-                    placeholder="Enter Scheme Type"
-                    value={schemeType}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="type"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Quantity Included
-                  </label>
-                  <input
-                    type="text"
-                    value={schemeQuantity}
-                    id="type"
-                    placeholder="Enter Scheme Type"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Submit Section */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-              <button
-                type="submit"
-                onClick={handleSubmit}
-                disabled={
-                  !selectedCustomer ||
-                  !formData?.items ||
-                  formData.items.length === 0
-                }
-                className={`px-4 py-2 rounded-lg text-white font-medium transition-colors
-    ${
-      !selectedCustomer || !formData?.items || formData.items.length === 0
-        ? 'bg-gray-400 cursor-not-allowed'
-        : 'bg-blue-600 hover:bg-blue-700'
-    }`}
+          {/* Locations */}
+          <div className="bg-green-50 p-4 rounded-lg space-y-4">
+            {formData.location.map((loc, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-4 rounded-lg border border-green-200"
               >
-                Add to Cart
+                <div className="flex justify-between items-center mb-2">
+                  <span className="font-medium">Location {idx + 1}</span>
+                  {formData.location.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          location: prev.location.filter((_, i) => i !== idx),
+                        }))
+                      }
+                      className="text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <input
+                    placeholder="Address"
+                    value={loc.address}
+                    onChange={(e) =>
+                      updateLocation(idx, 'address', e.target.value)
+                    }
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="City"
+                    value={loc.city}
+                    onChange={(e) =>
+                      updateLocation(idx, 'city', e.target.value)
+                    }
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="State"
+                    value={loc.state}
+                    onChange={(e) =>
+                      updateLocation(idx, 'state', e.target.value)
+                    }
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Pincode"
+                    value={loc.pincode}
+                    onChange={(e) =>
+                      updateLocation(idx, 'pincode', e.target.value)
+                    }
+                    className="w-full border rounded px-3 py-2"
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Items */}
+          <div className="bg-purple-50 p-4 rounded-lg">
+            <div className="flex justify-between items-center mb-2">
+              <div className="flex items-center">
+                <Package className="w-5 h-5 text-purple-600 mr-2" />
+                <span className="font-semibold">Cartons</span>
+              </div>
+              <button
+                type="button"
+                onClick={addItem}
+                className="flex items-center bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded"
+              >
+                <Plus className="w-4 h-4 mr-1" /> Add Carton
               </button>
             </div>
+
+            {formData.items.map((item, idx) => (
+              <div
+                key={idx}
+                className="bg-white p-4 rounded-lg border border-purple-200 mb-3"
+              >
+                <div className="flex justify-between items-center mb-2">
+                  <span>Carton {idx + 1}</span>
+                  {formData.items.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeItem(idx)}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {/* Lazy-loaded Product Dropdown */}
+                  <div ref={wrapperRef} className="relative col-span-3">
+                    <div
+                      onClick={() => setOpen((prev) => !prev)}
+                      className="cursor-pointer border px-3 py-2 rounded"
+                    >
+                      {item.article || 'Select Article'}
+                    </div>
+
+                    {open && (
+                      <div
+                        className="absolute mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto"
+                        onScroll={handleScroll}
+                      >
+                        <input
+                          type="text"
+                          placeholder="Search..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className="w-full px-3 py-2 border-b"
+                        />
+                        {products.map((p) => (
+                          <div
+                            key={p._id}
+                            onClick={() => {
+                              const category = p.category?.[0] || {};
+                              const updated = [...formData.items];
+                              updated[idx] = {
+                                ...updated[idx],
+                                articleId: p._id,
+                                article: p.article,
+                                categoryCode: category.categoryCode || '',
+                                color: category.color || '',
+                                size: category.size || '',
+                                type: category.type || '',
+                                quality: category.quality || '',
+                                quantity: updated[idx].quantity || '',
+                              };
+                              setFormData((prev) => ({
+                                ...prev,
+                                items: updated,
+                              }));
+                              setOpen(false);
+                            }}
+                            className="px-3 py-2 hover:bg-blue-50 cursor-pointer"
+                          >
+                            {p.article}
+                          </div>
+                        ))}
+                        {fetching && (
+                          <p className="px-3 py-2 text-sm text-gray-500">
+                            Loading...
+                          </p>
+                        )}
+                        {!fetching && products.length === 0 && (
+                          <p className="px-3 py-2 text-sm text-gray-500">
+                            No results found
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <input
+                    placeholder="Category Code"
+                    value={item.categoryCode}
+                    readOnly
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Color"
+                    value={item.color}
+                    readOnly
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Size"
+                    value={item.size}
+                    readOnly
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Type"
+                    value={item.type}
+                    readOnly
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Quality"
+                    value={item.quality}
+                    readOnly
+                    className="w-full border rounded px-3 py-2"
+                  />
+                  <input
+                    placeholder="Quantity"
+                    type="number"
+                    value={item.quantity}
+                    onChange={(e) => {
+                      const updated = [...formData.items];
+                      updated[idx].quantity = e.target.value;
+                      setFormData((prev) => ({ ...prev, items: updated }));
+                    }}
+                    className="w-full border rounded px-3 py-2 col-span-3"
+                  />
+                </div>
+              </div>
+            ))}
+
+            {/* Scheme Selector */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+              <select
+                value={scheme.id}
+                onChange={changeScheme}
+                className="w-full border rounded px-3 py-2"
+              >
+                <option value="">Select Scheme</option>
+                {schemes.map((s) => (
+                  <option key={s._id} value={s._id}>
+                    {s.schemesName}
+                  </option>
+                ))}
+              </select>
+              <input
+                placeholder="Scheme Type"
+                value={scheme.type}
+                readOnly
+                className="w-full border rounded px-3 py-2"
+              />
+              <input
+                placeholder="Quantity Included"
+                value={scheme.quantity}
+                readOnly
+                className="w-full border rounded px-3 py-2"
+              />
+            </div>
           </div>
 
-          {showChoiceModal && (
-            <Cart_WishList
-              title="Choose Destination"
-              message="You have items in both Cart and Wishlist. Where do you want to go?"
-              onConfirm={() => {
-                navigate('/salesPerson/cart');
-                setShowChoiceModal(false);
-              }}
-              onCancel={() => {
-                navigate('/salesPerson/Wishlist');
-                setShowChoiceModal(false);
-              }}
-            />
-          )}
-        </div>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded disabled:bg-gray-400"
+            disabled={!selectedCustomer || !formData.items.length}
+          >
+            Add to Cart
+          </button>
+        </form>
+
+        {showChoiceModal && (
+          <Cart_WishList
+            title="Choose Destination"
+            message="Items exist in both Cart and Wishlist. Where to go?"
+            onConfirm={() => {
+              navigate('/salesPerson/cart');
+              setShowChoiceModal(false);
+            }}
+            onCancel={() => {
+              navigate('/salesPerson/Wishlist');
+              setShowChoiceModal(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );

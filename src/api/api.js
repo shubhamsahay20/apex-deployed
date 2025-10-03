@@ -32,4 +32,17 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && (error.response.status === 401 || error.response.status === 440)) {
+      // Session expired → clear localStorage and redirect
+      localStorage.removeItem("user");
+      window.location.href = "/login"; // redirect to login
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default API;

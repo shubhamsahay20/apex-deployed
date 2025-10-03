@@ -16,17 +16,14 @@ const Internal_warehouse_transfer = () => {
   const [selectedFactory, setSelectedFactory] = useState('');
   const [factoryName, setFactoryName] = useState('');
   const [factory, setFactory] = useState({ id: '', name: '' });
-
-  const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
+const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
   const [toWarehouse, setToWarehouse] = useState(''); // warehouseId
-
-  const [productionNo, setProductionNo] = useState('');
+ const [productionNo, setProductionNo] = useState('');
   const [article, setArticle] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [availableQty, setAvailableQty] = useState(0);
   const [pnNumber, setPnNumber] = useState([]);
-
-  const [category, setCategory] = useState({
+ const [category, setCategory] = useState({
     categoryCode: '',
     color: '',
     size: '',

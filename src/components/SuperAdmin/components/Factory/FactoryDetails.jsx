@@ -1,99 +1,133 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FiTrash2 } from 'react-icons/fi';
 import factoryService from '../../../../api/factory.service';
 import { useAuth } from '../../../../Context/AuthContext';
-
-// ⬇️ import PDF utils
-import { exportProductionPDF, printProductionPDF } from "../../../../utils/PdfModel";
+import {
+  exportProductionPDF,
+  printProductionPDF,
+} from '../../../../utils/PdfModel';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { FaSearch } from 'react-icons/fa';
 
 const FactoryDetails = () => {
-  const { state } = useLocation();
   const { user } = useAuth();
   const { id } = useParams();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [factoryDetails, setFactoryDetails] = useState({});
   const [deleteIndex, setDeleteIndex] = useState(null);
-  const [stockData, setStockData] = useState([
-    { article: '301', size: '6X10', color: 'BK', type: 'S/H', quantity: 183 },
-    { article: '348', size: '9X10', color: 'BK', type: 'S/H', quantity: 256 },
-    { article: '369', size: '6X9', color: 'BK', type: 'S/H', quantity: 430 },
-    { article: '442', size: '6X11', color: 'BK', type: 'S', quantity: 245 },
-    { article: '552', size: '9X11', color: 'BK', type: 'S/H', quantity: 446 },
-  ]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   const handleDelete = () => {
-    setStockData((prev) => prev.filter((_, idx) => idx !== deleteIndex));
+    setFactoryDetails((prev) => ({
+      ...prev,
+      aggregatedStock: prev.aggregatedStock.filter(
+        (_, idx) => idx !== deleteIndex,
+      ),
+    }));
     setDeleteIndex(null);
   };
 
   useEffect(() => {
-    (async () => {
-      const res = await factoryService.getFactoryById(user.accessToken, id);
-      setFactoryDetails(res.data.data);
-    })();
-  }, []);
+    const fetchFactoryDetails = async () => {
+      try {
+        const res = await factoryService.getFactoryStockId(
+          user.accessToken,
+          id,
+          currentPage,
+          10,
+          debounceValue
+        );
+        console.log('response', res.data);
 
-  // 👉 Format the stock data for PDF
+        setFactoryDetails(res.data);
+        setTotalPages(res.data?.pagination?.totalPages);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      fetchFactoryDetails();
+    }
+  }, [id, currentPage, debounceValue, user.accessToken]);
+
   const handleExportPDF = () => {
-    const headers = [["Article", "Size", "Color", "Type", "Quantity"]];
-    const rows = stockData.map(item => [
+    const headers = [['Article', 'Size', 'Color', 'Type', 'Quantity']];
+    const rows = factoryDetails?.aggregatedStock?.map((item) => [
       item.article,
       item.size,
       item.color,
       item.type,
-      item.quantity
+      item.totalQuantity,
     ]);
-    exportProductionPDF(rows, headers, "Stock_Availability.pdf");
+    exportProductionPDF(rows, headers, 'Stock_Availability.pdf');
   };
 
   const handlePrintPDF = () => {
-    const headers = [["Article", "Size", "Color", "Type", "Quantity"]];
-    const rows = stockData.map(item => [
+    const headers = [['Article', 'Size', 'Color', 'Type', 'Quantity']];
+    const rows = factoryDetails?.aggregatedStock?.map((item) => [
       item.article,
       item.size,
       item.color,
       item.type,
-      item.quantity
+      item.totalQuantity,
     ]);
     printProductionPDF(rows, headers);
   };
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen space-y-6">
-      {/* Header Section */}
-      <div className="flex justify-between items-start">
-        <div className="text-sm text-[#1F2937] w-full max-w-xl space-y-2">
-          <div className="grid grid-cols-2 gap-y-2">
-            <p className="text-[#6B7280] font-medium">Factory Name</p>
-            <p className="text-[#6B7280]">{factoryDetails?.name}</p>
-
-            <p className="text-[#6B7280] font-medium">City</p>
-            <p className="text-[#6B7280]">{factoryDetails?.location?.city}</p>
-
-            <p className="text-[#6B7280] font-medium">State</p>
-            <p className="text-[#6B7280]">{factoryDetails?.location?.state}</p>
-
-            <p className="text-[#6B7280] font-medium">Country</p>
-            <p className="text-[#6B7280]">{factoryDetails?.location?.country}</p>
-
-            <p className="text-[#6B7280] font-medium">Zip Code</p>
-            <p className="text-[#6B7280]">{factoryDetails?.location?.pincode}</p>
+      <div className="w-full max-w-5xl bg-white shadow-md rounded-xl p-8">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-6">
+          Factory Details
+        </h2>
+        <hr className="mb-6" />
+        {/* Grid layout */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6">
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">Factory Name</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryName || '-'}
+            </span>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <button 
-            onClick={handlePrintPDF}
-            className="px-4 py-1.5 border border-gray-300 rounded bg-white text-sm text-gray-700"
-          >
-            Print
-          </button>
-          <button 
-            onClick={handleExportPDF}
-            className="px-4 py-1.5 border border-gray-300 rounded bg-white text-sm text-gray-700"
-          >
-            PDF
-          </button>
+
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">Address</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryLocation?.address || '-'}
+            </span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">State</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryLocation?.state || '-'}
+            </span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">City</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryLocation?.city || '-'}
+            </span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">Country</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryLocation?.country || '-'}
+            </span>
+          </div>
+
+          <div className="flex flex-col">
+            <span className="text-gray-600 font-medium">Pincode</span>
+            <span className="text-gray-900 font-semibold">
+              {factoryDetails?.factory?.factoryLocation?.pincode || '-'}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -103,50 +137,75 @@ const FactoryDetails = () => {
           <h3 className="text-md font-semibold text-[#1F2937]">
             Stock Availability Details
           </h3>
-          <button 
-            onClick={handlePrintPDF}
-            className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded"
-          >
-            Print
-          </button>
+
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Article"
+              className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+            />
+            <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+          </div>
         </div>
-        <table className="w-full text-sm text-left">
-          <thead className="bg-[#F9FAFB] text-[#6B7280]">
-            <tr>
-              <th className="p-3 font-normal">Article</th>
-              <th className="p-3 font-normal">Size</th>
-              <th className="p-3 font-normal">Color</th>
-              <th className="p-3 font-normal">Soft/Hard</th>
-              <th className="p-3 font-normal">Quantity Available</th>
-              <th className="p-3 font-normal">Action</th>
-            </tr>
-          </thead>
-          <tbody className="text-[#1F2937]">
-            {stockData.map((item, index) => (
-              <tr key={index} className="border-t hover:bg-[#F9FAFB]">
-                <td className="p-3">{item.article}</td>
-                <td className="p-3">{item.size}</td>
-                <td className="p-3">{item.color}</td>
-                <td className="p-3">{item.type}</td>
-                <td className="p-3">{item.quantity}</td>
-                <td
-                  className="p-3 text-center text-red-500 cursor-pointer"
-                  onClick={() => setDeleteIndex(index)}
-                >
-                  <FiTrash2 />
-                </td>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left border-collapse">
+            <thead className="bg-[#F9FAFB] text-[#6B7280]">
+              <tr>
+                <th className="p-3 font-normal">Article</th>
+                <th className="p-3 font-normal">Size</th>
+                <th className="p-3 font-normal">Color</th>
+                <th className="p-3 font-normal">Soft/Hard</th>
+                <th className="p-3 font-normal">Total Quantity</th>
+                <th className="p-3 font-normal">Dispatch Quantity</th>
+                <th className="p-3 font-normal">Available Quantity</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="text-[#1F2937]">
+              {factoryDetails?.aggregatedStock?.map((item, index) => (
+                <tr key={index} className="border-t hover:bg-[#F9FAFB]">
+                  <td className="p-3">{item.article}</td>
+                  <td className="p-3">{item.size}</td>
+                  <td className="p-3">{item.color}</td>
+                  <td className="p-3">{item.type}</td>
+                  <td className="p-3">{item.totalQuantity}</td>
+                  <td className="p-3">{item.dispatchStock}</td>
+                  <td className="p-3">{item.AvailableQuantity}</td>
+                </tr>
+              )) || (
+                <tr>
+                  <td colSpan="7" className="text-center p-4 text-gray-400">
+                    No stock data available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
         {/* Pagination */}
         <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
-          <button className="px-3 py-1 border rounded bg-gray-50">
+          <button
+            onClick={() => setCurrentPage((prev) => prev - 1)}
+            disabled={currentPage === 1}
+            className="px-3 py-1 border rounded bg-gray-50 hover:bg-gray-100"
+          >
             Previous
           </button>
-          <span>Page 1 of 10</span>
-          <button className="px-3 py-1 border rounded bg-gray-50">Next</button>
+          <span>
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((prev) => prev + 1)}
+            disabled={currentPage === totalPages}
+            className="px-3 py-1 border rounded bg-gray-50 hover:bg-gray-100"
+          >
+            Next
+          </button>
         </div>
       </div>
 
@@ -154,7 +213,6 @@ const FactoryDetails = () => {
       {deleteIndex !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm px-4">
           <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm relative animate-fade-in">
-            {/* Close Icon */}
             <button
               onClick={() => setDeleteIndex(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"

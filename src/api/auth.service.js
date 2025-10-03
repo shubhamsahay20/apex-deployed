@@ -66,6 +66,14 @@ const DeleteCategory = (id, token) => {
   });
 };
 
+const DeleteArticleCode = (id, token) => {
+  return API.delete(`/product/deletecode/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 const UploadCsv = (token, data) =>
   API.post('/product/upload-csv', data, {
     headers: {
@@ -245,5 +253,6 @@ export default {
   forgetOtp,
   newPassword,
   getProfile,
-  getCustomersBySalesPerson
+  getCustomersBySalesPerson,
+  DeleteArticleCode
 };

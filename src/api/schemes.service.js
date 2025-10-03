@@ -12,9 +12,9 @@ const getToken = (token) => {
   }
 };
 
-const addSchemes = async (token,data) => {
+const addSchemes = async (token, data) => {
   try {
-    const res = await API.post(`/schemes/create`,data ,{
+    const res = await API.post(`/schemes/create`, data, {
       headers: getToken(token),
     });
 
@@ -24,11 +24,14 @@ const addSchemes = async (token,data) => {
   }
 };
 
-const getAllSchemes = async (token,page,limit) => {
+const getAllSchemes = async (token, page, limit, searchQuery = '') => {
   try {
-    const res = await API.get(`/schemes/?page=${page}&limit=${limit}`, {
-      headers: getToken(token),
-    });
+    const res = await API.get(
+      `/schemes/?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: getToken(token),
+      },
+    );
 
     return res.data;
   } catch (error) {
@@ -48,11 +51,9 @@ const getSchemeById = async (token, id) => {
   }
 };
 
-
-
-const EditSchemeById = async (token,id,data) => {
+const EditSchemeById = async (token, id, data) => {
   try {
-    const res = await API.put(`/schemes/${id}`,data, {
+    const res = await API.put(`/schemes/${id}`, data, {
       headers: getToken(token),
     });
 
@@ -62,10 +63,9 @@ const EditSchemeById = async (token,id,data) => {
   }
 };
 
-
-const DeleteSchemeById = async (token,id) => {
+const DeleteSchemeById = async (token, id) => {
   try {
-    const res = await API.delete(`/schemes/delete/${id}`,{
+    const res = await API.delete(`/schemes/delete/${id}`, {
       headers: getToken(token),
     });
 
@@ -74,13 +74,11 @@ const DeleteSchemeById = async (token,id) => {
     throw new Error('Error while geting order');
   }
 };
-
-
 
 export default {
   addSchemes,
   getAllSchemes,
   getSchemeById,
   EditSchemeById,
-  DeleteSchemeById
+  DeleteSchemeById,
 };

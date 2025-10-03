@@ -12,14 +12,22 @@ export default function CreateScheme({ onSubmit, onCancel }) {
     type: '',
     description: '',
     quantity: '',
-    expireDate:''
+    expireDate: ''
   });
   const { user } = useAuth();
 
+  // Today's date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!formData.date.trim()) {
-      toast.error('Date is required');
+      toast.error('Starting Date is required');
+      return;
+    }
+    if (!formData.expireDate.trim()) {
+      toast.error('Ending Date is required');
       return;
     }
     if (!formData.name.trim()) {
@@ -38,28 +46,25 @@ export default function CreateScheme({ onSubmit, onCancel }) {
       toast.error('Quantity is required');
       return;
     }
-    if (!formData.date.trim()) {
-      toast.error('Expire Date is Required');
-      return;
-    }
-   
+
     try {
       const payload = {
         schemesName: formData.name,
         schemesDescription: formData.description,
         schemesType: formData.type,
         schemesQuantity: formData.quantity,
-        expireDate:formData.expireDate
+        expireDate: formData.expireDate
       };
-      console.log('hello', payload);
 
       const res = await schemesService.addSchemes(user.accessToken, payload);
-      toast.success(res.data.message || "Scheme Created Successfully")
-      console.log('hello1234', res);
+      toast.success(res.data.message || 'Scheme Created Successfully');
+
       if (onSubmit) {
         onSubmit(formData);
       }
-    } catch (error) {}
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Something went wrong');
+    }
   };
 
   const handleChange = (field, value) => {
@@ -70,8 +75,8 @@ export default function CreateScheme({ onSubmit, onCancel }) {
   };
 
   return (
-    <div className=" w-full h-full">
-      <div className="w-full h-[600px] bg-white rounded-lg shadow-sm  mx-auto">
+    <div className="w-full h-full">
+      <div className="w-full h-[600px] bg-white rounded-lg shadow-sm mx-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">Scheme</h1>
@@ -80,13 +85,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Date Field */}
+            {/* Starting Date */}
             <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-              Starting  Date
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+                Starting Date
               </label>
               <input
                 type="date"
@@ -94,16 +96,14 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 placeholder="dd/mm/yyyy"
                 value={formData.date}
                 onChange={(e) => handleChange('date', e.target.value)}
+                min={today} // prevent past dates
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
-
+            {/* Ending Date */}
             <div>
-              <label
-                htmlFor="expireDate"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="expireDate" className="block text-sm font-medium text-gray-700 mb-2">
                 Ending Date
               </label>
               <input
@@ -112,15 +112,14 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 placeholder="dd/mm/yyyy"
                 value={formData.expireDate}
                 onChange={(e) => handleChange('expireDate', e.target.value)}
+                min={formData.date || today} // prevent past dates and dates before Starting Date
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
+            {/* Scheme Name */}
             <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
                 Scheme Name
               </label>
               <input
@@ -133,11 +132,9 @@ export default function CreateScheme({ onSubmit, onCancel }) {
               />
             </div>
 
+            {/* Scheme Type */}
             <div>
-              <label
-                htmlFor="type"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
                 Scheme Type
               </label>
               <input
@@ -150,11 +147,9 @@ export default function CreateScheme({ onSubmit, onCancel }) {
               />
             </div>
 
+            {/* Description */}
             <div>
-              <label
-                htmlFor="description"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
                 Description
               </label>
               <input
@@ -167,11 +162,9 @@ export default function CreateScheme({ onSubmit, onCancel }) {
               />
             </div>
 
+            {/* Quantity */}
             <div>
-              <label
-                htmlFor="quantity"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
+              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
                 Quantity Included In Scheme
               </label>
               <input
@@ -183,8 +176,6 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-
-            
           </div>
 
           {/* Submit Button */}

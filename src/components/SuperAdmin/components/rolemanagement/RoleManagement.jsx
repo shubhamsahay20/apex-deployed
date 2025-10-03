@@ -90,7 +90,6 @@ const RoleManagement = () => {
   const [salesPersonData, setSalesPersonData] = useState([]);
   const [warehouses, setWarehouses] = useState([]);
 
-  // ✅ Loading states
   const [loading, setLoading] = useState(false);           // For main data fetching
   const [deleteLoading, setDeleteLoading] = useState(false); // For delete operations
   const [warehouseLoading, setWarehouseLoading] = useState(false); // For warehouse data
@@ -276,7 +275,6 @@ const RoleManagement = () => {
           </h2>
         </div>
         
-        {/* ✅ Show loader for warehouse data if still loading */}
         {warehouseLoading && activeRole === 'Warehouse Manager' ? (
           <div className="flex justify-center py-8">
             <Loader />
@@ -418,6 +416,7 @@ const RoleManagement = () => {
                   name="role"
                   className="border px-4 py-2 rounded w-full"
                   placeholder="Enter Role"
+                  readOnly
                   value={form.role}
                   onChange={handleChange}
                   disabled={submitLoading} // ✅ Disable while loading

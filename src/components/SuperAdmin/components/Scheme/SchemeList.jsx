@@ -9,33 +9,39 @@ import {
 import { toast } from 'react-toastify';
 import schemesService from '../../../../api/schemes.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import { useDebounce } from '../../../../hooks/useDebounce';
+import { FaSearch } from 'react-icons/fa';
 
-;
-
-export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
+export const SchemeList = ({ handleAddClick, handleEditClick }) => {
   const { user } = useAuth();
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [schemes, setSchemes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
 
   useEffect(() => {
-    (async () => {
-      try {
-        const res = await schemesService.getAllSchemes(
-          user.accessToken,
-          currentPage,
-          10,
-        );
-        console.log('res data', res?.data.schemes);
-        setSchemes(res.data?.schemes);
-        setTotalPage(res.data?.pagination?.totalpages);
-      } catch (error) {
-        toast.error(error.response?.message);
-      }
-    })();
-  }, [user, currentPage]);
+     if (debounceValue.length === 0 || debounceValue.length >= 2) {
+
+       (async () => {
+         try {
+           const res = await schemesService.getAllSchemes(
+             user.accessToken,
+             currentPage,
+             10,
+             debounceValue
+           );
+           console.log('res data', res?.data.schemes);
+           setSchemes(res.data?.schemes);
+           setTotalPage(res.data?.pagination?.totalpages);
+         } catch (error) {
+           toast.error(error.response?.message);
+         }
+       })();
+     }
+  }, [user, debounceValue, currentPage]);
 
   const handleDelete = (id) => {
     console.log('item', id);
@@ -74,6 +80,19 @@ export  const SchemeList = ({ handleAddClick, handleEditClick }) => {
           >
             Add Schemes
           </button>
+
+           <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => (
+                  setSearchQuery(e.target.value), setCurrentPage(1)
+                )}
+                placeholder="Search Description,Name"
+                className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+              />
+              <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+            </div>
           {/* <button className="border px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1">
             Filters
           </button> */}

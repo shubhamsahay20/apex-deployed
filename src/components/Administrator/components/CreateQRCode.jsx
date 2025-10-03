@@ -7,6 +7,7 @@ import qrService from '../../../api/qr.service';
 import { toast } from 'react-toastify';
 import jsPDF from 'jspdf';
 import Loader from '../../../common/Loader';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 const CreateQRCode = () => {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ const CreateQRCode = () => {
   const [search, setSearch] = useState('');
   const [fetching, setFetching] = useState(false);
   const [open, setOpen] = useState(false);
+  const debounceValue = useDebounce(search, 500);
 
   // 🔹 Fetch products
   const fetchProducts = async (pageNo = 1, searchTerm = '') => {
@@ -39,7 +41,7 @@ const CreateQRCode = () => {
         user.accessToken,
         pageNo,
         20,
-        searchTerm
+        searchTerm,
       );
 
       const products = res.data?.products || [];
@@ -48,7 +50,7 @@ const CreateQRCode = () => {
       if (pageNo === 1) {
         setProductData(products);
       } else {
-        setProductData(prev => [...prev, ...products]);
+        setProductData((prev) => [...prev, ...products]);
       }
 
       setHasMore(pageNo < (pagination?.totalPages || 1));
@@ -61,11 +63,14 @@ const CreateQRCode = () => {
 
   // search + open trigger
   useEffect(() => {
-    if (open) {
+    if (!open) return; // Only fetch if dropdown is open
+
+    // Call API only if debounced value length is 0 or >= 2
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
       setPage(1);
-      fetchProducts(1, search);
+      fetchProducts(1, debounceValue);
     }
-  }, [search, open]);
+  }, [debounceValue, open]);
 
   // load more when page changes
   useEffect(() => {
@@ -75,7 +80,7 @@ const CreateQRCode = () => {
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !fetching) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
@@ -192,12 +197,14 @@ const CreateQRCode = () => {
 
   const handleProductionSelect = (selectedOption) => {
     setSelectedProduction(selectedOption?.value || '');
-    const selected = productData.find((item) => item._id === selectedOption?.value);
+    const selected = productData.find(
+      (item) => item._id === selectedOption?.value,
+    );
     if (selected) {
       setFactory(selected.factory?.name || '');
       setArticleNo(selected.article || '');
       setQuantities({ [selected._id]: selected.productionQuantity || 1 });
-      setOpen(false); // close dropdown after select
+      setOpen(false);
     } else {
       setFactory('');
       setArticleNo('');
@@ -242,14 +249,17 @@ const CreateQRCode = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {/* ✅ Search + Infinite Scroll Dropdown for Production No. */}
         <div className="relative text-left">
-          <label className="block mb-1 text-sm text-gray-700">Production No.</label>
+          <label className="block mb-1 text-sm text-gray-700">
+            Production No.
+          </label>
           <div
-            onClick={() => setOpen(prev => !prev)}
+            onClick={() => setOpen((prev) => !prev)}
             className="w-full px-4 py-2 border rounded-lg bg-white text-gray-700 cursor-pointer focus:ring-2 focus:ring-blue-500"
           >
             {selectedProduction
-              ? productData.find(p => p._id === selectedProduction)?.productionNo
-              : "-- Select Production No --"}
+              ? productData.find((p) => p._id === selectedProduction)
+                  ?.productionNo
+              : '-- Select Production No --'}
           </div>
 
           {open && (
@@ -277,7 +287,9 @@ const CreateQRCode = () => {
                   <p className="px-4 py-2 text-sm text-gray-500">Loading...</p>
                 )}
                 {!fetching && productData.length === 0 && (
-                  <p className="px-4 py-2 text-sm text-gray-500">No results found</p>
+                  <p className="px-4 py-2 text-sm text-gray-500">
+                    No results found
+                  </p>
                 )}
               </div>
             </div>
@@ -342,7 +354,9 @@ const CreateQRCode = () => {
                 <tr className="border-b last:border-0" key={prod._id}>
                   <td className="py-2">{prod.article}</td>
                   <td className="py-2 text-center">{prod.category[0]?.size}</td>
-                  <td className="py-2 text-center">{prod.category[0]?.color}</td>
+                  <td className="py-2 text-center">
+                    {prod.category[0]?.color}
+                  </td>
                   <td className="py-2 text-center">{prod.category[0]?.type}</td>
                   <td className="py-2 flex items-center justify-center gap-2">
                     <span className="w-6 text-center">

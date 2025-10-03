@@ -80,10 +80,25 @@ const deleteWishlist = async (token, id) => {
   }
 };
 
+const deleteOrder = async (token, id) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization token is not valid');
+    }
+    const res = await API.delete(`/sale-order/order-delete/${id}`, {
+      headers: AuthToken(token),
+    });
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while getSalesOrder');
+  }
+};
 export default {
   getSalesOrder,
   getSalesOrderByID,
   getAllSalesOrder,
   getAllArtical,
   deleteWishlist,
+  deleteOrder
+  
 };

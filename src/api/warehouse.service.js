@@ -16,21 +16,26 @@ const EditWarehouse = (token, id, data) => {
   });
 };
 
-const getAllWarehouse = (token, page, limit, searchQuery='') => {
-  return API.get(`warehouses/?page=${page}&limit=${limit}&search=${searchQuery}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+const getAllWarehouse = (token, page, limit, searchQuery = '') => {
+  return API.get(
+    `warehouses/?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 };
 
-
-const getOrderByWarehouse = (token, page, limit, searchQuery='') => {
-  return API.get(`/warehouses/order?page=${page}&limit=${limit}&search=${searchQuery}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+const getOrderByWarehouse = (token, page, limit, searchQuery = '') => {
+  return API.get(
+    `/warehouses/order?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 };
 
 const getWarehouseById = async (token, id) => {
@@ -43,6 +48,32 @@ const getWarehouseById = async (token, id) => {
         Authorization: `Bearer ${token}`,
       },
     });
+
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while geting Details');
+  }
+};
+
+const getWarehouseDetailsById = async (
+  token,
+  id,
+  page,
+  limit,
+  searchQuery = '',
+) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization token is not valid');
+    }
+    const res = await API.get(
+      `/warehouses/warehouse/${id}?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
 
     return res.data;
   } catch (error) {
@@ -64,5 +95,6 @@ export default {
   getAllWarehouse,
   getWarehouseById,
   DeleteWarehouse,
-  getOrderByWarehouse
+  getOrderByWarehouse,
+  getWarehouseDetailsById,
 };

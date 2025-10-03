@@ -3,6 +3,7 @@ import { useAuth } from '../../../Context/AuthContext';
 import productionService from '../../../api/production.service';
 import { toast } from 'react-toastify';
 import Loader from '../../../common/Loader';
+import { useDebounce } from '../../../hooks/useDebounce';
 
 const QRDropdownPage = () => {
   const [selectPN, setSelectPN] = useState('');
@@ -18,6 +19,7 @@ const QRDropdownPage = () => {
 
   const [open, setOpen] = useState(false); // dropdown open/close
   const wrapperRef = useRef(null);
+  const debounceValue = useDebounce(search,500)
 
   // 🔹 Fetch products
   const fetchProducts = async (pageNo = 1, searchTerm = '') => {
@@ -49,12 +51,15 @@ const QRDropdownPage = () => {
   };
 
   // 🔹 Initial + search change
-  useEffect(() => {
-    if (open) {
-      setPage(1);
-      fetchProducts(1, search);
-    }
-  }, [search, open]);
+ useEffect(() => {
+  if (!open) return; // Only fetch if dropdown is open
+
+  // Call API only if debounced value length is 0 or >= 2
+  if (debounceValue.length === 0 || debounceValue.length >= 2) {
+    setPage(1);
+    fetchProducts(1, debounceValue);
+  }
+}, [debounceValue, open]);
 
   // 🔹 On page change
   useEffect(() => {

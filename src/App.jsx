@@ -1,61 +1,61 @@
-import { useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 
-import Loader from './common/Loader';
-import PageTitle from './utils/PageTitle';
-import SignIn from './pages/Authentication/SignIn';
-import SignUp from './pages/Authentication/SignUp';
-import Calendar from './pages/Calendar';
-import Chart from './pages/Chart';
-import Dashboard from './pages/Dashboard/Dashboard';
-import FormElements from './pages/Form/FormElements';
-import FormLayout from './pages/Form/FormLayout';
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
-import DefaultLayout from './layout/DefaultLayout';
-import SalesOrder from './pages/SalesOrder';
-import SalesDetails from './pages/SalesDetails';
-import ArticleList from './components/SuperAdmin/components/inventory/ArticleList';
-import ProductList from './pages/ProductList';
-import CustomerManagement from './components/SuperAdmin/components/customermanagement/CustomerManagement';
+import Loader from './common/Loader'
+import PageTitle from './utils/PageTitle'
+import SignIn from './pages/Authentication/SignIn'
+import SignUp from './pages/Authentication/SignUp'
+import Calendar from './pages/Calendar'
+import Chart from './pages/Chart'
+import Dashboard from './pages/Dashboard/Dashboard'
+import FormElements from './pages/Form/FormElements'
+import FormLayout from './pages/Form/FormLayout'
+import Profile from './pages/Profile'
+import Settings from './pages/Settings'
+import DefaultLayout from './layout/DefaultLayout'
+import SalesOrder from './pages/SalesOrder'
+import SalesDetails from './pages/SalesDetails'
+import ArticleList from './components/SuperAdmin/components/inventory/ArticleList'
+import ProductList from './pages/ProductList'
+import CustomerManagement from './components/SuperAdmin/components/customermanagement/CustomerManagement'
 
-import RoleManagement from './components/SuperAdmin/components/rolemanagement/RoleManagement';
-import DeliveryOrder from './components/SuperAdmin/components/inventory/DeliveryOrder';
-import InternalTransfer from './components/SuperAdmin/components/inventory/InternalTransfer';
-import Production from './components/SuperAdmin/components/inventory/Production';
+import RoleManagement from './components/SuperAdmin/components/rolemanagement/RoleManagement'
+import DeliveryOrder from './components/SuperAdmin/components/inventory/DeliveryOrder'
+import InternalTransfer from './components/SuperAdmin/components/inventory/InternalTransfer'
+import Production from './components/SuperAdmin/components/inventory/Production'
 // import DeliveryDetails from './components/inventory/DeliveryOrder/DeliveryDetails';
-import ScanDelivery from './components/SuperAdmin/components/inventory/ScanDelivery';
-import ScanOrderDetails from './components/SuperAdmin/components/inventory/ScanOrderDetails';
-import DeliveryDetails from './components/SuperAdmin/components/inventory/DeliveryDetails';
-import InternalDetails from './components/SuperAdmin/components/inventory/InternalDetails';
-import ScanInternalTrans from './components/SuperAdmin/components/inventory/ScanInternalTrans';
-import InternalScanOrderDetails from './components/SuperAdmin/components/inventory/InternalScanOrderDetails';
-import ProductionAdd from './components/SuperAdmin/components/inventory/ProductionAdd';
-import ProductCreateLabel from './components/SuperAdmin/components/inventory/ProductCreateLabel';
-import AddNewCustomer from './components/SuperAdmin/components/customermanagement/AddNewCustomer';
-import CustomerDetailsView from './components/SuperAdmin/components/customermanagement/CustomerDetailsView';
-import CustomerEdit from './components/SuperAdmin/components/customermanagement/CustomerEdit';
-import Logs from './components/SuperAdmin/components/Loggs/Logs';
+import ScanDelivery from './components/SuperAdmin/components/inventory/ScanDelivery'
+import ScanOrderDetails from './components/SuperAdmin/components/inventory/ScanOrderDetails'
+import DeliveryDetails from './components/SuperAdmin/components/inventory/DeliveryDetails'
+import InternalDetails from './components/SuperAdmin/components/inventory/InternalDetails'
+import ScanInternalTrans from './components/SuperAdmin/components/inventory/ScanInternalTrans'
+import InternalScanOrderDetails from './components/SuperAdmin/components/inventory/InternalScanOrderDetails'
+import ProductionAdd from './components/SuperAdmin/components/inventory/ProductionAdd'
+import ProductCreateLabel from './components/SuperAdmin/components/inventory/ProductCreateLabel'
+import AddNewCustomer from './components/SuperAdmin/components/customermanagement/AddNewCustomer'
+import CustomerDetailsView from './components/SuperAdmin/components/customermanagement/CustomerDetailsView'
+import CustomerEdit from './components/SuperAdmin/components/customermanagement/CustomerEdit'
+import Logs from './components/SuperAdmin/components/Loggs/Logs'
 // import Annoucement from './components/Annoucement.jsx/AnnouncementManager';
-import AnnouncementManager from './components/SuperAdmin/components/Annoucement.jsx/AnnouncementManager';
-import RoleDetailsViewPage from './components/SuperAdmin/components/rolemanagement/RoleDetailsViewPage';
-import WarehouseManagement from './components/SuperAdmin/components/warehouse-management/WarehouseManagement';
-import Reports from './components/SuperAdmin/components/Reports/Reports';
-import Catagary from './components/SuperAdmin/components/catagories/Catagary';
-import ArticleCode from './components/SuperAdmin/components/article-code/ArticleCode';
-import WarehouseDetails from './components/SuperAdmin/components/warehouse-management/WarehouseDetails';
-import InventoryDashboard from './components/InventoryAdmin/components/InventoryManagement/InventoryDashboard';
-import InventoryArticalList from './components/InventoryAdmin/components/InventoryManagement/InventoryArticalList';
-import AddArticleList from './components/InventoryAdmin/components/InventoryManagement/AddArticleList';
-import ProductionManager_Dashboard from './components/ProductionAdmin/components/ProductionManager_Dashboard';
-import Create_New_Order from './components/Sales Person/components/Create_New_Order';
-import ProductionManager_Management from './components/ProductionAdmin/ProductionManager_Management';
-import Add_Production from './components/ProductionAdmin/components/Add_Production';
-import Create_lable from './components/ProductionAdmin/components/Create_lable';
-import Warehouse_Management from './components/ProductionAdmin/components/Warehouse_Management';
-import Warehouse_details from './components/ProductionAdmin/components/Warehouse_details';
-import ActiveSchemesOrder from './components/Sales Person/components/Schemes';
-import Scheme from './components/SuperAdmin/components/Scheme/Scheme';
+import AnnouncementManager from './components/SuperAdmin/components/Annoucement.jsx/AnnouncementManager'
+import RoleDetailsViewPage from './components/SuperAdmin/components/rolemanagement/RoleDetailsViewPage'
+import WarehouseManagement from './components/SuperAdmin/components/warehouse-management/WarehouseManagement'
+import Reports from './components/SuperAdmin/components/Reports/Reports'
+import Catagary from './components/SuperAdmin/components/catagories/Catagary'
+import ArticleCode from './components/SuperAdmin/components/article-code/ArticleCode'
+import WarehouseDetails from './components/SuperAdmin/components/warehouse-management/WarehouseDetails'
+import InventoryDashboard from './components/InventoryAdmin/components/InventoryManagement/InventoryDashboard'
+import InventoryArticalList from './components/InventoryAdmin/components/InventoryManagement/InventoryArticalList'
+import AddArticleList from './components/InventoryAdmin/components/InventoryManagement/AddArticleList'
+import ProductionManager_Dashboard from './components/ProductionAdmin/components/ProductionManager_Dashboard'
+import Create_New_Order from './components/Sales Person/components/Create_New_Order'
+import ProductionManager_Management from './components/ProductionAdmin/ProductionManager_Management'
+import Add_Production from './components/ProductionAdmin/components/Add_Production'
+import Create_lable from './components/ProductionAdmin/components/Create_lable'
+import Warehouse_Management from './components/ProductionAdmin/components/Warehouse_Management'
+import Warehouse_details from './components/ProductionAdmin/components/Warehouse_details'
+import ActiveSchemesOrder from './components/Sales Person/components/Schemes'
+import Scheme from './components/SuperAdmin/components/Scheme/Scheme'
 
 // import CustomersList from './components/Sales Person/components/CustomersList';
 // import Create_Scheme from './components/SuperAdmin/components/Scheme/Create_Scheme';
@@ -104,41 +104,42 @@ import UploadStatus from './components/InventoryAdmin/components/InventoryManage
 import Admin_WishList from './components/SuperAdmin/components/WishList_Admin/Admin_WishList';
 import AdminOrders from './components/SuperAdmin/components/AdminOrders/AdminOrder';
 import StockVerify from './components/WarehouseAdmin/components/StockVerify';
+import ViewProduction from './components/ProductionAdmin/components/ViewProduction';
 
-function App() {
-  const [loading, setLoading] = useState(true);
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+function App () {
+  const [loading, setLoading] = useState(true)
+  const { pathname } = useLocation()
 
   useEffect(() => {
-    setTimeout(() => setLoading(false), 1000);
-  }, []);
+    window.scrollTo(0, 0)
+  }, [pathname])
+
+  useEffect(() => {
+    setTimeout(() => setLoading(false), 1000)
+  }, [])
 
   return loading ? (
     <Loader />
   ) : (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/unauthorized" element={<Unauthorized />} />
+      <Route path='/' element={<Navigate to='/login' />} />
+      <Route path='/unauthorized' element={<Unauthorized />} />
 
       <Route
-        path="/login"
+        path='/login'
         element={
           <>
-            <PageTitle title="Signin " />
+            <PageTitle title='Signin ' />
             <SignIn />
           </>
         }
       />
       <Route
-        path="/forgotpassword"
+        path='/forgotpassword'
         element={
           <>
             {/* <ProtectedRoutes role={['Admin', 'Warehouse Manager']}> */}
-            <PageTitle title="ForgotPassword" />
+            <PageTitle title='ForgotPassword' />
             <ForgotPassword />
             {/* </ProtectedRoutes> */}
           </>
@@ -146,210 +147,210 @@ function App() {
       />
 
       <Route
-        path="/signup"
+        path='/signup'
         element={
           <>
-            <PageTitle title="Signup " />
+            <PageTitle title='Signup ' />
             <SignUp />
           </>
         }
       />
 
       <Route
-        path="*"
+        path='*'
         element={
           <DefaultLayout>
             <Routes>
               <Route
-                path="/dashboard"
+                path='/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Dashboard " />
+                      <PageTitle title='Dashboard ' />
                       <Dashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/production-manager/dashboard"
+                path='/production-manager/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Production Manager', 'Admin']}>
-                      <PageTitle title="Production Manager Dashboard " />
+                      <PageTitle title='Production Manager Dashboard ' />
                       <ProductionManager_Dashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/production-manager/management"
+                path='/production-manager/management'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Production Manager', 'Admin', 'Administrator']}
                     >
-                      <PageTitle title="Production Manager Management " />
+                      <PageTitle title='Production Manager Management ' />
                       <ProductionManager_Management />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/production-manager/management/add-production"
+                path='/production-manager/management/add-production'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Production Manager', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title="Production Manager Management " />
+                      <PageTitle title='Production Manager Management ' />
                       <Add_Production />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/production-manager/management/create-label"
+                path='/production-manager/management/create-label'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Production Manager', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title="Production Manager Management " />
+                      <PageTitle title='Production Manager Management ' />
                       <Create_lable />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/prodction-manager/warehouse_management"
+                path='/prodction-manager/warehouse_management'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Production Manager', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title="Production Manager/Warehouse Management " />
+                      <PageTitle title='Production Manager/Warehouse Management ' />
                       <Warehouse_Management />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/production-manager/warehouse_details"
+                path='/production-manager/warehouse_details'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Production Manager', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title="Production Manager/Warehouse Details " />
+                      <PageTitle title='Production Manager/Warehouse Details ' />
                       <Warehouse_details />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/SalesOrder"
+                path='/SalesOrder'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Calendar " />
+                      <PageTitle title='Calendar ' />
                       <SalesOrder />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/SalesDetails/:id"
+                path='/SalesDetails/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Sales Details  " />
+                      <PageTitle title='Sales Details  ' />
                       <SalesDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/cart"
+                path='/salesPerson/cart'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Sales Details  " />
+                      <PageTitle title='Sales Details  ' />
                       <Cart />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/calendar"
+                path='/calendar'
                 element={
                   <>
-                    <PageTitle title="Calendar " />
+                    <PageTitle title='Calendar ' />
                     <Calendar />
                   </>
                 }
               />
               <Route
-                path="/profile"
+                path='/profile'
                 element={
                   <>
-                    <PageTitle title="Profile " />
+                    <PageTitle title='Profile ' />
                     <Profile />
                   </>
                 }
               />
               <Route
-                path="/articleList"
+                path='/articleList'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Administrator']}>
-                      <PageTitle title="Article List " />
+                      <PageTitle title='Article List ' />
                       <ArticleList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/delivery-orders"
+                path='/inventory/delivery-orders'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Admin', 'Administrator', 'Inventory Manager']}
                     >
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <DeliveryOrder />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/delivery-details"
+                path='/inventory/delivery-details'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <DeliveryDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/scan-delivery"
+                path='/inventory/scan-delivery'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <ScanDelivery />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/scan-order-details"
+                path='/inventory/scan-order-details'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <ScanOrderDetails />
                     </ProtectedRoutes>
                   </>
@@ -357,35 +358,35 @@ function App() {
               />
               {/* Intenal Transfer Routes start  */}
               <Route
-                path="/inventory/internal-transfers"
+                path='/inventory/internal-transfers'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Admin', 'Administrator', 'Inventory Manager']}
                     >
-                      <PageTitle title="Internal Transfer  " />
+                      <PageTitle title='Internal Transfer  ' />
                       <InternalTransfer />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/internal-details"
+                path='/inventory/internal-details'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <InternalDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/internal-label"
+                path='/inventory/internal-label'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <ScanInternalTrans />
                     </ProtectedRoutes>
                   </>
@@ -395,22 +396,22 @@ function App() {
               {/* Internal Transfer Route END  */}
               {/*  INVENTRY PRODUCT ROUTES START */}
               <Route
-                path="inventory/product-add"
+                path='inventory/product-add'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <ProductionAdd />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/product-create-lebel"
+                path='/inventory/product-create-lebel'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Delivery Order " />
+                      <PageTitle title='Delivery Order ' />
                       <ProductCreateLabel />
                     </ProtectedRoutes>
                   </>
@@ -429,44 +430,44 @@ function App() {
                 }
               /> */}
               <Route
-                path="/productList"
+                path='/productList'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Article List data  " />
+                      <PageTitle title='Article List data  ' />
                       <ProductList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/productList"
+                path='/productList'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Article List data  " />
+                      <PageTitle title='Article List data  ' />
                       <ProductList />
                     </ProtectedRoutes>
                   </>
                 }
               />{' '}
               <Route
-                path="/productList"
+                path='/productList'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Article List data  " />
+                      <PageTitle title='Article List data  ' />
                       <ProductList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/forms/form-layout"
+                path='/forms/form-layout'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Role Management " />
+                      <PageTitle title='Role Management ' />
                       <FormLayout />
                     </ProtectedRoutes>
                   </>
@@ -474,18 +475,18 @@ function App() {
               />
               {/*  CUSTOMER MANAGEMENT ROUTES START  */}
               <Route
-                path="/customer-management"
+                path='/customer-management'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Customer Management " />
+                      <PageTitle title='Customer Management ' />
                       <CustomerManagement />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/factory-management"
+                path='/factory-management'
                 element={
                   <>
                     <ProtectedRoutes
@@ -495,76 +496,76 @@ function App() {
                         'Production Manager',
                         'Administrator',
                         'Inventory Manager',
-                        'Warehouse Manager',
+                        'Warehouse Manager'
                       ]}
                     >
-                      <PageTitle title="Factory Management " />
+                      <PageTitle title='Factory Management ' />
                       <FactoryManagement />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory-management/dashboard"
+                path='/inventory-management/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Inventory Management " />
+                      <PageTitle title='Inventory Management ' />
                       <InventoryDashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory-management/article-list"
+                path='/inventory-management/article-list'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Inventory Management Article List " />
+                      <PageTitle title='Inventory Management Article List ' />
                       <InventoryArticalList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory-management/article-list/add-new-article"
+                path='/inventory-management/article-list/add-new-article'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Inventory Management Add New Article   " />
+                      <PageTitle title='Inventory Management Add New Article   ' />
                       <AddArticleList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/customer/add-new-customer"
+                path='/customer/add-new-customer'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Add New Customer " />
+                      <PageTitle title='Add New Customer ' />
                       <AddNewCustomer />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/customer/:id/view-customer"
+                path='/customer/:id/view-customer'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Customer Details View " />
+                      <PageTitle title='Customer Details View ' />
                       <CustomerDetailsView />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="customer/:id/edit-customer"
+                path='customer/:id/edit-customer'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Customer Edit " />
+                      <PageTitle title='Customer Edit ' />
                       <CustomerEdit />
                     </ProtectedRoutes>
                   </>
@@ -572,143 +573,147 @@ function App() {
               />
               {/*  CUSTOMER MANAGEMENT ROUTES END   */}
               <Route
-                path="/role-management"
+                path='/role-management'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Administrator']}>
-                      <PageTitle title="Role Management " />
+                      <PageTitle title='Role Management ' />
                       <RoleManagement />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/view-details/:role/:id"
+                path='/view-details/:role/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Role Details ViewPage " />
+                      <PageTitle title='Role Details ViewPage ' />
                       <RoleDetailsViewPage />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management"
+                path='/warehouse-management'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Admin', 'Administrator', 'Warehouse Manager']}
                     >
-                      <PageTitle title="Warehouse Management " />
+                      <PageTitle title='Warehouse Management ' />
                       <WarehouseManagement />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-details/:id"
+                path='/warehouse-details/:id'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
-                      <PageTitle title="Tables " />
+                    <ProtectedRoutes
+                      role={['Admin', 'Administrator', 'Warehouse Manager']}
+                    >
+                      <PageTitle title='Tables ' />
                       <WarehouseDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/factory-details/:id"
+                path='/factory-details/:id'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
-                      <PageTitle title=" Factory " />
+                    <ProtectedRoutes
+                      role={['Admin', 'Administrator', 'Warehouse Manager']}
+                    >
+                      <PageTitle title=' Factory ' />
                       <FactoryDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/reports"
+                path='/reports'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Reports " />
+                      <PageTitle title='Reports ' />
                       <Reports />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/categories"
+                path='/categories'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Category " />
+                      <PageTitle title='Category ' />
                       <Catagary />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/addcategory"
+                path='/addcategory'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Category " />
+                      <PageTitle title='Category ' />
                       <AddCategory />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/editcategory/:id"
+                path='/editcategory/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Edit Category " />
+                      <PageTitle title='Edit Category ' />
                       <EditCategory />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/article-codes"
+                path='/article-codes'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Article Code " />
+                      <PageTitle title='Article Code ' />
                       <ArticleCode />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/annoucement"
+                path='/annoucement'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Admin', 'Sales Person', 'Administrator']}
                     >
-                      <PageTitle title="Announcement Manager " />
+                      <PageTitle title='Announcement Manager ' />
                       <AnnouncementManager />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/logs"
+                path='/logs'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Logs" />
+                      <PageTitle title='Logs' />
                       <Logs />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/edit-role/:id"
+                path='/edit-role/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
@@ -718,146 +723,145 @@ function App() {
                 }
               />
               <Route
-                path="/settings"
+                path='/settings'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Settings " />
+                      <PageTitle title='Settings ' />
                       <Settings />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/create_New_Order"
+                path='/salesPerson/create_New_Order'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Create_New_Order" />
+                      <PageTitle title='Create_New_Order' />
                       <Create_New_Order />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/Schemes"
+                path='/salesPerson/Schemes'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Schemes" />
+                      <PageTitle title='Schemes' />
                       <ActiveSchemesOrder />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/scheme"
+                path='/scheme'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Schemes" />
+                      <PageTitle title='Schemes' />
                       <Scheme />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/Customerslist"
+                path='/salesPerson/Customerslist'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Sales Person']}>
-                      <PageTitle title="Customers List" />
+                      <PageTitle title='Customers List' />
                       <CustomersList />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/Orders"
+                path='/salesPerson/Orders'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Sales Person', 'Admin', 'Account Section']}
                     >
-                      <PageTitle title="Orders" />
+                      <PageTitle title='Orders' />
                       <Orders />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/SalesPersonProfile"
+                path='/salesPerson/SalesPersonProfile'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="SalesPersonProfile" />
+                      <PageTitle title='SalesPersonProfile' />
                       <SalesPersonProfile />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/Wishlist"
+                path='/salesPerson/Wishlist'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Wishlist" />
+                      <PageTitle title='Wishlist' />
                       <Wishlist />
                     </ProtectedRoutes>
                   </>
                 }
               />
-                <Route
-                path="/admin/Wishlist"
+              <Route
+                path='/admin/Wishlist'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Wishlist" />
+                      <PageTitle title='Wishlist' />
                       <Admin_WishList />
                     </ProtectedRoutes>
                   </>
                 }
               />
-              
               <Route
-                path="/accounting-manager/dashboard"
+                path='/accounting-manager/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Account Section']}>
-                      <PageTitle title="Dashboard" />
+                      <PageTitle title='Dashboard' />
                       <AccountingDashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/salesPerson/dashboard"
+                path='/salesPerson/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person']}>
-                      <PageTitle title="SalesePrsonDashboard" />
+                      <PageTitle title='SalesePrsonDashboard' />
                       <Salespersondashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/administrator/CreateQRCode"
+                path='/administrator/CreateQRCode'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Administrator']}>
-                      <PageTitle title="CreateQRCode" />
+                      <PageTitle title='CreateQRCode' />
                       <CreateQRCode />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/administrator/internal-warehouse-transfer"
+                path='/administrator/internal-warehouse-transfer'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Administrator']}>
-                      <PageTitle title="CreateQRCode" />
+                      <PageTitle title='CreateQRCode' />
                       <Internal_warehouse_transfer />
                     </ProtectedRoutes>
                   </>
@@ -875,97 +879,97 @@ function App() {
                 }
               /> */}
               <Route
-                path="/administrator/AdministratorDashboard"
+                path='/administrator/AdministratorDashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Administrator']}>
-                      <PageTitle title="AdministratorDashboard" />
+                      <PageTitle title='AdministratorDashboard' />
                       <AdministratorDashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/prodction-manager/Productprofile"
+                path='/prodction-manager/Productprofile'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Production Manager']}>
-                      <PageTitle title="Productprofile" />
+                      <PageTitle title='Productprofile' />
                       <Productprofile />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory/inventoryprofile"
+                path='/inventory/inventoryprofile'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
-                      <PageTitle title="Inventoryprofile" />
+                      <PageTitle title='Inventoryprofile' />
                       <Inventoryprofile />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/accounting-manager/accountingprofile"
+                path='/accounting-manager/accountingprofile'
                 element={
                   <>
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
-                      <PageTitle title="Accounting profile" />
+                      <PageTitle title='Accounting profile' />
                       <Accountingprofile />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/add-articlecode"
+                path='/add-articlecode'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title="Article-Code" />
+                      <PageTitle title='Article-Code' />
                       <AddArticleCode />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/edit-articlecode/:id"
+                path='/edit-articlecode/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin']}>
-                      <PageTitle title=" Edit Article-Code" />
+                      <PageTitle title=' Edit Article-Code' />
                       <EditArticleCode />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/dashboard"
+                path='/warehouse-management/dashboard'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Warehouse Manager']}>
-                      <PageTitle title="WarehouseDashboard" />
+                      <PageTitle title='WarehouseDashboard' />
                       <WarehouseDashboard />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/CreateWarehouse"
+                path='/warehouse-management/CreateWarehouse'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Admin', 'Administrator', 'Warehouse Manager']}
                     >
-                      <PageTitle title="CreateWarehouse" />
+                      <PageTitle title='CreateWarehouse' />
                       <CreateWarehouse />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/factory-management/CreateFactory"
+                path='/factory-management/CreateFactory'
                 element={
                   <>
                     <ProtectedRoutes
@@ -974,169 +978,197 @@ function App() {
                         'Sales Person',
                         'Production Manager',
                         'Administrator',
-                        'Warehouse Manager',
+                        'Warehouse Manager'
                       ]}
                     >
-                      <PageTitle title="CreateFactory" />
+                      <PageTitle title='CreateFactory' />
                       <CreateFactory />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/factory-edit/:id"
+                path='/factory-edit/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Admin', 'Warehouse Manager']}>
-                      <PageTitle title="CreateFactory" />
+                      <PageTitle title='CreateFactory' />
                       <EditFactory />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-edit/:id"
+                path='/warehouse-edit/:id'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Administrator', 'Warehouse Manager']}>
-                      <PageTitle title="EditWarehouse" />
+                    <ProtectedRoutes
+                      role={['Admin', 'Administrator', 'Warehouse Manager']}
+                    >
+                      <PageTitle title='EditWarehouse' />
                       <EditWarehouse />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/QRScannerPage"
+                path='/QRScannerPage'
                 element={
                   <>
                     <ProtectedRoutes role={['Production Manager']}>
-                      <PageTitle title="QRScannerPage" />
+                      <PageTitle title='QRScannerPage' />
                       <QRScannerPage />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/QRScanner"
+                path='/warehouse-management/QRScanner'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="QRScanner" />
+                      <PageTitle title='QRScanner' />
                       <QRScanner />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/DispatchScanner"
+                path='/warehouse-management/DispatchScanner'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="DispatchScanner" />
+                      <PageTitle title='DispatchScanner' />
                       <DispatchScanner />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/StockVerify"
+                path='/warehouse-management/StockVerify'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="StockVerify" />
+                      <PageTitle title='StockVerify' />
                       <StockVerify />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/warehouse-management/Stock"
+                path='/warehouse-management/Stock'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="Stock" />
+                      <PageTitle title='Stock' />
                       <Stock />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/inventory-management/OrderDetails"
+                path='/inventory-management/OrderDetails'
                 element={
                   <>
                     <ProtectedRoutes role={['Inventory Manager']}>
-                      <PageTitle title="Order Details" />
+                      <PageTitle title='Order Details' />
                       <OrderDetails />
                     </ProtectedRoutes>
                   </>
                 }
               />
-
-
               <Route
-                path="/inventory-management/article-list/upload/:id"
+                path='/inventory-management/article-list/upload/:id'
                 element={
                   <>
                     <ProtectedRoutes role={['Inventory Manager']}>
-                      <PageTitle title="upload Details" />
+                      <PageTitle title='upload Details' />
                       <UploadStatus />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/manualProcess"
+                path='/manualProcess'
                 element={
                   <>
                     <ProtectedRoutes role={['Production Manager']}>
-                      <PageTitle title="QRDropdownPage" />
+                      <PageTitle title='QRDropdownPage' />
                       <QRDropdownPage />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/manualDispatch"
+                path='/manualDispatch'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="WarehouseDropdown" />
+                      <PageTitle title='WarehouseDropdown' />
                       <WarehouseDropdown />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/ArticalData"
+                path='/ArticalData'
                 element={
                   <>
                     <ProtectedRoutes
                       role={['Inventory Manager', 'Sales Person']}
                     >
-                      <PageTitle title="ArticalData" />
+                      <PageTitle title='ArticalData' />
+                      <ArticalData />
+                     
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+
+                 <Route
+                path="/production-manager/view-details/:id"
+                element={
+                  <>
+                    <ProtectedRoutes
+                      role={['Admin', 'Administrator', 'Production Manager']}
+                    >
+                      <PageTitle title="View Production" />
+                      <ViewProduction />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path='/ArticalData'
+                element={
+                  <>
+                    <ProtectedRoutes
+                      role={['Inventory Manager', 'Sales Person']}
+                    >
+                      <PageTitle title='ArticalData' />
                       <ArticalData />
                     </ProtectedRoutes>
                   </>
                 }
               />
               <Route
-                path="/ArticleDataWarehouse"
+                path='/ArticleDataWarehouse'
                 element={
                   <>
                     <ProtectedRoutes role={['Warehouse Manager']}>
-                      <PageTitle title="ArticleDataWarehouse" />
+                      <PageTitle title='ArticleDataWarehouse' />
                       <ArticleDataWarehouse />
                     </ProtectedRoutes>
                   </>
                 }
               />
             </Routes>
-            <ToastContainer position="top-right" autoClose={1000} />
+            <ToastContainer position='top-right' autoClose={1000} />
           </DefaultLayout>
         }
       />
     </Routes>
-  );
+  )
 }
 
-export default App;
+export default App

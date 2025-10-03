@@ -89,6 +89,8 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">Announcements</h1>
           <div className="flex gap-2 items-center">
+            <div className='relative'>
+
             <input
               type="text"
               value={searchQuery}
@@ -99,6 +101,7 @@ export default function AnnouncementsList({ onAddClick, onEditClick }) {
               className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
             />
             <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+            </div>
             <button
               onClick={onAddClick}
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors"

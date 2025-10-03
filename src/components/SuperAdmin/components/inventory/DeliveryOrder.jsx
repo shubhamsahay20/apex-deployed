@@ -13,10 +13,13 @@ import salesService from '../../../../api/sales.service';
 import StatusUpdateModal from '../../../../utils/StatusUpdateModal';
 import inventoryService from '../../../../api/inventory.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
+import DeleteModal from '../../../../utils/DeleteModal';
 
 const DeliveryOrder = () => {
   const navigate = useNavigate();
-  const [showModal, setShowModal] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [orderDelete, setOrderDelete] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
 
@@ -59,7 +62,19 @@ const DeliveryOrder = () => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       getSalesOrder();
     }
-  }, [user, currentPage, debounceValue]);
+  }, [user.accessToken, currentPage, debounceValue]);
+
+  const confirmDelete = async () => {
+    try {
+      const res = await salesService.deleteOrder(user.accessToken, orderDelete);
+      console.log('res delete', res);
+      await getSalesOrder();
+      setDeleteModalOpen(false);
+      toast.success(res.message || 'Order Successfully Deleted');
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -202,7 +217,14 @@ const DeliveryOrder = () => {
                       className="text-green-600 cursor-pointer"
                       onClick={() => handleView(row)}
                     />
-                    <FiTrash2 className="text-red-500 cursor-pointer" />
+                    <FiTrash2
+                      onClick={() => (
+                        setDeleteModalOpen(true),
+                        console.log('row details', row),
+                        setOrderDelete(row._id)
+                      )}
+                      className="text-red-500 cursor-pointer"
+                    />
                   </td>
                 </tr>
               ))}
@@ -239,18 +261,26 @@ const DeliveryOrder = () => {
         row={selectedRow}
         onConfirm={async (row, newStatus) => {
           try {
-            await inventoryService.updateDeliveryStatus(
+            const res = await inventoryService.updateDeliveryStatus(
               user.accessToken,
               row._id,
               { deliveryStatus: newStatus },
             );
-            toast.success(res.data?.message);
-            getSalesOrder();
+            toast.success(res?.message);
+            await getSalesOrder();
+            console.log('getSalesOrder hhiiih', getSalesOrder);
           } catch (error) {
             toast.error(error.response?.data?.message);
           }
           setIsStatusModalOpen(false);
         }}
+      />
+
+      <DeleteModal
+        name={'Order'}
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
       />
     </div>
   );

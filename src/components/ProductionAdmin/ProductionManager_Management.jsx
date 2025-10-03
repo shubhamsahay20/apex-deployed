@@ -82,8 +82,7 @@ const ProductionManager_Management = () => {
               className="pl-8 pr-4 py-2 border border-gray-300 rounded-md text-sm"
               value={searchQuery}
               onChange={(e) => (
-                setSearchQuery(e.target.value),
-                setCurrentPage(1)
+                setSearchQuery(e.target.value), setCurrentPage(1)
               )}
             />
           </div>
@@ -152,6 +151,10 @@ const ProductionManager_Management = () => {
                 <td className="px-4 py-3">{item.factory?.name}</td>
                 <td className="px-4 py-3">
                   <div className="flex gap-4 items-center">
+                    <FiEye
+                      className="text-green-600 cursor-pointer"
+                      onClick={() => navigate(`/production-manager/view-details/${item._id}`)}
+                    />
                     {/* <FiEye className="text-green-600 hover:text-green-800 cursor-pointer" /> */}
                     <FiTrash2
                       onClick={() => handleDelete(item._id)}

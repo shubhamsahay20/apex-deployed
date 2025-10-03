@@ -64,8 +64,10 @@ const Category = () => {
     setLoading(true);
 
     try {
-      await authService.DeleteCategory(selectId, user.accessToken);
-      toast.success('Category deleted successfully');
+     const res =  await authService.DeleteCategory(selectId, user.accessToken);
+     console.log("res delete",res.data.data);
+     
+      toast.success( res.data?.data?.message ||'Category deleted successfully');
       setCategories((prev) => prev.filter((item) => item._id !== selectId));
       setShowDeleteModal(false);
       setSelectId(null);

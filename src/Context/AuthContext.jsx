@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
+import useAutoLogout from '../hooks/useAutoLogOut';
 
 export const AuthContext = createContext();
 
@@ -125,7 +126,7 @@ export const AuthContextProvider = ({ children }) => {
             console.log('qr generated successfully ', data);
 
             toast.error(`${data?.message}`);
-            addNotification('info', data?.message, data.data);
+            addNotification('success', data?.message, data.data);
           }
         }
       });
@@ -195,7 +196,11 @@ export const AuthContextProvider = ({ children }) => {
     }
     setNotifications([]);
     setNotificationCount(0);
+
+    window.location.href = '/login';
   };
+
+  useAutoLogout(logout, 1000 * 60 * 60); // 1 hour
 
   return (
     <AuthContext.Provider
