@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import useAutoLogout from '../hooks/useAutoLogOut';
+import useAutoLogout from '../hooks/useAutoLogout';
 
 export const AuthContext = createContext();
 
