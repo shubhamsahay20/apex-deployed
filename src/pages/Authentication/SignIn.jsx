@@ -122,12 +122,20 @@ const SignIn = () => {
     }
   };
 
+  console.log(
+  "%c WORKING ",
+  "background: #ff0000; color: #fff; font-size: 20px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"
+);
+
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-white px-4">
       <div className="w-full max-w-sm space-y-6">
         <h2 className="text-2xl font-semibold text-center text-blue-600">
           Welcome to Apex
         </h2>
+        
+        
 
         {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
