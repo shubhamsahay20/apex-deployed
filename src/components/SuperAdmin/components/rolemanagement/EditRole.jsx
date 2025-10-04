@@ -24,6 +24,8 @@ const EditRole = () => {
     warehouses: [], // ✅ store selected warehouses
   });
 
+  console.log('form data', formData);
+
   // Fetch warehouses list
   useEffect(() => {
     (async () => {
@@ -50,9 +52,8 @@ const EditRole = () => {
           location: res?.data?.location || '',
           //in future if profile image is needed, uncomment below
 
-
-          // profileImage: res?.data?.profileImage || '',
-          warehouses: res?.data?.warehouses || [], 
+          profileImage: res?.data?.profileImage || '',
+          warehouses: res?.data?.warehouses || [],
         });
       } catch (error) {
         toast.error('Failed to load user details');
@@ -82,6 +83,8 @@ const EditRole = () => {
 
     try {
       const payload = new FormData();
+      console.log('payload 1', payload);
+
       Object.keys(formData).forEach((key) => {
         if (key === 'warehouses') {
           formData.warehouses.forEach((id) => payload.append('warehouses', id)); // ✅ send warehouses array
@@ -89,6 +92,13 @@ const EditRole = () => {
           payload.append(key, formData[key]);
         }
       });
+      const payloadObject = {};
+      for (let [key, value] of payload.entries()) {
+        // For files, just show the file name
+        payloadObject[key] = value instanceof File ? value.name : value;
+      }
+
+      console.log('Payload to send:', payloadObject);
 
       const res = await roleService.updateRoleByID(
         user.accessToken,
@@ -96,8 +106,13 @@ const EditRole = () => {
         payload,
       );
       console.log('response after role update', res);
+      console.log('response user access token', user.accessToken);
+      console.log('response user id', id);
+      console.log('payload 2', payload);
 
       toast.success(res.message || 'User details updated successfully');
+      console.log('payload 3', payload);
+
       navigate('/role-management');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update');
@@ -213,11 +228,11 @@ const EditRole = () => {
             />
           </div>
         )}
-        
+
         {/* in future if profile image is needed, uncomment below */}
 
         {/* Profile Image */}
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium mb-1">
             Profile Image
           </label>
@@ -236,7 +251,7 @@ const EditRole = () => {
                 className="mt-2 w-20 h-20 object-cover rounded"
               />
             )}
-        </div> */}
+        </div>
 
         {/* Actions */}
         <div className="col-span-1 md:col-span-2 flex gap-3 mt-4">
