@@ -14,7 +14,7 @@ import Profile from './pages/Profile'
 import Settings from './pages/Settings'
 import DefaultLayout from './layout/DefaultLayout'
 import SalesOrder from './pages/SalesOrder'
-import SalesDetails from './pages/SalesDetails'
+// import SalesDetails from './pages/SalesDetails'
 import ArticleList from './components/SuperAdmin/components/inventory/ArticleList'
 import ProductList from './pages/ProductList'
 import CustomerManagement from './components/SuperAdmin/components/customermanagement/CustomerManagement'
@@ -261,7 +261,7 @@ function App () {
                   </>
                 }
               />
-              <Route
+              {/* <Route
                 path='/SalesDetails/:id'
                 element={
                   <>
@@ -271,7 +271,7 @@ function App () {
                     </ProtectedRoutes>
                   </>
                 }
-              />
+              /> */}
               <Route
                 path='/salesPerson/cart'
                 element={
