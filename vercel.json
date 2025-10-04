@@ -7,13 +7,12 @@
   "outputDirectory": "dist",
   "routes": [
     {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "continue": true
-    },
-    {
       "src": "/assets/(.*)",
       "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ]
 }
