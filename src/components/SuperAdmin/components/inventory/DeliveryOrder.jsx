@@ -14,6 +14,7 @@ import StatusUpdateModal from '../../../../utils/StatusUpdateModal';
 import inventoryService from '../../../../api/inventory.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import DeleteModal from '../../../../utils/DeleteModal';
+import Loader from '../../../../common/Loader';
 
 const DeliveryOrder = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const DeliveryOrder = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [loading,setLoading] = useState(false)
 
   const handleUpdateStatus = (row) => {
     setSelectedRow(row);
@@ -41,6 +43,7 @@ const DeliveryOrder = () => {
 
   const getSalesOrder = async () => {
     try {
+      setLoading(true)
       const res = await salesService.getAllSalesOrder(
         user.accessToken,
         currentPage,
@@ -55,6 +58,8 @@ const DeliveryOrder = () => {
       setTotalPages(res?.pagination.totalPages);
     } catch (error) {
       toast.error(error.response?.data?.message);
+    }finally{
+      setLoading(false)
     }
   };
 
@@ -66,6 +71,7 @@ const DeliveryOrder = () => {
 
   const confirmDelete = async () => {
     try {
+      setLoading(true)
       const res = await salesService.deleteOrder(user.accessToken, orderDelete);
       console.log('res delete', res);
       await getSalesOrder();
@@ -73,8 +79,12 @@ const DeliveryOrder = () => {
       toast.success(res.message || 'Order Successfully Deleted');
     } catch (error) {
       toast.error(error.response?.data?.message);
+    }finally{
+      setLoading(false)
     }
   };
+
+  if(loading) return <Loader/>
 
   return (
     <div className="space-y-6">

@@ -12,6 +12,7 @@ import {
 } from '../../../../utils/PdfModel';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { FaSearch } from 'react-icons/fa';
+import Loader from '../../../../common/Loader';
 
 const WarehouseDetails = () => {
   const { state } = useLocation();
@@ -23,10 +24,12 @@ const WarehouseDetails = () => {
   const [totalPage, setTotalPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       (async () => {
+        setLoading(true)
         try {
           const res = await warehouseService.getWarehouseDetailsById(
             user.accessToken,
@@ -41,6 +44,8 @@ const WarehouseDetails = () => {
           setTotalPage(res.pagination?.totalPages);
         } catch (error) {
           toast.error(error?.response?.data?.message);
+        } finally{
+          setLoading(false)
         }
       })();
     }
@@ -75,6 +80,9 @@ const WarehouseDetails = () => {
     ]);
     printProductionPDF(rows, headers);
   };
+
+    if(loading) return <Loader/>
+
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen space-y-6">

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import schemesService from '../../../../api/schemes.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
 
 export default function EditScheme({ scheme, onSubmit, onCancel }) {
   const { user } = useAuth();
@@ -15,8 +16,12 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
     quantity: '',
   });
 
+    const[loading,setLoading] = useState(false)
+
+
   useEffect(() => {
     (async () => {
+      setLoading(true)
       try {
         console.log('scheme', scheme);
 
@@ -35,6 +40,8 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
         });
       } catch (error) {
         toast.error(error.response?.message);
+      } finally{
+        setLoading(false)
       }
     })();
   }, [scheme]);
@@ -59,6 +66,7 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
       toast.error('Description is required');
       return;
     }
+    setLoading(true)
     try {
       const payload = {
         schemesName: formData.name,
@@ -86,7 +94,11 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
           ...formData,
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      toast.error(error?.response?.data?.message)
+    } finally{
+      setLoading(false)
+    }
   };
 
   const handleChange = (field, value) => {
@@ -95,6 +107,9 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
       [field]: value,
     }));
   };
+
+    if(loading) return <Loader/>
+
 
   return (
     <div className=" bg-gray-50 min-h-screen">

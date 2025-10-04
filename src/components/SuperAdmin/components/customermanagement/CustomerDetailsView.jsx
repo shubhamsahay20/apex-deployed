@@ -9,29 +9,40 @@ import {
   exportProductionPDF,
   printProductionPDF,
 } from '../../../../utils/PdfModel';
+import { toast } from 'react-toastify';
+import Loader from '../../../../common/Loader';
 
 const CustomerDetailsView = () => {
   const [orderHistory, setOrderHistory] = useState([]);
   const { id } = useParams();
   const { user } = useAuth();
   const [customer, setCustomer] = useState({});
+  const[loading,setLoading] = useState(false)
 
   useEffect(() => {
     (async () => {
-      const res = await authService.getCustomerById(user.accessToken, id);
-      console.log('response of customer', res.data.data);
-      setCustomer(res.data.data);
-      setOrderHistory(res.data?.data?.orders);
+     try {
+      setLoading(true)
+       const res = await authService.getCustomerById(user.accessToken, id);
+       console.log('response of customer', res.data.data);
+       setCustomer(res.data.data);
+       setOrderHistory(res.data?.data?.orders);
+     } catch (error) {
+      toast.error(error.response?.data?.message)   
+     }finally{
+      setLoading(false)
+
+     }
     })();
   }, []);
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
 
-  const handleDeleteClick = (id) => {
-    setDeleteId(id);
-    setShowConfirm(true);
-  };
+  // const handleDeleteClick = (id) => {
+  //   setDeleteId(id);
+  //   setShowConfirm(true);
+  // };
 
   const confirmDelete = () => {
     setOrderHistory(orderHistory.filter((item) => item.id !== deleteId));
@@ -65,6 +76,8 @@ const CustomerDetailsView = () => {
     ]);
     printProductionPDF(rows, headers);
   };
+
+  if(loading) return <Loader/>
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen space-y-6">

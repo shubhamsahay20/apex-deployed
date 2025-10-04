@@ -4,6 +4,7 @@ import { useState } from 'react';
 import schemesService from '../../../../api/schemes.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
+import Loader from '../../../../common/Loader';
 
 export default function CreateScheme({ onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -12,9 +13,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
     type: '',
     description: '',
     quantity: '',
-    expireDate: ''
+    expireDate: '',
   });
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   // Today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
@@ -47,13 +49,15 @@ export default function CreateScheme({ onSubmit, onCancel }) {
       return;
     }
 
+    setLoading(true)
+
     try {
       const payload = {
         schemesName: formData.name,
         schemesDescription: formData.description,
         schemesType: formData.type,
         schemesQuantity: formData.quantity,
-        expireDate: formData.expireDate
+        expireDate: formData.expireDate,
       };
 
       const res = await schemesService.addSchemes(user.accessToken, payload);
@@ -64,6 +68,8 @@ export default function CreateScheme({ onSubmit, onCancel }) {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Something went wrong');
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -73,6 +79,9 @@ export default function CreateScheme({ onSubmit, onCancel }) {
       [field]: value,
     }));
   };
+
+    if(loading) return <Loader/>
+
 
   return (
     <div className="w-full h-full">
@@ -87,7 +96,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Starting Date */}
             <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="date"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Starting Date
               </label>
               <input
@@ -103,7 +115,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
 
             {/* Ending Date */}
             <div>
-              <label htmlFor="expireDate" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="expireDate"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Ending Date
               </label>
               <input
@@ -119,7 +134,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
 
             {/* Scheme Name */}
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Scheme Name
               </label>
               <input
@@ -134,7 +152,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
 
             {/* Scheme Type */}
             <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="type"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Scheme Type
               </label>
               <input
@@ -149,7 +170,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="description"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Description
               </label>
               <input
@@ -164,7 +188,10 @@ export default function CreateScheme({ onSubmit, onCancel }) {
 
             {/* Quantity */}
             <div>
-              <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="quantity"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Quantity Included In Scheme
               </label>
               <input

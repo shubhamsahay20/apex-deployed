@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import authService from '../../../../api/auth.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
 
 const CustomerEdit = () => {
   const { state } = useLocation();
@@ -17,6 +18,8 @@ const CustomerEdit = () => {
     pincode: '',
     address: '',
   });
+
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,15 +40,17 @@ const CustomerEdit = () => {
     };
 
     try {
+      setLoading(true)
       const res = await authService.EditCustomer(user.accessToken, id, data);
-      console.log(res,"tred");
-      toast.success(res.data?.message || "Updated ")
-      
+      console.log(res, 'tred');
+      toast.success(res.data?.message || 'Updated ');
 
       console.log('hi');
-      navigate("/customer-management")
+      navigate('/customer-management');
     } catch (error) {
-      toast.error(error.response?.data?.message)
+      toast.error(error.response?.data?.message);
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -61,6 +66,7 @@ const CustomerEdit = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         const { data } = await authService.getUsers(user.accessToken);
         console.log('customer', data);
@@ -68,6 +74,8 @@ const CustomerEdit = () => {
         setCustomer(data.data);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     };
     fetchData();
@@ -75,6 +83,7 @@ const CustomerEdit = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true)
       try {
         const res = await authService.getCustomerById(user.accessToken, id);
         console.log(' details', res.data);
@@ -91,9 +100,16 @@ const CustomerEdit = () => {
           pincode: location.pincode || '',
           address: location.address || '',
         });
-      } catch (error) {}
+      } catch (error) {
+        toast.error(error.response?.data?.message)
+      } finally{
+        setLoading(false)
+      }
     })();
   }, []);
+
+    if(loading) return <Loader/>
+
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">

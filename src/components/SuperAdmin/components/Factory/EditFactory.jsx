@@ -3,11 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import factoryService from '../../../../api/factory.service';
+import Loader from '../../../../common/Loader';
 
 const EditFactory = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -34,6 +36,7 @@ const EditFactory = () => {
 
   useEffect(() => {
     (async () => {
+      setLoading(true)
       try {
         const res = await factoryService.getFactoryById(user.accessToken, id);
         console.log(res.data.data);
@@ -47,6 +50,8 @@ const EditFactory = () => {
         });
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     })();
   }, []);
@@ -77,6 +82,7 @@ const EditFactory = () => {
     };
 
     try {
+      setLoading(true)
       const res = await factoryService.EditFactoryById(
         user.accessToken,
         id,
@@ -88,8 +94,13 @@ const EditFactory = () => {
       navigate('/factory-management');
     } catch (error) {
       toast.error(error?.response?.message || 'Error creating warehouse');
+    } finally{
+      setLoading(false)
     }
   };
+
+    if(loading) return <Loader/>
+
 
   return (
     <div className="p-6 bg-white rounded shadow-sm">

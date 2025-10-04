@@ -6,6 +6,7 @@ import { toast } from 'react-toastify'
 import salesService from '../../../../api/sales.service'
 import reportService from '../../../../api/report.service' // ✅ add this to fetch inventory summary
 import { useDebounce } from '../../../../hooks/useDebounce'
+import Loader from '../../../../common/Loader'
 
 const ArticleList = () => {
   const { user } = useAuth()
@@ -15,9 +16,12 @@ const ArticleList = () => {
   const [inventoryData, setInventoryData] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const debounceValue = useDebounce(searchQuery, 500)
+  const[loading,setLoading]= useState(false)
+
 
   // ✅ Fetch inventory summary (for top cards)
   useEffect(() => {
+    setLoading(true)
     const fetchInventorySummary = async () => {
       try {
         const res = await reportService.inventorySummary(user.accessToken)
@@ -25,6 +29,8 @@ const ArticleList = () => {
         setInventoryData(res?.data || {})
       } catch (error) {
         toast.error(error.response?.data?.message)
+      } finally{
+        setLoading(false)
       }
     }
     if (user?.accessToken) {
@@ -34,6 +40,7 @@ const ArticleList = () => {
 
   // ✅ Fetch article list
   useEffect(() => {
+    setLoading(true)
     const fetchData = async () => {
       try {
         const res = await salesService.getAllArtical(
@@ -47,6 +54,8 @@ const ArticleList = () => {
         setArticledetails(res?.data || [])
       } catch (error) {
         toast.error(error.response?.data?.message)
+      } finally{
+        setLoading(false)
       }
     }
     if (user?.accessToken) {
@@ -79,6 +88,8 @@ const ArticleList = () => {
       color: 'text-green-600'
     }
   ]
+
+  if(loading)return <Loader/>
 
   return (
     <div className='space-y-6 bg-gray-100 min-h-screen'>

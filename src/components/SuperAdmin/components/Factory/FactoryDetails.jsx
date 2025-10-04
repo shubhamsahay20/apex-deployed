@@ -9,17 +9,18 @@ import {
 } from '../../../../utils/PdfModel';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { FaSearch } from 'react-icons/fa';
+import Loader from '../../../../common/Loader';
 
 const FactoryDetails = () => {
   const { user } = useAuth();
   const { id } = useParams();
-
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [factoryDetails, setFactoryDetails] = useState({});
   const [deleteIndex, setDeleteIndex] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const [loading, setLoading] = useState(false);
 
   const handleDelete = () => {
     setFactoryDetails((prev) => ({
@@ -33,13 +34,14 @@ const FactoryDetails = () => {
 
   useEffect(() => {
     const fetchFactoryDetails = async () => {
+      setLoading(true);
       try {
         const res = await factoryService.getFactoryStockId(
           user.accessToken,
           id,
           currentPage,
           10,
-          debounceValue
+          debounceValue,
         );
         console.log('response', res.data);
 
@@ -47,6 +49,8 @@ const FactoryDetails = () => {
         setTotalPages(res.data?.pagination?.totalPages);
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
@@ -77,6 +81,8 @@ const FactoryDetails = () => {
     ]);
     printProductionPDF(rows, headers);
   };
+
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen space-y-6">

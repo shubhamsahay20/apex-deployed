@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import announcementService from '../../../../api/announcement.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
+import Loader from '../../../../common/Loader';
 
 export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
@@ -12,19 +13,26 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
     description: '',
   });
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
-      const res = await announcementService.getAnnouncementById(
-        user.accessToken,
-        announcement,
-      );
-      console.log('its my res', res.data);
-      setFormData({
-        date: res.data?.date,
-        title: res.data?.title,
-        description: res.data?.description,
-      });
+     try {
+       const res = await announcementService.getAnnouncementById(
+         user.accessToken,
+         announcement,
+       );
+       console.log('its my res', res.data);
+       setFormData({
+         date: res.data?.date,
+         title: res.data?.title,
+         description: res.data?.description,
+       });
+     } catch (error) {
+      toast.error(error?.response?.data?.message) 
+     } finally{
+      setLoading(false)
+     }
     })();
   }, [announcement]);
 
@@ -43,6 +51,7 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
     }
 
     e.preventDefault();
+    setLoading(true)
     try {
       const payload = {
         description: formData.description,
@@ -71,6 +80,8 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
       }
     } catch (error) {
       toast.error(error.response?.data?.message);
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -80,6 +91,7 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
       [field]: value,
     }));
   };
+  if(loading) return <Loader/>
 
   return (
     <div className=" bg-gray-50 min-h-screen">
