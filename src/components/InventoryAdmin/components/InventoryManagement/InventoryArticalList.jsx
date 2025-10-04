@@ -115,34 +115,29 @@ const InventoryArticalList = () => {
     });
   };
 
-  const handleEdit = (row) => {
-    navigate('/inventory-management/article-list/edit-article', {
-      state: row,
-    });
-  };
+ 
+  // const handleDelete = (id) => {
+  //   setCancel(cancel.filter((item) => item.id !== id));
+  //   setDeleteModalOpen(true);
+  // };
 
-  const handleDelete = (id) => {
-    setCancel(cancel.filter((item) => item.id !== id));
-    setDeleteModalOpen(true);
-  };
+  // const handleAccept = async (order) => {
+  //   console.log('order id', order._id);
 
-  const handleAccept = async (order) => {
-    console.log('order id', order._id);
-
-    setApproveModalId(order._id);
-    setApproveModalOpan(true);
-  };
+  //   setApproveModalId(order._id);
+  //   setApproveModalOpan(true);
+  // };
 
   // ✅ Reject function
-  const handleReject = (order) => {
-    try {
-      setSelectedOrder(order._id);
-      setActionType('Rejected');
-      setIsModalOpen(true);
-    } catch (error) {
-      toast.error(error.res.data.message);
-    }
-  };
+  // const handleReject = (order) => {
+  //   try {
+  //     setSelectedOrder(order._id);
+  //     setActionType('Rejected');
+  //     setIsModalOpen(true);
+  //   } catch (error) {
+  //     toast.error(error.res.data.message);
+  //   }
+  // };
 
   // ✅ Save Note
   const handleSaveNote = async () => {
@@ -336,10 +331,10 @@ const InventoryArticalList = () => {
                       className="text-blue-600 cursor-pointer"
                       onClick={() => handleEdit(row)}
                     /> */}
-                    <FiTrash2
+                    {/* <FiTrash2
                       onClick={() => handleDelete(row.id)}
                       className="text-red-500 cursor-pointer"
-                    />
+                    /> */}
                   </td>
                 </tr>
               ))}

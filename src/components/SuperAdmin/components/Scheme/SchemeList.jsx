@@ -11,6 +11,7 @@ import schemesService from '../../../../api/schemes.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { FaSearch } from 'react-icons/fa';
+import Loader from '../../../../common/Loader';
 
 export const SchemeList = ({ handleAddClick, handleEditClick }) => {
   const { user } = useAuth();
@@ -21,26 +22,29 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
   const [totalPage, setTotalPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const[loading,setLoading] = useState(false)
 
   useEffect(() => {
-     if (debounceValue.length === 0 || debounceValue.length >= 2) {
-
-       (async () => {
-         try {
-           const res = await schemesService.getAllSchemes(
-             user.accessToken,
-             currentPage,
-             10,
-             debounceValue
-           );
-           console.log('res data', res?.data.schemes);
-           setSchemes(res.data?.schemes);
-           setTotalPage(res.data?.pagination?.totalpages);
-         } catch (error) {
-           toast.error(error.response?.message);
-         }
-       })();
-     }
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      (async () => {
+        setLoading(true)
+        try {
+          const res = await schemesService.getAllSchemes(
+            user.accessToken,
+            currentPage,
+            10,
+            debounceValue,
+          );
+          console.log('res data', res?.data.schemes);
+          setSchemes(res.data?.schemes);
+          setTotalPage(res.data?.pagination?.totalpages);
+        } catch (error) {
+          toast.error(error.response?.message);
+        } finally{
+          setLoading(false)
+        }
+      })();
+    }
   }, [user, debounceValue, currentPage]);
 
   const handleDelete = (id) => {
@@ -68,6 +72,8 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
       toast.error(error?.response?.data?.message || 'Failed to delete scheme');
     }
   };
+
+  if (loading) return <Loader/>
   return (
     <div className="p-6 bg-white rounded-md shadow">
       {/* Top Bar */}
@@ -81,18 +87,18 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
             Add Schemes
           </button>
 
-           <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => (
-                  setSearchQuery(e.target.value), setCurrentPage(1)
-                )}
-                placeholder="Search Description,Name"
-                className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
-              />
-              <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
-            </div>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => (
+                setSearchQuery(e.target.value), setCurrentPage(1)
+              )}
+              placeholder="Search Description,Name"
+              className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
+            />
+            <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
+          </div>
           {/* <button className="border px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1">
             Filters
           </button> */}

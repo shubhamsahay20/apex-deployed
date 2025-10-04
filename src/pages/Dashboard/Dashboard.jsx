@@ -13,6 +13,7 @@ import { toast } from 'react-toastify';
 import reportService from '../../api/report.service';
 import { useAuth } from '../../Context/AuthContext';
 import topsellingstockService from '../../api/topsellingstock.service';
+import Loader from '../../common/Loader';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -22,10 +23,12 @@ export default function Dashboard() {
   const [inventorySummary, setInventorySummary] = useState(null);
   const [topStock, setTopStock] = useState([]);
   const [lowStock, setLowStock] = useState([]);
+  const[loading,setLoading] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setLoading(true)
         const res = await reportService.salesSummary(user.accessToken);
         console.log('Dashboard data', res.data);
         setSalesSummary(res.data || []);
@@ -86,6 +89,8 @@ export default function Dashboard() {
         );
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally{
+        setLoading(false)
       }
     };
     fetchData();
@@ -161,6 +166,8 @@ export default function Dashboard() {
   const handleStockAlertSeeAll = () => {
     console.log('Navigate to detailed alerts view');
   };
+
+  if(loading) return <Loader/>
 
   return (
     <div className="  min-h-screen bg-meta-2 dark:bg-boxdark-2">

@@ -11,7 +11,7 @@ const Scheme = () => {
     setCurrentView('create');
   };
 
-  const handleEditClick = (scheme ) => {
+  const handleEditClick = (scheme) => {
     setSelectedScheme(scheme);
     setCurrentView('edit');
   };
@@ -36,15 +36,18 @@ const Scheme = () => {
 
   switch (currentview) {
     case 'create':
-      return <CreateScheme onCancel={handleCancel}
-       onSubmit={handleCreateSubmit} />;
+      return (
+        <CreateScheme onCancel={handleCancel} onSubmit={handleCreateSubmit} />
+      );
 
     case 'edit':
-      return <EditScheme 
-      scheme={selectedScheme} 
-      onSubmit={handleEditSubmit}
-      onCancel={handleCancel}
-       />;
+      return (
+        <EditScheme
+          scheme={selectedScheme}
+          onSubmit={handleEditSubmit}
+          onCancel={handleCancel}
+        />
+      );
 
     default:
       return (

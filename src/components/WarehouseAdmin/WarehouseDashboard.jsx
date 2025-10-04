@@ -6,12 +6,14 @@ import { useAuth } from '../../Context/AuthContext';
 import reportService from '../../api/report.service';
 import { toast } from 'react-toastify';
 import topsellingstockService from '../../api/topsellingstock.service';
+import Loader from '../../common/Loader';
 
 function WarehouseDashboard() {
   const [warehouseData, setWarehouseData] = useState([]);
   const [dashboardData, setDashboardData] = useState({});
   const [topStock, setTopStock] = useState([]);
   const [lowStock, setLowStock] = useState([]); // ✅ added lowStock state
+  const [loading, setLoading] = useState(false);
 
   const { user } = useAuth();
 
@@ -33,6 +35,7 @@ function WarehouseDashboard() {
 
   useEffect(() => {
     (async () => {
+      setLoading(true);
       try {
         const res = await reportService.warehouseSummary(user.accessToken);
         setDashboardData(res?.data);
@@ -78,9 +81,13 @@ function WarehouseDashboard() {
         );
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
     })();
   }, [user]);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
@@ -139,4 +146,3 @@ function WarehouseDashboard() {
 }
 
 export default WarehouseDashboard;
-  

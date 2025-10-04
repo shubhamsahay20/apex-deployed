@@ -13,12 +13,12 @@ import { useDebounce } from '../../../hooks/useDebounce';
 import { useAuth } from '../../../Context/AuthContext';
 import warehouseService from '../../../api/warehouse.service';
 import stockService from '../../../api/stock.service';
+import Loader from '../../../common/Loader';
 
 const StockVerify = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
-
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [scanStatus, setScanStatus] = useState(null);
   const [scanQuantity, setScanQuantity] = useState('');
@@ -28,6 +28,7 @@ const StockVerify = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [updateRow, setUpdateRow] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   // open modal on click
   const handleUpdateStatus = (data) => {
@@ -47,6 +48,7 @@ const StockVerify = () => {
 
   const getSalesOrder = async () => {
     try {
+      setLoading(true);
       const res = await warehouseService.getOrderByWarehouse(
         user.accessToken,
         currentPage,
@@ -62,6 +64,8 @@ const StockVerify = () => {
       setTotalPages(res?.pagination.totalPages);
     } catch (error) {
       toast.error(error.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,6 +77,7 @@ const StockVerify = () => {
 
   const handleUpdate = async () => {
     try {
+      setLoading(true);
       if (!scanStatus) {
         toast.error('Please Select Status');
       }
@@ -97,8 +102,12 @@ const StockVerify = () => {
     } catch (error) {
       toast.error(error.response.data.message);
       console.log('error while  status updating', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  if (loading) return <Loader />;
 
   return (
     <div className="space-y-6">
@@ -151,6 +160,7 @@ const StockVerify = () => {
                 <th className="px-3 py-2">Customer</th>
                 <th className="px-3 py-2">Quantity</th>
                 <th className="px-3 py-2">Status</th>
+                <th className="px-3 py-2">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -189,7 +199,33 @@ const StockVerify = () => {
                     </button>
                   </td>
 
-                 
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <div className="flex items-center gap-3">
+                      <FiEye
+                        onClick={(e) => {
+                          navigate('/warehouse-management/view-stock', {
+                            state: row,
+                          });
+                          // your eye logic
+                        }}
+                        className="text-green-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
+                      />
+                      {/* <PiPencilSimpleLineBold
+                                         onClick={(e) => {
+                                           e.stopPropagation();
+                                           // your eye logic
+                                         }}
+                                         className="text-blue-500 w-4 h-4 cursor-pointer hover:scale-110 transition"
+                                       /> */}
+                      {/* <FiTrash2
+                                         onClick={(e) => {
+                                           e.stopPropagation();
+                                           // your eye logic
+                                         }}
+                                         className="text-red-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
+                                       /> */}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

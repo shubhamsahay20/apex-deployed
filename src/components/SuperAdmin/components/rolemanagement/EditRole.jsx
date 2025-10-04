@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Select from 'react-select'; // ✅ needed for warehouses dropdown
 import roleService from '../../../../api/role.service';
-import warehouseService from '../../../../api/warehouse.service'; 
+import warehouseService from '../../../../api/warehouse.service';
 import { useAuth } from '../../../../Context/AuthContext';
 
 const EditRole = () => {
@@ -48,8 +48,11 @@ const EditRole = () => {
           password: '', // leave blank so user can set new if needed
           role: res?.data?.role || '',
           location: res?.data?.location || '',
-          profileImage: res?.data?.profileImage || '',
-          warehouses: res?.data?.warehouses || [], // ✅ prefill warehouses
+          //in future if profile image is needed, uncomment below
+
+
+          // profileImage: res?.data?.profileImage || '',
+          warehouses: res?.data?.warehouses || [], 
         });
       } catch (error) {
         toast.error('Failed to load user details');
@@ -68,7 +71,9 @@ const EditRole = () => {
   const handleWarehouseChange = (selectedOptions) => {
     setFormData({
       ...formData,
-      warehouses: selectedOptions ? selectedOptions.map((opt) => opt.value) : [],
+      warehouses: selectedOptions
+        ? selectedOptions.map((opt) => opt.value)
+        : [],
     });
   };
 
@@ -85,8 +90,14 @@ const EditRole = () => {
         }
       });
 
-      await roleService.updateRoleByID(user.accessToken, id, payload); 
-      toast.success('User details updated successfully');
+      const res = await roleService.updateRoleByID(
+        user.accessToken,
+        id,
+        payload,
+      );
+      console.log('response after role update', res);
+
+      toast.success(res.message || 'User details updated successfully');
       navigate('/role-management');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update');
@@ -183,11 +194,16 @@ const EditRole = () => {
         {/* ✅ Warehouse(s) field (only if role is Warehouse Manager) */}
         {formData.role === 'Warehouse Manager' && (
           <div className="col-span-1 md:col-span-2">
-            <label className="block text-sm font-medium mb-1">Warehouse(s)</label>
+            <label className="block text-sm font-medium mb-1">
+              Warehouse(s)
+            </label>
             <Select
               isMulti
               name="warehouses"
-              options={warehouses.map((val) => ({ value: val._id, label: val.name }))}
+              options={warehouses.map((val) => ({
+                value: val._id,
+                label: val.name,
+              }))}
               value={warehouses
                 .filter((w) => formData.warehouses.includes(w._id))
                 .map((w) => ({ value: w._id, label: w.name }))}
@@ -197,10 +213,14 @@ const EditRole = () => {
             />
           </div>
         )}
+        
+        {/* in future if profile image is needed, uncomment below */}
 
         {/* Profile Image */}
-        <div>
-          <label className="block text-sm font-medium mb-1">Profile Image</label>
+        {/* <div>
+          <label className="block text-sm font-medium mb-1">
+            Profile Image
+          </label>
           <input
             type="file"
             name="profileImage"
@@ -208,14 +228,15 @@ const EditRole = () => {
             onChange={handleChange}
             className="border border-gray-300 p-2 rounded w-full"
           />
-          {formData.profileImage && typeof formData.profileImage === 'string' && (
-            <img
-              src={formData.profileImage}
-              alt="Profile"
-              className="mt-2 w-20 h-20 object-cover rounded"
-            />
-          )}
-        </div>
+          {formData.profileImage &&
+            typeof formData.profileImage === 'string' && (
+              <img
+                src={formData.profileImage}
+                alt="Profile"
+                className="mt-2 w-20 h-20 object-cover rounded"
+              />
+            )}
+        </div> */}
 
         {/* Actions */}
         <div className="col-span-1 md:col-span-2 flex gap-3 mt-4">

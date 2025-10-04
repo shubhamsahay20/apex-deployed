@@ -125,7 +125,7 @@ export const AuthContextProvider = ({ children }) => {
           } else if (event === 'qrgeneratedRequest') {
             console.log('qr generated successfully ', data);
 
-            toast.error(`${data?.message}`);
+            toast.info(`${data?.message}`);
             addNotification('success', data?.message, data.data);
           }
         }

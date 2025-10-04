@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import announcementService from '../../../../api/announcement.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
 
 const Salespersondashboard = () => {
   const navigate = useNavigate();
@@ -14,8 +15,10 @@ const Salespersondashboard = () => {
   const [annoucementData, setAnnoucementData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await announcementService.getAnnouncement(
           user.accessToken,
@@ -27,11 +30,15 @@ const Salespersondashboard = () => {
         setTotalPages(res?.data?.pagination?.totalpages);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, [user,currentPage]);
+  }, [user, currentPage]);
+
+  if (loading) return <Loader />;
 
   return (
     <div className="flex flex-col gap-6 p-6 bg-gray-50 min-h-screen">
@@ -59,8 +66,7 @@ const Salespersondashboard = () => {
                 <div className="flex justify-between items-start">
                   <div>
                     <div className="text-xs text-gray-500 mb-1">
-                     {item.date} {' '}
-                      — {item.time}
+                      {item.date} — {item.time}
                     </div>
                     <div className="text-blue-900 font-bold">{item.title}</div>
                     <p className="text-gray-600 text-sm mt-1">

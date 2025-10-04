@@ -126,8 +126,8 @@ const SalesOrder = () => {
               {salesDetails.map((row, i) => (
                 <tr
                   key={i}
-                  className="border-t hover:bg-gray-50 cursor-pointer"
-                  onClick={() => navigate(`/SalesDetails/${row._id}`)}
+                  className="border-t hover:bg-gray-50"
+                  // onClick={() => navigate(`/SalesDetails/${row._id}`)}
                 >
                   <td className="px-3 py-2 whitespace-nowrap">
                     {new Date(row.updatedAt).toLocaleDateString('en-GB', {

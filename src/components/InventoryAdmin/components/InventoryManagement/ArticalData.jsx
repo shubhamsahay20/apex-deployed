@@ -5,9 +5,11 @@ import { toast } from 'react-toastify';
 import salesService from '../../../../api/sales.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { FaSearch, FaFileExport } from 'react-icons/fa';
+import Loader from '../../../../common/Loader';
 
 const ArticalData = () => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(false);
   const [articledetails, setArticledetails] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -16,17 +18,20 @@ const ArticalData = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         const res = await salesService.getAllArtical(
           user.accessToken,
           currentPage,
           10,
-          debounceValue
+          debounceValue,
         );
         setTotalPages(res?.pagination?.totalPages);
         setArticledetails(res?.data || []);
       } catch (error) {
         toast.error(error.response?.data?.message || 'Something went wrong');
+      } finally{
+        setLoading(false)
       }
     };
 
@@ -34,6 +39,8 @@ const ArticalData = () => {
       fetchData();
     }
   }, [user, currentPage, debounceValue]);
+
+  if(loading) return <Loader/>
 
   return (
     <div className="space-y-6 bg-gray-100 min-h-screen p-4 sm:p-6">

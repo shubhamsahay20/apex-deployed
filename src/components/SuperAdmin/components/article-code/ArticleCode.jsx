@@ -119,7 +119,7 @@ const ArticleCode = () => {
     <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
     <input
       type="text"
-      placeholder="Search by Article"
+      placeholder="Search by Article Code"
       className="pl-8 pr-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring w-full"
       value={searchTerm}
       onChange={(e) => (setSearchTerm(e.target.value), setCurrentPage(1))}

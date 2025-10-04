@@ -19,6 +19,17 @@ const getAllProduction = (token, page, limit, searchQuery = '') => {
   );
 };
 
+const getProductionWithNoQr = (token, page, limit, searchQuery = '') => {
+  return API.get(
+    `/production/noqr?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};
+
 const getProductionById = (token, id) => {
   return API.get(`/production/${id}`, {
     headers: {
@@ -28,7 +39,7 @@ const getProductionById = (token, id) => {
 };
 
 const deleteProduction = (token, id) => {
-  return API.delete(`/warehouses/${id}`, {
+  return API.delete(`/production/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -86,5 +97,6 @@ export default {
   qrScan,
   byPassWithoutQr,
   outOfDeliveryWithoutQr,
-  getProductionById
+  getProductionById,
+  getProductionWithNoQr
 };

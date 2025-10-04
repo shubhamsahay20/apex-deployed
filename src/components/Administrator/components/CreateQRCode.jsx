@@ -37,12 +37,15 @@ const CreateQRCode = () => {
     if (fetching) return;
     setFetching(true);
     try {
-      const res = await productionService.getAllProduction(
+      const res = await productionService.getProductionWithNoQr(
         user.accessToken,
         pageNo,
         20,
         searchTerm,
       );
+
+      console.log("res",res);
+      
 
       const products = res.data?.products || [];
       const pagination = res.data?.pagination;

@@ -7,6 +7,7 @@ import productionService from '../../api/production.service';
 import { useAuth } from '../../Context/AuthContext';
 import { exportProductionPDF, printProductionPDF } from '../../utils/PdfModel';
 import { useDebounce } from '../../hooks/useDebounce';
+import Loader from '../../common/Loader';
 
 const ProductionManager_Management = () => {
   const navigate = useNavigate();
@@ -19,11 +20,14 @@ const ProductionManager_Management = () => {
   const [data, setData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const [loading,setLoading] = useState(false)
+  
 
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       (async () => {
         try {
+          setLoading(true)
           const res = await productionService.getAllProduction(
             user.accessToken,
             currentPage,
@@ -36,6 +40,8 @@ const ProductionManager_Management = () => {
           toast.error(
             error?.response?.data?.message || 'Failed to fetch production data',
           );
+        } finally{
+          setLoading(false)
         }
       })();
     }
@@ -66,6 +72,7 @@ const ProductionManager_Management = () => {
       setDeleteModalOpen(false);
     }
   };
+  if(loading) return <Loader/>
 
   return (
     <div className="p-4 bg-white rounded-xl shadow-md">
@@ -78,7 +85,7 @@ const ProductionManager_Management = () => {
             <FiSearch className="absolute left-2 top-2.5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search Article"
+              placeholder="Search Article or PN "
               className="pl-8 pr-4 py-2 border border-gray-300 rounded-md text-sm"
               value={searchQuery}
               onChange={(e) => (

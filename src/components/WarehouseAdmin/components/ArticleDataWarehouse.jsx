@@ -5,6 +5,7 @@ import { useAuth } from '../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import salesService from '../../../api/sales.service';
 import { useDebounce } from '../../../hooks/useDebounce';
+import Loader from '../../../common/Loader';
 
 // const cards = [
 //   { label: 'Cartons Available', value: '1,114', color: 'text-blue-600' },
@@ -20,8 +21,10 @@ const ArticalData = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const res = await salesService.getAllArtical(
           user.accessToken,
@@ -34,6 +37,8 @@ const ArticalData = () => {
         setArticledetails(res?.data || []);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
     };
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
@@ -44,6 +49,8 @@ const ArticalData = () => {
 
     console.log('hii');
   }, [user, currentPage, debounceValue]);
+
+  if (loading) return <Loader />;
   return (
     <div className="space-y-6 bg-gray-100 min-h-screen">
       {/* <h2 className='text-lg font-semibold text-gray-800'>Inventory</h2> */}

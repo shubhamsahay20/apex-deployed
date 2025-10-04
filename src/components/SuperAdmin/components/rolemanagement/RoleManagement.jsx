@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Select from 'react-select';
-import { FaTrash, FaEye, FaEdit } from 'react-icons/fa';
-import { FiEye, FiTrash2 } from 'react-icons/fi';
-import { PiPencilSimpleLineBold } from 'react-icons/pi';
-import { useNavigate } from 'react-router-dom';
-import roleService from '../../../../api/role.service';
-import { useAuth } from '../../../../Context/AuthContext';
-import { toast } from 'react-toastify';
-import warehouseService from '../../../../api/warehouse.service';
-import Loader from '../../../../common/Loader';  // ✅ Import Loader
+import React, { useEffect, useState } from 'react'
+import Select from 'react-select'
+import { FiEye, FiTrash2 } from 'react-icons/fi'
+import { PiPencilSimpleLineBold } from 'react-icons/pi'
+import { useNavigate } from 'react-router-dom'
+import roleService from '../../../../api/role.service'
+import warehouseService from '../../../../api/warehouse.service'
+import { useAuth } from '../../../../Context/AuthContext'
+import { toast } from 'react-toastify'
+import Loader from '../../../../common/Loader'
 
 const roles = [
   'Sales Person',
@@ -16,84 +15,62 @@ const roles = [
   'Account Section',
   'Production Manager',
   'Warehouse Manager',
-  'Administrator',
-];
-
-const dummyData = {
-  'Sales Person': [
-    {
-      id: 1,
-      name: 'John Mathew',
-      phone: '990 32 64 970',
-      email: 'sales1@example.com',
-      location: 'Los Angeles',
-      status: 'Active',
-      image: 'https://randomuser.me/api/portraits/men/11.jpg',
-    },
-  ],
-  'Inventory Manager': [],
-  'Account Section': [],
-  'Production Manager': [],
-  'Warehouse Manager': [],
-  Administrator: [],
-};
+  'Administrator'
+]
 
 const columnHeadings = {
   'Sales Person': {
     name: 'Sales Person',
     phone: 'Sales Phone',
     email: 'Sales Email',
-    location: 'Sales Location',
+    location: 'Sales Location'
   },
   'Inventory Manager': {
     name: 'Inventory Manager',
     phone: 'Inventory Phone',
     email: 'Inventory Email',
-    location: 'Inventory Location',
+    location: 'Inventory Location'
   },
   'Account Section': {
     name: 'Account Section',
     phone: 'Accounting Phone',
     email: 'Accounting Email',
-    location: 'Accounting Location',
+    location: 'Accounting Location'
   },
   'Production Manager': {
     name: 'Production Manager',
     phone: 'Production Phone',
     email: 'Production Email',
-    location: 'Production Location',
+    location: 'Production Location'
   },
   'Warehouse Manager': {
     name: 'Warehouse Manager',
     phone: 'Warehouse Phone',
     email: 'Warehouse Email',
-    location: 'Warehouse Location',
+    location: 'Warehouse Location'
   },
   Administrator: {
     name: 'Administrator',
     phone: 'Admin Phone',
     email: 'Admin Email',
-    location: 'Admin Location',
-  },
-};
+    location: 'Admin Location'
+  }
+}
 
 const RoleManagement = () => {
-  const [activeRole, setActiveRole] = useState('Sales Person');
-  const [usersByRole, setUsersByRole] = useState({});
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editUser, setEditUser] = useState(null);
-  const navigate = useNavigate();
-  const { user } = useAuth();
-  const [salesPersonData, setSalesPersonData] = useState([]);
-  const [warehouses, setWarehouses] = useState([]);
+  const [activeRole, setActiveRole] = useState('Sales Person')
+  const [usersByRole, setUsersByRole] = useState({})
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [deleteId, setDeleteId] = useState(null)
+  const [showAddModal, setShowAddModal] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
+  const [warehouseLoading, setWarehouseLoading] = useState(false)
+  const [submitLoading, setSubmitLoading] = useState(false)
+  const [warehouses, setWarehouses] = useState([])
 
-  const [loading, setLoading] = useState(false);           // For main data fetching
-  const [deleteLoading, setDeleteLoading] = useState(false); // For delete operations
-  const [warehouseLoading, setWarehouseLoading] = useState(false); // For warehouse data
-  const [submitLoading, setSubmitLoading] = useState(false); // For form submission
+  const navigate = useNavigate()
+  const { user } = useAuth()
 
   const getRoleApiMap = {
     'Sales Person': roleService.getSalesPerson,
@@ -101,128 +78,125 @@ const RoleManagement = () => {
     'Account Section': roleService.getAccountSection,
     'Warehouse Manager': roleService.getWarehouseManager,
     'Production Manager': roleService.getProductionManager,
-    Administrator: roleService.getAdministrator,
-  };
+    Administrator: roleService.getAdministrator
+  }
 
+  // Fetch warehouses
   useEffect(() => {
-    (async () => {
-      setWarehouseLoading(true); // ✅ Start warehouse loader
+    ;(async () => {
+      setWarehouseLoading(true)
       try {
-        const res = await warehouseService.getAllWarehouse(user.accessToken);
-        setWarehouses(res.data?.data || []);
+        const res = await warehouseService.getAllWarehouse(user.accessToken)
+        setWarehouses(res.data?.data || [])
       } catch (error) {
-        toast.error('Failed to load warehouses');
+        toast.error('Failed to load warehouses')
       } finally {
-        setWarehouseLoading(false); // ✅ Stop warehouse loader
+        setWarehouseLoading(false)
       }
-    })();
-  }, [user.accessToken]);
+    })()
+  }, [user.accessToken])
 
+  // Fetch users for the active role
   const fetchRoleUsers = async () => {
-    setLoading(true); // ✅ Start main loader
+    setLoading(true)
     try {
-      const apiFunc = getRoleApiMap[activeRole];
+      const apiFunc = getRoleApiMap[activeRole]
       if (apiFunc) {
-        const res = await apiFunc(user.accessToken);
-        setUsersByRole((prev) => ({ ...prev, [activeRole]: res.data.data }));
+        const res = await apiFunc(user.accessToken)
+        setUsersByRole(prev => ({ ...prev, [activeRole]: res.data.data }))
       }
     } catch (error) {
-      console.error(`Error fetching users for ${activeRole}:`, error);
-      toast.error(`Failed to load ${activeRole} data`);
+      toast.error(`Failed to load ${activeRole} data`)
     } finally {
-      setLoading(false); // ✅ Stop main loader
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchRoleUsers();
-  }, [activeRole]);
+    fetchRoleUsers()
+  }, [activeRole])
 
-  const handleDeleteClick = (id) => {
-    setDeleteId(id);
-    setShowConfirm(true);
-  };
+  const handleDeleteClick = id => {
+    setDeleteId(id)
+    setShowConfirm(true)
+  }
 
   const confirmDelete = async () => {
-    setDeleteLoading(true); // ✅ Start delete loader
+    setDeleteLoading(true)
     try {
-      const res = await roleService.deleteRoleByID(user.accessToken, deleteId);
-      console.log('message', res.message);
-
-      setUsersByRole((prev) => ({
+      const res = await roleService.deleteRoleByID(user.accessToken, deleteId)
+      setUsersByRole(prev => ({
         ...prev,
-        [activeRole]: prev[activeRole].filter((user) => user._id !== deleteId),
-      }));
-      toast.success(res?.message || 'User deleted successfully');
+        [activeRole]: prev[activeRole].filter(user => user._id !== deleteId)
+      }))
+      toast.success(res?.message || 'User deleted successfully')
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to delete user');
+      toast.error(error.response?.data?.message || 'Failed to delete user')
     } finally {
-      setDeleteLoading(false); // ✅ Stop delete loader
-      setShowConfirm(false);
-      setDeleteId(null);
+      setDeleteLoading(false)
+      setShowConfirm(false)
+      setDeleteId(null)
     }
-  };
+  }
 
-  const handleViewClick = (userid) => {
+  const handleViewClick = userid => {
     navigate(
-      `/view-details/${activeRole
-        .replace(/\s+/g, '-')
-        .toLowerCase()}/${userid}`,
-    );
-  };
+      `/view-details/${activeRole.replace(/\s+/g, '-').toLowerCase()}/${userid}`
+    )
+  }
 
-  const roleUsers = usersByRole[activeRole] || [];
-  const headings = columnHeadings[activeRole];
+  const roleUsers = usersByRole[activeRole] || []
+  const headings = columnHeadings[activeRole]
 
-  // AddSalesPerson form as internal component
+  // -------------------------------
+  // AddSalesPerson Form Component
+  // -------------------------------
   const AddSalesPerson = ({ onSubmit }) => {
     const [form, setForm] = useState({
-      name: ' ',
+      name: '',
       email: '',
       phone: '',
       password: '',
       role: activeRole,
       location: '',
-      warehouses: [], // array of warehouse IDs
-    });
+      warehouses: []
+    })
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState({})
 
-    const handleChange = (e) => {
-      const { name, value } = e.target;
-      setForm({ ...form, [name]: value });
-    };
+    const handleChange = e => {
+      const { name, value } = e.target
+      setForm({ ...form, [name]: value })
+    }
 
-    const handleWarehouseChange = (selectedOptions) => {
+    const handleWarehouseChange = selectedOptions => {
       setForm({
         ...form,
-        warehouses: selectedOptions
-          ? selectedOptions.map((opt) => opt.value)
-          : [],
-      });
-    };
+        warehouses: selectedOptions ? selectedOptions.map(opt => opt.value) : []
+      })
+    }
 
     const validate = () => {
-      const newErrors = {};
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const phoneRegex = /^[0-9]{10}$/;
+      const newErrors = {}
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const phoneRegex = /^[0-9]{10}$/
 
-      if (!form.name.trim()) newErrors.name = 'Name is required';
+      if (!form.name.trim()) newErrors.name = 'Name is required'
       if (!form.phone.trim() || !phoneRegex.test(form.phone))
-        newErrors.phone = 'Valid phone is required';
+        newErrors.phone = 'Valid phone is required'
       if (!form.email.trim() || !emailRegex.test(form.email))
-        newErrors.email = 'Valid email is required';
-      if (!form.location) newErrors.location = 'Choose a location';
+        newErrors.email = 'Valid email is required'
+      if (!form.location) newErrors.location = 'Choose a location'
       if (!form.password.trim() || form.password.length < 6)
-        newErrors.password = 'Password must be at least 6 characters';
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
+        newErrors.password = 'Password must be at least 6 characters'
+      setErrors(newErrors)
+      return Object.keys(newErrors).length === 0
+    }
 
-    const handleSubmit = async (e) => {
-      e.preventDefault();
+    const handleSubmit = async e => {
+      e.preventDefault()
       if (validate()) {
-        setSubmitLoading(true); // ✅ Start submit loader
+        setSubmitLoading(true)
         const payload = {
           name: form.name,
           phone: form.phone,
@@ -230,17 +204,15 @@ const RoleManagement = () => {
           location: form.location,
           password: form.password,
           role: form.role,
-          warehouses: form.warehouses,
-        };
+          warehouses: form.warehouses
+        }
 
         try {
-          const res = await roleService.AddRole(user.accessToken, payload);
-          console.log('submit', res.data);
-          toast.success(res?.message || 'Role added successfully');
+          const res = await roleService.AddRole(user.accessToken, payload)
+          toast.success(res?.message || 'Role added successfully')
+          await fetchRoleUsers()
+          setShowAddModal(false)
 
-          await fetchRoleUsers();
-          setShowAddModal(false);
-          
           // Reset form
           setForm({
             name: '',
@@ -249,198 +221,226 @@ const RoleManagement = () => {
             location: '',
             password: '',
             role: activeRole,
-            warehouses: [],
-          });
+            warehouses: []
+          })
         } catch (error) {
-          console.log(error);
-          toast.error(error.response?.data?.message || 'Failed to add role');
+          toast.error(error.response?.data?.message || 'Failed to add role')
         } finally {
-          setSubmitLoading(false); // ✅ Stop submit loader
+          setSubmitLoading(false)
         }
       }
-    };
+    }
 
     return (
-      <div className="p-6 bg-white rounded-lg shadow max-w-5xl h-auto mx-auto mt-6 relative">
+      <div className='p-6 bg-white rounded-lg shadow max-w-5xl h-auto mx-auto mt-6 relative'>
         <button
-          className="absolute top-3 right-4 text-gray-500 text-2xl hover:text-gray-700"
+          className='absolute top-3 right-4 text-gray-500 text-2xl hover:text-gray-700'
           onClick={() => setShowAddModal(false)}
-          disabled={submitLoading} // ✅ Disable while loading
+          disabled={submitLoading}
         >
           &times;
         </button>
-        <div className="mb-10 border-b pb-3">
-          <h2 className="text-xl font-semibold text-gray-800">
+
+        <div className='mb-10 border-b pb-3'>
+          <h2 className='text-xl font-semibold text-gray-800'>
             Add {activeRole}
           </h2>
         </div>
-        
+
         {warehouseLoading && activeRole === 'Warehouse Manager' ? (
-          <div className="flex justify-center py-8">
+          <div className='flex justify-center py-8'>
             <Loader />
           </div>
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col md:flex-row gap-8"
+            className='flex flex-col md:flex-row gap-8'
           >
-            <div className="flex-shrink-0 flex justify-center items-start md:items-center">
-              <div className="w-40 h-40 bg-gray-100 rounded-full flex items-center justify-center">
+            {/* Avatar */}
+            <div className='flex-shrink-0 flex justify-center items-start md:items-center'>
+              <div className='w-40 h-40 bg-gray-100 rounded-full flex items-center justify-center'>
                 <svg
-                  className="w-28 h-28 text-gray-300"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
+                  className='w-28 h-28 text-gray-300'
+                  fill='currentColor'
+                  viewBox='0 0 24 24'
                 >
-                  <circle cx="12" cy="8" r="6" />
-                  <path d="M2 22c0-5.52 4.48-10 10-10s10 4.48 10 10" />
+                  <circle cx='12' cy='8' r='6' />
+                  <path d='M2 22c0-5.52 4.48-10 10-10s10 4.48 10 10' />
                 </svg>
               </div>
             </div>
 
-            <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Name
-                </label>
-                <input
-                  name="name"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Name"
-                  value={form.name}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-                {errors.name && (
-                  <div className="text-xs text-red-500 mt-1">{errors.name}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Phone
-                </label>
-                <input
-                  name="phone"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Phone no."
-                  type="number"
-                  value={form.phone}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-                {errors.phone && (
-                  <div className="text-xs text-red-500 mt-1">{errors.phone}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Email
-                </label>
-                <input
-                  name="email"
-                  type="email"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Email"
-                  value={form.email}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-                {errors.email && (
-                  <div className="text-xs text-red-500 mt-1">{errors.email}</div>
-                )}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Location
-                </label>
-                <input
-                  name="location"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Location"
-                  value={form.location}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-                {errors.location && (
-                  <div className="text-xs text-red-500 mt-1">
-                    {errors.location}
+            {/* Inputs + Submit */}
+            <div className='flex-1 flex flex-col gap-6'>
+              <div className='grid grid-cols-1 sm:grid-cols-2 gap-6'>
+                {/* Name */}
+                <div>
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Name
+                  </label>
+                  <input
+                    name='name'
+                    className='border px-4 py-2 rounded w-full'
+                    placeholder='Enter Name'
+                    value={form.name}
+                    onChange={handleChange}
+                    disabled={submitLoading}
+                  />
+                  {errors.name && (
+                    <div className='text-xs text-red-500 mt-1'>
+                      {errors.name}
+                    </div>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Phone
+                  </label>
+                  <input
+                    name='phone'
+                    className='border px-4 py-2 rounded w-full [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-moz-appearance:textfield]'
+                    placeholder='Enter Phone no.'
+                    type='number'
+                    value={form.phone}
+                    onChange={handleChange}
+                    disabled={submitLoading}
+                  />
+                  {errors.phone && (
+                    <div className='text-xs text-red-500 mt-1'>
+                      {errors.phone}
+                    </div>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Email
+                  </label>
+                  <input
+                    name='email'
+                    type='email'
+                    className='border px-4 py-2 rounded w-full'
+                    placeholder='Enter Email'
+                    value={form.email}
+                    onChange={handleChange}
+                    disabled={submitLoading}
+                  />
+                  {errors.email && (
+                    <div className='text-xs text-red-500 mt-1'>
+                      {errors.email}
+                    </div>
+                  )}
+                </div>
+
+                {/* Location */}
+                <div>
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Location
+                  </label>
+                  <input
+                    name='location'
+                    className='border px-4 py-2 rounded w-full'
+                    placeholder='Enter Location'
+                    value={form.location}
+                    onChange={handleChange}
+                    disabled={submitLoading}
+                  />
+                  {errors.location && (
+                    <div className='text-xs text-red-500 mt-1'>
+                      {errors.location}
+                    </div>
+                  )}
+                </div>
+
+                {/* Warehouses */}
+                {activeRole === 'Warehouse Manager' && (
+                  <div className='sm:col-span-2'>
+                    <label className='block text-sm font-medium mb-1 text-gray-700'>
+                      Warehouse(s)
+                    </label>
+                    <Select
+                      isMulti
+                      name='warehouses'
+                      options={warehouses.map(val => ({
+                        value: val._id,
+                        label: val.name
+                      }))}
+                      value={warehouses
+                        .filter(w => form.warehouses.includes(w._id))
+                        .map(w => ({ value: w._id, label: w.name }))}
+                      onChange={handleWarehouseChange}
+                      classNamePrefix='react-select'
+                      placeholder='Select warehouse(s)'
+                      isDisabled={submitLoading}
+                    />
                   </div>
                 )}
-              </div>
-              {activeRole === 'Warehouse Manager' && (
+
+                {/* Password */}
                 <div>
-                  <label className="block text-sm font-medium mb-1 text-gray-700">
-                    Warehouse(s)
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Password
                   </label>
-                  <Select
-                    isMulti
-                    name="warehouses"
-                    options={warehouses.map((val) => ({
-                      value: val._id,
-                      label: val.name,
-                    }))}
-                    value={warehouses
-                      .filter((w) => form.warehouses.includes(w._id))
-                      .map((w) => ({ value: w._id, label: w.name }))}
-                    onChange={handleWarehouseChange}
-                    classNamePrefix="react-select"
-                    placeholder="Select warehouse(s)"
-                    isDisabled={submitLoading} // ✅ Disable while loading
+                  <input
+                    name='password'
+                    type='password'
+                    className='border px-4 py-2 rounded w-full'
+                    placeholder='Enter Password'
+                    value={form.password}
+                    onChange={handleChange}
+                    disabled={submitLoading}
+                  />
+                  {errors.password && (
+                    <div className='text-xs text-red-500 mt-1'>
+                      {errors.password}
+                    </div>
+                  )}
+                </div>
+
+                {/* Role */}
+                <div>
+                  <label className='block text-sm font-medium mb-1 text-gray-700'>
+                    Role
+                  </label>
+                  <input
+                    name='role'
+                    className='border px-4 py-2 rounded w-full'
+                    placeholder='Enter Role'
+                    readOnly
+                    value={form.role}
+                    disabled={submitLoading}
                   />
                 </div>
-              )}
+              </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Password
-                </label>
-                <input
-                  name="password"
-                  type="password"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Password"
-                  value={form.password}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-                {errors.password && (
-                  <div className="text-xs text-red-500 mt-1">
-                    {errors.password}
-                  </div>
-                )}
+              {/* Submit Button */}
+              <div className='flex justify-end'>
+                <button
+                  className='bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed'
+                  type='submit'
+                  disabled={submitLoading}
+                >
+                  {submitLoading ? 'Submitting...' : 'Submit'}
+                </button>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1 text-gray-700">
-                  Role
-                </label>
-                <input
-                  name="role"
-                  className="border px-4 py-2 rounded w-full"
-                  placeholder="Enter Role"
-                  readOnly
-                  value={form.role}
-                  onChange={handleChange}
-                  disabled={submitLoading} // ✅ Disable while loading
-                />
-              </div>
-              <button
-                className="bg-blue-600 text-center text-white px-2 py-2 rounded hover:bg-blue-700 transition disabled:bg-blue-400 disabled:cursor-not-allowed"
-                type="submit"
-                disabled={submitLoading} // ✅ Disable while loading
-              >
-                {submitLoading ? 'Submitting...' : 'Submit'}
-              </button>
             </div>
           </form>
         )}
       </div>
-    );
-  };
+    )
+  }
 
+  // -------------------------------
+  // Return JSX
+  // -------------------------------
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen space-y-6">
+    <div className='p-4 md:p-6 bg-gray-50 min-h-screen space-y-6'>
       {/* Role Tabs */}
-      <div className="flex flex-wrap gap-3">
-        {roles.map((role) => (
+      <div className='flex flex-wrap gap-3'>
+        {roles.map(role => (
           <button
             key={role}
             onClick={() => setActiveRole(role)}
@@ -455,73 +455,58 @@ const RoleManagement = () => {
         ))}
       </div>
 
-      {/* ✅ Show loader when fetching role data */}
+      {/* Loader / Table */}
       {loading ? (
-        <div className="bg-white rounded shadow p-8 flex justify-center">
+        <div className='bg-white rounded shadow p-8 flex justify-center'>
           <Loader />
         </div>
       ) : (
-        /* Table Section */
-        <div className="bg-white rounded shadow p-4 overflow-x-auto">
-          <div className="flex justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-800">
+        <div className='bg-white rounded shadow p-4 overflow-x-auto'>
+          <div className='flex justify-between mb-4'>
+            <h2 className='text-lg font-semibold text-gray-800'>
               {activeRole} Table
             </h2>
             <button
               onClick={() => setShowAddModal(true)}
-              className="bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700"
+              className='bg-blue-600 text-white px-4 py-1.5 text-sm rounded hover:bg-blue-700'
             >
               Add Role
             </button>
           </div>
 
-          <table className="w-full text-sm border min-w-[700px]">
-            <thead className="bg-gray-50 text-gray-600 font-medium">
+          <table className='w-full text-sm border min-w-[700px]'>
+            <thead className='bg-gray-50 text-gray-600 font-medium'>
               <tr>
-                <th className="px-3 py-2 text-left">{headings.name}</th>
-                <th className="px-3 py-2 text-left">{headings.phone}</th>
-                <th className="px-3 py-2 text-left">{headings.email}</th>
-                <th className="px-3 py-2 text-left">{headings.location}</th>
-                {/* <th className="px-3 py-2 text-left">Status</th> */}
-                <th className="px-3 py-2 text-center">Action</th>
+                <th className='px-3 py-2 text-left'>{headings.name}</th>
+                <th className='px-3 py-2 text-left'>{headings.phone}</th>
+                <th className='px-3 py-2 text-left'>{headings.email}</th>
+                <th className='px-3 py-2 text-left'>{headings.location}</th>
+                <th className='px-3 py-2 text-center'>Action</th>
               </tr>
             </thead>
             <tbody>
               {roleUsers
-                ?.filter((item) => item.isActive)
-                .map((user) => (
-                  <tr key={user.id} className="border-t hover:bg-gray-50">
-                    <td className="px-3 py-2 whitespace-nowrap flex items-center gap-2">
-                      <img
-                        src={user.image}
-                        alt="avatar"
-                        className="w-8 h-8 rounded-full"
-                      />
+                ?.filter(item => item.isActive)
+                .map(user => (
+                  <tr key={user.id} className='border-t hover:bg-gray-50'>
+                    <td className='px-3 py-2 whitespace-nowrap flex items-center gap-2'>
+                      {/* <img src={user.image} alt="avatar" className="w-8 h-8 rounded-full" /> */}
                       {user.name}
                     </td>
-                    <td className="px-3 py-2">{user.phone}</td>
-                    <td className="px-3 py-2">{user.email}</td>
-                    <td className="px-3 py-2">{user.location}</td>
-                    {/* <td
-                      className={`px-3 py-2 ${
-                        user.status === 'Active'
-                          ? 'text-green-600'
-                          : 'text-red-500'
-                      }`}
-                    >
-                      {user.status}
-                    </td> */}
-                    <td className="px-3 py-2 text-center flex justify-center gap-3">
+                    <td className='px-3 py-2'>{user.phone}</td>
+                    <td className='px-3 py-2'>{user.email}</td>
+                    <td className='px-3 py-2'>{user.location}</td>
+                    <td className='px-3 py-2 text-center flex justify-center gap-3'>
                       <FiEye
-                        className="text-green-600 cursor-pointer"
+                        className='text-green-600 cursor-pointer'
                         onClick={() => handleViewClick(user._id)}
                       />
                       <PiPencilSimpleLineBold
-                        className="text-blue-600 cursor-pointer"
+                        className='text-blue-600 cursor-pointer'
                         onClick={() => navigate(`/edit-role/${user._id}`)}
                       />
                       <FiTrash2
-                        className="text-red-500 cursor-pointer"
+                        className='text-red-500 cursor-pointer'
                         onClick={() => handleDeleteClick(user._id)}
                       />
                     </td>
@@ -534,11 +519,11 @@ const RoleManagement = () => {
 
       {/* Add Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-start z-50 px-4 py-8 overflow-auto">
+        <div className='fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex justify-center items-start z-50 px-4 py-8 overflow-auto'>
           <AddSalesPerson
             onSubmit={async () => {
-              await fetchRoleUsers();
-              setShowAddModal(false);
+              await fetchRoleUsers()
+              setShowAddModal(false)
             }}
           />
         </div>
@@ -546,30 +531,30 @@ const RoleManagement = () => {
 
       {/* Delete Confirmation Modal */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4">
-          <div className="bg-white p-6 rounded-md w-full max-w-sm text-center">
-            <div className="text-red-500 mb-4">
+        <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 px-4'>
+          <div className='bg-white p-6 rounded-md w-full max-w-sm text-center'>
+            <div className='text-red-500 mb-4'>
               <FiTrash2
                 size={32}
-                className="mx-auto bg-red-100 p-2 rounded-full"
+                className='mx-auto bg-red-100 p-2 rounded-full'
               />
             </div>
-            <h4 className="text-lg font-semibold mb-2">Delete Role</h4>
-            <p className="text-sm text-gray-600 mb-4">
+            <h4 className='text-lg font-semibold mb-2'>Delete Role</h4>
+            <p className='text-sm text-gray-600 mb-4'>
               Are you sure you want to delete this role?
             </p>
-            <div className="flex justify-between gap-4">
+            <div className='flex justify-between gap-4'>
               <button
                 onClick={() => setShowConfirm(false)}
-                className="w-full py-2 rounded border border-gray-300 text-sm disabled:opacity-50"
-                disabled={deleteLoading} // ✅ Disable while loading
+                className='w-full py-2 rounded border border-gray-300 text-sm disabled:opacity-50'
+                disabled={deleteLoading}
               >
                 No
               </button>
               <button
                 onClick={confirmDelete}
-                className="w-full py-2 rounded bg-red-500 text-white text-sm hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed"
-                disabled={deleteLoading} // ✅ Disable while loading
+                className='w-full py-2 rounded bg-red-500 text-white text-sm hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed'
+                disabled={deleteLoading}
               >
                 {deleteLoading ? 'Deleting...' : 'Yes'}
               </button>
@@ -578,7 +563,7 @@ const RoleManagement = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default RoleManagement;
+export default RoleManagement

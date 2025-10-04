@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import stockService from '../../../api/stock.service';
 import { useAuth } from '../../../Context/AuthContext';
 import { useLocation } from 'react-router-dom';
+import Loader from '../../../common/Loader';
 // import dispatchService from '../../../../api/dispatch.service'; // <-- (when API ready)
 
 const Stock = () => {
@@ -18,9 +19,11 @@ const Stock = () => {
   const warehouseId = location.state?.warehouseId;
   const [stockData, setStockData] = useState([]);
   const [selectWarehouseId, setSelectWarehouseId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const warehouseData = user.user?.warehouses;
   useEffect(() => {
+    setLoading(true)
     const fetchData = async () => {
       try {
         if (!selectWarehouseId) {
@@ -32,19 +35,20 @@ const Stock = () => {
           user.accessToken,
           selectWarehouseId,
           currentPage,
-          10
+          10,
         );
 
-        console.log("response",response);
-        
+        console.log('response', response);
 
         // Ensure we always replace old data, even if empty
         setStockData(response?.data || []);
-        setTotalPage(response?.pagination.totalPages)
+        setTotalPage(response?.pagination.totalPages);
       } catch (error) {
         console.error('Error fetching stock data:', error);
         setStockData([]); // clear data on error too
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     };
 
@@ -66,6 +70,8 @@ const Stock = () => {
     availableQuantity: entry.availableQuantity,
     dispatchStock: entry.dispatchStock,
   }));
+
+  if(loading) return <Loader/>
 
   return (
     <div className="p-6 bg-white rounded-md shadow">
@@ -105,15 +111,16 @@ const Stock = () => {
               <th className="p-3 font-medium">Total Qty</th>
               <th className="p-3 font-medium">Available Qty</th>
               <th className="p-3 font-medium">Dispatched Qty</th>
-              <th className="p-3 font-medium text-center">Action</th>
+              {/* <th className="p-3 font-medium text-center">Action</th> */}
             </tr>
           </thead>
           <tbody>
             {groupedStock.length === 0 ? (
               <tr>
                 <td colSpan="11" className="text-center p-4 text-gray-500">
-                  <p className=" text-red-500">
-                    No stock available for this warehouse
+                  <p className=" text-red-500 font-bold">
+                    No stock available for this warehouse , Please select
+                    Warehouse
                   </p>
                 </td>
               </tr>
@@ -123,7 +130,7 @@ const Stock = () => {
                   <td className="p-3">{row.article}</td>
                   <td className="p-3">{row.categoryCode}</td>
                   <td className="p-3">{row.color}</td>
-                  
+
                   <td className="p-3">{row.productionNo}</td>
                   <td className="p-3">{row.factoryName}</td>
                   <td className="p-3">{row.quality}</td>
@@ -133,8 +140,8 @@ const Stock = () => {
                   <td className="p-3">{row.totalQuantity}</td>
                   <td className="p-3">{row.availableQuantity}</td>
                   <td className="p-3">{row.dispatchStock}</td>
-                  
-                  <td className="p-3 flex justify-center gap-3">
+
+                  {/* <td className="p-3 flex justify-center gap-3">
                     <button
                       className="text-blue-600 hover:text-blue-800"
                       onClick={() =>
@@ -155,7 +162,7 @@ const Stock = () => {
                     >
                       <FiTrash2 size={16} />
                     </button>
-                  </td>
+                  </td> */}
                 </tr>
               ))
             )}

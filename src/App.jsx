@@ -105,6 +105,8 @@ import Admin_WishList from './components/SuperAdmin/components/WishList_Admin/Ad
 import AdminOrders from './components/SuperAdmin/components/AdminOrders/AdminOrder';
 import StockVerify from './components/WarehouseAdmin/components/StockVerify';
 import ViewProduction from './components/ProductionAdmin/components/ViewProduction';
+import AccountSectionViewOrder from './components/AccountingAdmin/components/AccountSectionViewOrder'
+import ViewWarehouseStock from './components/WarehouseAdmin/components/ViewWarehouseStock'
 
 function App () {
   const [loading, setLoading] = useState(true)
@@ -1055,6 +1057,20 @@ function App () {
                   </>
                 }
               />
+
+               <Route
+                path='/warehouse-management/view-stock'
+                element={
+                  <>
+                    <ProtectedRoutes role={['Warehouse Manager']}>
+                      <PageTitle title='View Stock' />
+                      <ViewWarehouseStock />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+
+
               <Route
                 path='/warehouse-management/Stock'
                 element={
@@ -1077,6 +1093,20 @@ function App () {
                   </>
                 }
               />
+
+               <Route
+                path='/account-section/view-order'
+                element={
+                  <>
+                    <ProtectedRoutes role={['Account Section']}>
+                      <PageTitle title='Account Section Order Details' />
+                      <AccountSectionViewOrder />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+
+
               <Route
                 path='/inventory-management/article-list/upload/:id'
                 element={

@@ -12,6 +12,7 @@ import DeleteModal from '../../../utils/DeleteModal';
 import { toast } from 'react-toastify';
 import { useDebounce } from '../../../hooks/useDebounce';
 import Select from 'react-select';
+import Loader from '../../../common/Loader';
 
 const Add_Production = () => {
   const { state } = useLocation();
@@ -19,24 +20,22 @@ const Add_Production = () => {
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
   const [activeTab, setActiveTab] = useState('Pending');
   const [showDeleteModel, setShowDeleteModel] = useState(false);
   const [selectId, setSelectId] = useState(null);
-
   const [deleteId, setDeleteId] = useState(null);
-
   const [factoryData, setFactoryData] = useState([]);
   const [articleData, setArticleData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const debounceValue = useDebounce(searchQuery, 500);
+  const [productionData, setProductionData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: '',
     factory: '',
     article: '',
     production: '',
   });
-  const [searchQuery, setSearchQuery] = useState('');
-  const debounceValue = useDebounce(searchQuery, 500);
-  const [productionData, setProductionData] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,20 +47,33 @@ const Add_Production = () => {
 
   // ✅ reusable fetchData
   const fetchData = async (page = currentPage, query = debounceValue) => {
-    const res = await productionService.getAllProduction(
-      user.accessToken,
-      page,
-      10,
-      query,
-    );
-    console.log('heloooooooooo', res.data);
-    setProductionData(res?.data?.products);
-    setTotalPages(res?.data?.pagination?.totalPages);
+
+    try {
+      setLoading(true)
+      const res = await productionService.getAllProduction(
+        user.accessToken,
+        page,
+        10,
+        query,
+      );
+      console.log('heloooooooooo', res.data);
+      setProductionData(res?.data?.products);
+      setTotalPages(res?.data?.pagination?.totalPages);
+    } catch (error) {
+      toast.error(error?.response?.data?.message)
+      
+    }finally{
+      setLoading(false)
+    }
   };
 
   useEffect(() => {
-    if (debounceValue.length === 0 || debounceValue.length >= 2) {
-      fetchData();
+    try {
+      if (debounceValue.length === 0 || debounceValue.length >= 2) {
+        fetchData();
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message);
     }
   }, [user.accessToken, currentPage, debounceValue]);
 
@@ -122,6 +134,7 @@ const Add_Production = () => {
       toast.error('Production Number is required');
       return;
     }
+    setLoading(true);
 
     try {
       const payload = {
@@ -150,14 +163,26 @@ const Add_Production = () => {
       await fetchData(1, ''); // fetch again without filters
     } catch (error) {
       toast.error(error.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const confirmDelete = async () => {
-    await productionService.deleteProduction(user.accessToken, selectId);
-    setProductionData((prev) => prev.filter((item) => item._id !== selectId));
-    setSelectId(null);
-    setShowDeleteModel(false);
+    setLoading(true);
+    try {
+   const res =    await productionService.deleteProduction(user.accessToken, selectId);
+      setProductionData((prev) => prev.filter((item) => item._id !== selectId));
+      setSelectId(null);
+      setShowDeleteModel(false);
+      console.log("resssss",res);
+      toast.success(res.data?.message || 'Production Number Deleted Successfully')
+      
+    } catch (error) {
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (id) => {
@@ -205,27 +230,13 @@ const Add_Production = () => {
     doc.save('production_data.pdf');
   };
 
+  if (loading) return <Loader />;
+
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold text-gray-800">Add Production </h2>
-        <form>
-          <div className="flex gap-2">
-            {['In-progress ', 'Done'].map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-4 py-1.5 rounded-md text-sm border ${
-                  activeTab === tab
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </form>
+       
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -240,14 +251,7 @@ const Add_Production = () => {
             className="border px-4 py-2 rounded-md text-sm w-full"
           />
         </div>
-        {/* <div>
-                    <label className="text-sm font-medium"></label>
-                    <input
-                        type="text"
-                        value={state?.article || ""}
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div> */}
+    
         <div>
           <label className="text-sm font-medium">Factory </label>
           <select
@@ -296,12 +300,7 @@ const Add_Production = () => {
                 minHeight: '38px',
                 fontSize: '0.875rem',
               }),
-              // menu: (base) => ({
-              //   ...base,
-              //   maxHeight: "200px", // 👈 scroll limit
-              //   overflowY: "auto",
-              //   zIndex: 9999,
-              // }),
+             
             }}
           />
         </div>
@@ -331,14 +330,14 @@ const Add_Production = () => {
           <h3 className="text-sm font-semibold text-gray-700 mb-3">
             Selected Products For Delivery
           </h3>
-          <div className='relative'>
+          <div className="relative">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => (
                 setSearchQuery(e.target.value), setCurrentPage(1)
               )}
-              placeholder="Search Production No."
+              placeholder="Search PN or Article"
               className="pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm"
             />
             <FaSearch className="absolute top-2.5 left-2.5  text-gray-400 text-sm" />
@@ -349,7 +348,6 @@ const Add_Production = () => {
             <thead className="bg-gray-100 text-gray-600">
               <tr>
                 <th className="px-3 py-2 text-left">
-                  <input type="checkbox" className="mr-2" />
                   Production No.
                 </th>
                 <th className="px-3 py-2 text-left">Article No</th>
@@ -368,7 +366,6 @@ const Add_Production = () => {
                 .map((prod) => (
                   <tr key={prod.id} className="border-t">
                     <td className="px-3 py-2">
-                      <input type="checkbox" className="mr-2" />
                       {prod.productionNo}
                     </td>
                     <td className="px-3 py-2">{prod.article}</td>
@@ -404,12 +401,12 @@ const Add_Production = () => {
         </div>
 
         <div className="flex gap-3 mt-6">
-          <button
+          {/* <button
             className="border px-4 py-2 rounded text-sm"
             onClick={handleCreateLabels}
           >
             Create Labels
-          </button>
+          </button> */}
           <button
             className="border px-4 py-2 rounded text-sm"
             onClick={handleDownloadPDF}

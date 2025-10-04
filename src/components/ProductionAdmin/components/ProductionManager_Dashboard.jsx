@@ -10,30 +10,10 @@ import { toast } from 'react-toastify';
 import reportService from '../../../api/report.service';
 import { useAuth } from '../../../Context/AuthContext';
 import topsellingstockService from '../../../api/topsellingstock.service'; 
+import Loader from '../../../common/Loader';
 
-// const data = [
-//   {
-//     date: '30/03/25',
-//     article: '101',
-//     pendingOrders: 12,
-//     stockAvailability: 23,
-//     warehouse: 'Warehouse 01',
-//   },
-//   {
-//     date: '21/04/25',
-//     article: '301',
-//     pendingOrders: 15,
-//     stockAvailability: 54,
-//     warehouse: 'Warehouse 02',
-//   },
-//   {
-//     date: '19/05/25',
-//     article: '401',
-//     pendingOrders: 17,
-//     stockAvailability: 62,
-//     warehouse: 'Warehouse 01',
-//   },
-// ];
+
+
 
 const InventorySummaryItem = ({ title, value, color }) => (
   <div className="px-1">
@@ -50,9 +30,11 @@ const ProductionManager_Dashboard = () => {
   const { user } = useAuth();
   const [productionChartData, setProductionChartData] = useState([]);
   const [lowStock, setLowStock] = useState([]);
+  const [loading,setLoading] =  useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true)
       try {
         // ✅ Production Chart Data
         const res = await reportService.productionChart(user.accessToken);
@@ -79,10 +61,14 @@ const ProductionManager_Dashboard = () => {
         );
       } catch (error) {
         toast.error(error.response?.data?.message || 'Error fetching data');
+      } finally{
+        setLoading(false)
       }
     };
     fetchData();
   }, [user.accessToken]);
+
+  if(loading) return <Loader/>
 
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">

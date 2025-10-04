@@ -8,6 +8,7 @@ import accountService from '../../../api/account.service';
 import ApproveModal from '../../../utils/ApproveModal';
 import reportService from '../../../api/report.service';
 import { useDebounce } from '../../../hooks/useDebounce';
+import { useNavigate } from 'react-router-dom';
 
 const AccountingDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,11 +21,12 @@ const AccountingDashboard = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [approveModalOpan, setApproveModalOpan] = useState(false);
   const [approveModalId, setApproveModalId] = useState(null);
-  const [inventoryData, setInventoryData] = useState([]);
+  // const [inventoryData, setInventoryData] = useState([]);
   const [accountData, setAccountData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
   const [selectedScheme, setSelectedScheme] = useState(null);
+  const navigate = useNavigate();
 
   const handleSaveNote = async () => {
     try {
@@ -295,24 +297,27 @@ const AccountingDashboard = () => {
                       <FiEye
                         onClick={(e) => {
                           e.stopPropagation();
+                          navigate('/account-section/view-order', {
+                            state: item,
+                          });
                           // your eye logic
                         }}
                         className="text-green-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
                       />
-                      <PiPencilSimpleLineBold
+                      {/* <PiPencilSimpleLineBold
                         onClick={(e) => {
                           e.stopPropagation();
                           // your eye logic
                         }}
                         className="text-blue-500 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      />
-                      <FiTrash2
+                      /> */}
+                      {/* <FiTrash2
                         onClick={(e) => {
                           e.stopPropagation();
                           // your eye logic
                         }}
                         className="text-red-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      />
+                      /> */}
                     </div>
                   </td>
                 </tr>

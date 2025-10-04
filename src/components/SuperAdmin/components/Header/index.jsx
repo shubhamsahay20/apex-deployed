@@ -70,7 +70,7 @@ const Header = (props) => {
       {/* <DarkModeSwitcher /> */}
 
        {/* like */}
-      <DropdownMessage />
+      {/* <DropdownMessage /> */}
 
       {/* Notification */}
       <DropdownNotification />

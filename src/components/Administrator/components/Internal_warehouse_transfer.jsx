@@ -16,14 +16,14 @@ const Internal_warehouse_transfer = () => {
   const [selectedFactory, setSelectedFactory] = useState('');
   const [factoryName, setFactoryName] = useState('');
   const [factory, setFactory] = useState({ id: '', name: '' });
-const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
+  const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
   const [toWarehouse, setToWarehouse] = useState(''); // warehouseId
- const [productionNo, setProductionNo] = useState('');
+  const [productionNo, setProductionNo] = useState('');
   const [article, setArticle] = useState('');
   const [quantity, setQuantity] = useState(0);
   const [availableQty, setAvailableQty] = useState(0);
   const [pnNumber, setPnNumber] = useState([]);
- const [category, setCategory] = useState({
+  const [category, setCategory] = useState({
     categoryCode: '',
     color: '',
     size: '',
@@ -40,31 +40,49 @@ const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
   // Fetch stock data
   useEffect(() => {
     (async () => {
-      const prores = await stockService.getStockByPn(user.accessToken);
-      const allStockData = prores.items.map((item) => ({
-        productionNo: item.productionNo,
-        article: item.article,
-        categoryCode: item.categoryCode,
-        size: item.size,
-        type: item.type,
-        color: item.color,
-        quality: item.quality,
-        factory: item.factory,
-        warehouseData: item.warehouseData,
-      }));
+      
+      try {
+        setLoading(true)
+        const prores = await stockService.getStockByPn(user.accessToken);
+        const allStockData = prores.items.map((item) => ({
+          productionNo: item.productionNo,
+          article: item.article,
+          categoryCode: item.categoryCode,
+          size: item.size,
+          type: item.type,
+          color: item.color,
+          quality: item.quality,
+          factory: item.factory,
+          warehouseData: item.warehouseData,
+        }));
 
-      const uniquePn = Array.from(
-        new Map(allStockData.map((item) => [item.productionNo, item])).values(),
-      );
-      setPnNumber(uniquePn);
+        const uniquePn = Array.from(
+          new Map(
+            allStockData.map((item) => [item.productionNo, item]),
+          ).values(),
+        );
+        setPnNumber(uniquePn);
+      } catch (error) {
+        toast.error(error.response.data.message);
+      } finally{
+        setLoading(false)
+      }
     })();
   }, [user.accessToken]);
 
   // Fetch warehouses
   useEffect(() => {
     (async () => {
-      const res = await warehouseService.getAllWarehouse(user.accessToken);
-      setWarehouseData(res.data.data || []);
+      setLoading(true)
+      try {
+        const res = await warehouseService.getAllWarehouse(user.accessToken);
+        setWarehouseData(res.data.data || []);
+      } catch (error) {
+        toast.error(error.response.data.message)
+        
+      } finally{
+        setLoading(false)
+      }
     })();
   }, [user.accessToken]);
 
@@ -104,6 +122,7 @@ const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
     };
 
     try {
+      setLoading(true)
       const res = await qrService.internalStockTransfer(
         user.accessToken,
         payload,
@@ -132,6 +151,8 @@ const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
     } catch (err) {
       console.error(err);
       toast.error(err.response?.data?.message || 'Error generating QR');
+    } finally{
+      setLoading(false)
     }
   };
 

@@ -17,7 +17,7 @@ const Profile = () => {
       {editMode ? (
         <div className="bg-gray-50 p-8 rounded-2xl shadow-lg">
           <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-3">
-            ✏️ Edit Profile
+             Edit Profile
           </h2>
 
           <div className="flex flex-col sm:flex-row gap-12">
@@ -73,7 +73,7 @@ const Profile = () => {
                   type="submit"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium transition w-full sm:w-auto"
                 >
-                  💾 Save Changes
+                   Save Changes
                 </button>
               </div>
             </form>
@@ -82,14 +82,14 @@ const Profile = () => {
       ) : (
         <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 relative mb-6">
           {/* Top Buttons */}
-          <div className="absolute top-4 right-4 flex gap-3">
+          {/* <div className="absolute top-4 right-4 flex gap-3">
             <button className="border px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
-              🖨️ Print
+               Print
             </button>
             <button className="border px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition">
-              📄 PDF
+               PDF
             </button>
-          </div>
+          </div> */}
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-10">
             {/* Profile Image */}
