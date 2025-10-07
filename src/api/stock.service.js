@@ -56,9 +56,9 @@ const getAllStock = async (token) => {
   }
 };
 
-const getStockByPn = async (token) => {
+const getStockByPn = async (token,page,limit,searchQueary='') => {
   try {
-    const res = await API.get(`/stock/get`, {
+    const res = await API.get(`/stock/get?page=${page}&limit=${limit}&search=${searchQueary}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

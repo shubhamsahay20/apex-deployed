@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef, useDebugValue } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, Package, Plus, Trash2 } from 'lucide-react';
 import { FiShoppingCart } from 'react-icons/fi';
 import { AsyncPaginate } from 'react-select-async-paginate';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
 import { useAuth } from '../../../Context/AuthContext';
 import authService from '../../../api/auth.service';
 import schemesService from '../../../api/schemes.service';
@@ -39,16 +38,16 @@ const CategoryDashboard = () => {
   });
   const [showChoiceModal, setShowChoiceModal] = useState(false);
 
-  // Product dropdown states
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [fetching, setFetching] = useState(false);
   const [search, setSearch] = useState('');
   const debounceValue = useDebounce(search, 500);
-  const [open, setOpen] = useState(false);
+
+  const [openIndex, setOpenIndex] = useState(null); // ✅ FIX: track open dropdown by index
   const wrapperRef = useRef(null);
 
-  // Fetch products page-wise
+  // Fetch products
   const fetchProducts = async (pageNo = 1, debounceValue = '') => {
     if (fetching) return;
     setFetching(true);
@@ -61,12 +60,10 @@ const CategoryDashboard = () => {
       );
       const data = res.data?.data || [];
       const pagination = res.data?.pagination;
-
       if (pageNo === 1) setProducts(data);
       else setProducts((prev) => [...prev, ...data]);
-
       setHasMore(pageNo < (pagination?.totalPages || 1));
-    } catch (err) {
+    } catch {
       toast.error('Failed to fetch products');
     } finally {
       setFetching(false);
@@ -86,7 +83,7 @@ const CategoryDashboard = () => {
     fetchSchemes();
   }, [user.accessToken]);
 
-  // Async customer loader
+  // Customer loader
   const loadCustomers = async (search, loadedOptions, { page }) => {
     try {
       const res = await authService.getCustomersBySalesPerson(
@@ -110,7 +107,6 @@ const CategoryDashboard = () => {
     }
   };
 
-  // Customer selection
   const handleCustomerChange = (selected) => {
     setSelectedCustomer(selected);
     if (selected?.location?.length) {
@@ -118,7 +114,6 @@ const CategoryDashboard = () => {
     }
   };
 
-  // Update location
   const updateLocation = (index, field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -128,7 +123,6 @@ const CategoryDashboard = () => {
     }));
   };
 
-  // Add / Remove item
   const addItem = () => {
     const last = formData.items[formData.items.length - 1];
     if (Object.values(last).some((val) => !val)) {
@@ -159,7 +153,6 @@ const CategoryDashboard = () => {
       items: prev.items.filter((_, i) => i !== index),
     }));
 
-  // Change scheme
   const changeScheme = (e) => {
     const id = e.target.value;
     const selected = schemes.find((s) => s._id === id) || {};
@@ -170,7 +163,6 @@ const CategoryDashboard = () => {
     });
   };
 
-  // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!selectedCustomer) return toast.error('Select a customer');
@@ -193,7 +185,6 @@ const CategoryDashboard = () => {
       const res = await cartService.createOrder(user.accessToken, payload);
       toast.success(res.message || 'Order added to cart');
 
-      // Reset form
       setFormData({
         location: [
           { address: '', city: '', state: '', pincode: '', country: 'India' },
@@ -223,24 +214,19 @@ const CategoryDashboard = () => {
     }
   };
 
-  // Fetch products when dropdown opens or search changes
-  // Fetch products when dropdown opens or search changes
   useEffect(() => {
-    if (!open) return;
-
-    // Only call API if search is empty or has 2+ characters
-    if (debounceValue.length === 0 || debounceValue.length >= 2) {
-      setPage(1);
-      fetchProducts(1, debounceValue);
+    if (openIndex !== null) {
+      if (debounceValue.length === 0 || debounceValue.length >= 2) {
+        setPage(1);
+        fetchProducts(1, debounceValue);
+      }
     }
-  }, [open, debounceValue]);
+  }, [openIndex, debounceValue]);
 
-  // Fetch next page
   useEffect(() => {
     if (page > 1) fetchProducts(page, search);
   }, [page]);
 
-  // Scroll for infinite products
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
     if (scrollTop + clientHeight >= scrollHeight - 5 && hasMore && !fetching) {
@@ -248,11 +234,10 @@ const CategoryDashboard = () => {
     }
   };
 
-  // Click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target))
-        setOpen(false);
+        setOpenIndex(null); // ✅ FIX
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -272,7 +257,6 @@ const CategoryDashboard = () => {
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* Customer */}
           <div className="bg-blue-50 p-4 rounded-lg">
             <div className="flex items-center mb-2">
               <User className="w-5 h-5 text-blue-600 mr-2" />
@@ -287,7 +271,6 @@ const CategoryDashboard = () => {
             />
           </div>
 
-          {/* Locations */}
           <div className="bg-green-50 p-4 rounded-lg space-y-4">
             {formData.location.map((loc, idx) => (
               <div
@@ -349,7 +332,6 @@ const CategoryDashboard = () => {
             ))}
           </div>
 
-          {/* Items */}
           <div className="bg-purple-50 p-4 rounded-lg">
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center">
@@ -384,16 +366,17 @@ const CategoryDashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  {/* Lazy-loaded Product Dropdown */}
                   <div ref={wrapperRef} className="relative col-span-3">
                     <div
-                      onClick={() => setOpen((prev) => !prev)}
+                      onClick={() =>
+                        setOpenIndex(openIndex === idx ? null : idx)
+                      }
                       className="cursor-pointer border px-3 py-2 rounded"
                     >
                       {item.article || 'Select Article'}
                     </div>
 
-                    {open && (
+                    {openIndex === idx && (
                       <div
                         className="absolute mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto"
                         onScroll={handleScroll}
@@ -426,7 +409,7 @@ const CategoryDashboard = () => {
                                 ...prev,
                                 items: updated,
                               }));
-                              setOpen(false);
+                              setOpenIndex(null); // ✅ FIX: close only this dropdown
                             }}
                             className="px-3 py-2 hover:bg-blue-50 cursor-pointer"
                           >
@@ -492,7 +475,6 @@ const CategoryDashboard = () => {
               </div>
             ))}
 
-            {/* Scheme Selector */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
               <select
                 value={scheme.id}

@@ -950,7 +950,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {user?.user?.role === 'Admin' && (
+              {/* {user?.user?.role === 'Admin' && (
                 <li>
                   <NavLink
                     to='/settings'
@@ -972,7 +972,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                     Settings
                   </NavLink>
                 </li>
-              )}
+              )} */}
               {/* <!-- Menu Item Settings --> */}
 
               {user?.user?.role === 'Administrator' && (

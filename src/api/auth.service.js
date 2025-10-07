@@ -36,7 +36,7 @@ const addCategory = (token, data) =>
     },
   });
 
-const getCategories = (token, page = 1, limit = 10,searchQuery='') =>
+const getCategories = (token, page = 1, limit = 10, searchQuery = '') =>
   API.get(`/product?page=${page}&limit=${limit}&search=${searchQuery}`, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -143,7 +143,7 @@ const addCustomer = async (token, data) => {
     });
     return res.data;
   } catch (error) {
-    throw new Error('Error while adding customer');
+    throw error;
   }
 };
 
@@ -220,18 +220,30 @@ const getProfile = async (token) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    return res.data
+    return res.data;
   } catch (error) {
-    throw new Error("Error while geting profile");
-    
+    throw new Error('Error while geting profile');
   }
+};
 
+const editProfile = async (token, id, data) => {
+  try {
+    const res = await API.put(`/auth/${id}/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error?.response?.data?.message);
+  }
 };
 
 const logout = () => localStorage.removeItem('user');
 
 export default {
   register,
+  editProfile,
   login,
   verifyOtp,
   logout,
@@ -254,5 +266,5 @@ export default {
   newPassword,
   getProfile,
   getCustomersBySalesPerson,
-  DeleteArticleCode
+  DeleteArticleCode,
 };

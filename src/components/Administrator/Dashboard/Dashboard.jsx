@@ -6,16 +6,19 @@ import reportService from '../../../api/report.service';
 import topsellingstockService from '../../../api/topsellingstock.service';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../Context/AuthContext';
+import Loader from '../../../common/Loader';
 
 export default function AdministratorDashboard() {
   const [productionSummary, setProductionSummary] = useState(null);
   const [inventorySummary, setInventorySummary] = useState(null);
   const [warehouseData, setWarehouseData] = useState([]);
   const [lowStock, setLowStock] = useState([]); // ✅ added lowStock
+  const[loading,setLoading] = useState(false)
 
   const { user } = useAuth();
 
   useEffect(() => {
+    setLoading(true)
     const fetchData = async () => {
       try {
         const productionres = await reportService.productionSummary(
@@ -54,6 +57,8 @@ export default function AdministratorDashboard() {
         );
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally{
+        setLoading(false)
       }
     };
     fetchData();
@@ -62,6 +67,8 @@ export default function AdministratorDashboard() {
   const handleStockAlertSeeAll = () => {
     console.log('Navigate to detailed alerts view');
   };
+
+  if(loading) return <Loader/>
 
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">

@@ -56,7 +56,7 @@ const RoleDetailsViewPage = () => {
                   <span className="font-semibold text-gray-700">Location:</span>{' '}
                   {userDetail.location}
                 </p>
-                <p>
+                {/* <p>
                   <span className="font-semibold text-gray-700">Status:</span>{' '}
                   <span
                     className={`font-bold ${
@@ -67,13 +67,13 @@ const RoleDetailsViewPage = () => {
                   >
                     {userDetail.status}
                   </span>
-                </p>
+                </p> */}
               </div>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4">
+          {/* <div className="flex flex-col sm:flex-row gap-4">
             <button
               onClick={() => printSalesPDF([])}
               className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition shadow-sm"
@@ -86,7 +86,7 @@ const RoleDetailsViewPage = () => {
             >
               <FaFilePdf /> Export PDF
             </button>
-          </div>
+          </div> */}
         </div>
       )}
     </div>

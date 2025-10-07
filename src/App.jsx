@@ -11,7 +11,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import FormElements from './pages/Form/FormElements'
 import FormLayout from './pages/Form/FormLayout'
 import Profile from './pages/Profile'
-import Settings from './pages/Settings'
+// import Settings from './pages/Settings'
 import DefaultLayout from './layout/DefaultLayout'
 import SalesOrder from './pages/SalesOrder'
 // import SalesDetails from './pages/SalesDetails'
@@ -329,7 +329,7 @@ function App () {
                 path='/inventory/delivery-details'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Inventory Manager']}>
+                    <ProtectedRoutes role={['Admin','Administrator','Inventory Manager']}>
                       <PageTitle title='Delivery Order ' />
                       <DeliveryDetails />
                     </ProtectedRoutes>
@@ -589,7 +589,7 @@ function App () {
                 path='/view-details/:role/:id'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin']}>
+                    <ProtectedRoutes role={['Admin','Administrator']}>
                       <PageTitle title='Role Details ViewPage ' />
                       <RoleDetailsViewPage />
                     </ProtectedRoutes>
@@ -724,7 +724,7 @@ function App () {
                   </>
                 }
               />
-              <Route
+              {/* <Route
                 path='/settings'
                 element={
                   <>
@@ -734,7 +734,7 @@ function App () {
                     </ProtectedRoutes>
                   </>
                 }
-              />
+              /> */}
               <Route
                 path='/salesPerson/create_New_Order'
                 element={

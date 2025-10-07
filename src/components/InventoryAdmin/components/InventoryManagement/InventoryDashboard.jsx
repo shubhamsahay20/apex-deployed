@@ -6,6 +6,7 @@ import { TopSellingStock } from '../../../../pages/Dashboard/TopSellingStock';
 import reportService from '../../../../api/report.service';
 import topsellingstockService from '../../../../api/topsellingstock.service';
 import { toast } from 'react-toastify';
+import Loader from '../../../../common/Loader';
 
 function InventoryDashboard() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ function InventoryDashboard() {
   const [inventoryChartData, setInventoryChartData] = useState([]);
   const [topStock, setTopStock] = useState([]);
   const [lowStock, setLowStock] = useState([]);
+  const[loading,setLoading] = useState(false)
 
   const InventorySummaryItem = ({ title, value, color }) => (
     <div className="px-1">
@@ -32,6 +34,7 @@ function InventoryDashboard() {
   // Fetch Inventory Chart & Summary
   useEffect(() => {
     const fetchInventoryData = async () => {
+      setLoading(true)
       try {
         const res = await reportService.inventorySummary(user.accessToken);
         setInventoryData(res?.data);
@@ -46,6 +49,8 @@ function InventoryDashboard() {
         setInventoryChartData(formattedWarehouseData);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     };
 
@@ -56,6 +61,7 @@ function InventoryDashboard() {
   useEffect(() => {
     const fetchStockData = async () => {
       try {
+        setLoading(true)
         const topRes = await topsellingstockService.topSellingStock(user.accessToken);
         setTopStock(
           (topRes.data || []).map((item) => ({
@@ -84,12 +90,16 @@ function InventoryDashboard() {
       } catch (error) {
         console.error("Error fetching stock data:", error);
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     };
 
     fetchStockData();
   }, [user]);
 
+  if(loading) return  <Loader/>
+ 
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
       <div className="max-w-7xl mx-auto space-y-6">

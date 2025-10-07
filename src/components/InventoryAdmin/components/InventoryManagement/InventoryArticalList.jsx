@@ -11,6 +11,7 @@ import cartService from '../../../../api/cart.service';
 import ApproveModal from '../../../../utils/ApproveModal';
 import inventoryService from '../../../../api/inventory.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
+import Loader from '../../../../common/Loader';
 
 const InventorySummaryItem = ({ title, value, color }) => (
   <div className="text-center px-4">
@@ -57,6 +58,7 @@ const InventoryArticalList = () => {
   const [approveModalId, setApproveModalId] = useState(null);
   const [searchQuery,setSearchQuery] = useState("")
   const debounceValue = useDebounce(searchQuery,500)
+  const [ loading,setLoading] = useState(false)
 
 
   const { user } = useAuth();
@@ -68,6 +70,7 @@ const InventoryArticalList = () => {
 
     console.log('selectApprove', selectApprove._id);
 
+    setLoading(true)
     try {
       await inventoryService.addNotes(user.accessToken, selectApprove._id, {
         text: 'Approved',
@@ -87,12 +90,15 @@ const InventoryArticalList = () => {
       setApproveModalOpan(false);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to approve');
+    } finally{
+      setLoading(false)
     }
   };
 
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       (async () => {
+        setLoading(true)
         try {
           const res = await cartService.getAllSalesOrder(
             user.accessToken,
@@ -105,6 +111,8 @@ const InventoryArticalList = () => {
         setTotalPages(res.pagination?.totalPages);
       } catch (error) {
         toast.error(error.response?.data?.message);
+      } finally{
+        setLoading(false)
       }
     })();
   }}, [currentPage,debounceValue, user.accessToken]);
@@ -141,6 +149,7 @@ const InventoryArticalList = () => {
 
   // ✅ Save Note
   const handleSaveNote = async () => {
+    setLoading(true)
     try {
       const data = {
         text: noteData.description,
@@ -165,8 +174,12 @@ const InventoryArticalList = () => {
       toast.success('Order Rejected');
     } catch (error) {
       toast.error(error.response?.data?.message);
+    } finally{
+      setLoading(false)
     }
   };
+
+ if(loading) return <Loader/> 
 
   return (
     <div>

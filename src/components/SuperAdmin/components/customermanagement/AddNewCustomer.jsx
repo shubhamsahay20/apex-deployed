@@ -52,6 +52,8 @@ const AddNewCustomer = () => {
       toast.success(res?.message || 'Customer added successfully');
       navigate('/customer-management');
     } catch (error) {
+      console.log("error add customer---------->", error);
+      
       toast.error(error?.response?.data?.message || 'Error adding customer');
     }
   };

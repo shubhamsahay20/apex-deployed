@@ -92,6 +92,7 @@ const WarehouseDropdown = () => {
 
   const handleSubmit = async () => {
     setLoading(true);
+    
     try {
       const payload = {
         productionNo: selectPN,
@@ -211,13 +212,19 @@ const WarehouseDropdown = () => {
           placeholder="Enter Quantity"
         />
 
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-5 py-2 rounded mt-4"
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>
+       <button
+  type="submit"
+  className={`w-full px-5 py-2 rounded mt-4 text-white transition ${
+    selectPN && quantity
+      ? 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+      : 'bg-gray-400 cursor-not-allowed'
+  }`}
+  onClick={handleSubmit}
+  disabled={!selectPN || !quantity}
+>
+  Submit
+</button>
+
       </div>
     </div>
   );

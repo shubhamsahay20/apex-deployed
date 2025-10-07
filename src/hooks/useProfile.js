@@ -3,23 +3,23 @@ import { toast } from 'react-toastify';
 import authService from '../api/auth.service';
 
 export default function useProfile(accessToken) {
-  const [profileData, setrProfileData] = useState([]);
+  const [profileData, setProfileData] = useState({});
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const res = await authService.getProfile(accessToken);
+      setProfileData(res.data);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to fetch profile');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await authService.getProfile(accessToken);
-        console.log('Profile response', res.data);
-
-        setrProfileData(res.data);
-      } catch (error) {
-        console.log(error.response?.data?.message);
-        toast.error(error.response?.data?.message);
-      }
-    };
-
     fetchData();
+  }, [accessToken]);
 
-}, []);
-return { profileData };
+  return { profileData, setProfileData, loading, refetchProfile: fetchData };
 }
