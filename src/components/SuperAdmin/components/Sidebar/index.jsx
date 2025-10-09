@@ -814,7 +814,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                         fill='currentColor'
                       />
                     </svg>
-                    Categories
+                    Add Article
                   </NavLink>
                 </li>
               )}

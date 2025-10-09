@@ -17,13 +17,24 @@ export default function AddCategory({ onSubmit, onCancel }) {
     color: '',
     soft_hard: '',
     A_B: '',
+    image: null, // new field
   });
+
+  const [preview, setPreview] = useState(null);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prev) => ({ ...prev, image: file }));
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const validateForm = () => {
@@ -51,6 +62,10 @@ export default function AddCategory({ onSubmit, onCancel }) {
       toast.error('Quality (A/B) is required');
       return false;
     }
+    if (!formData.image) {
+      toast.error('Image is required');
+      return false;
+    }
 
     return true;
   };
@@ -58,11 +73,13 @@ export default function AddCategory({ onSubmit, onCancel }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if(!validateForm()) return 
+    if (!validateForm()) return;
 
-    const payload = {
-      article: parseInt(formData.articleName),
-      category: [
+    const payload = new FormData();
+    payload.append('article',(formData.articleName));
+    payload.append(
+      'category',
+      JSON.stringify([
         {
           categoryCode: parseInt(formData.categoryName),
           color: formData.color.trim(),
@@ -70,16 +87,13 @@ export default function AddCategory({ onSubmit, onCancel }) {
           type: formData.soft_hard.trim(),
           quality: formData.A_B.trim(),
         },
-      ],
-    };
-
-    console.log(payload);
+      ])
+    );
+    payload.append('image', formData.image);
 
     try {
       const res = await authService.addCategory(user.accessToken, payload);
       toast.success(res?.data?.message || 'Category Added Successfully');
-      console.log('Category added successfully');
-
       navigate('/categories');
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to add category');
@@ -88,7 +102,7 @@ export default function AddCategory({ onSubmit, onCancel }) {
 
   return (
     <div className=" w-full h-full">
-      <div className="w-full h-[600px] bg-white rounded-lg shadow-sm  mx-auto">
+      <div className="w-full h-[650px] bg-white rounded-lg shadow-sm  mx-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">
@@ -99,44 +113,46 @@ export default function AddCategory({ onSubmit, onCancel }) {
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Date Field */}
+            {/* Article */}
             <div>
               <label
                 htmlFor="articleName"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Article 
+                Article
               </label>
               <input
-                type="number"
+                type="text"
                 id="articleName"
-                placeholder="Enter Article "
+                placeholder="Enter Article"
                 value={formData.articleName}
                 onChange={(e) => handleChange('articleName', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* Category */}
             <div>
               <label
                 htmlFor="categoryName"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                Category 
+                Category
               </label>
               <input
-                type="number"
+                type="text"
                 id="categoryName"
-                placeholder="Enter  Category "
+                placeholder="Enter Category"
                 value={formData.categoryName}
                 onChange={(e) => handleChange('categoryName', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* Size */}
             <div>
               <label
-                htmlFor="Size"
+                htmlFor="size"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
                 Size
@@ -147,10 +163,11 @@ export default function AddCategory({ onSubmit, onCancel }) {
                 placeholder="Enter Size"
                 value={formData.size}
                 onChange={(e) => handleChange('size', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* Color */}
             <div>
               <label
                 htmlFor="color"
@@ -164,10 +181,11 @@ export default function AddCategory({ onSubmit, onCancel }) {
                 placeholder="Enter Color"
                 value={formData.color}
                 onChange={(e) => handleChange('color', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* Soft/Hard */}
             <div>
               <label
                 htmlFor="soft_hard"
@@ -179,14 +197,15 @@ export default function AddCategory({ onSubmit, onCancel }) {
                 id="soft_hard"
                 value={formData.soft_hard}
                 onChange={(e) => handleChange('soft_hard', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
               >
-                <option value=""> Choose Soft/Hard</option>
+                <option value="">Choose Soft/Hard</option>
                 <option value="Soft">Soft</option>
                 <option value="Hard">Hard</option>
               </select>
             </div>
 
+            {/* A/B */}
             <div>
               <label
                 htmlFor="A/B"
@@ -198,13 +217,37 @@ export default function AddCategory({ onSubmit, onCancel }) {
                 id="A/B"
                 value={formData.A_B}
                 onChange={(e) => handleChange('A_B', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
               >
                 <option value="">Choose A/B</option>
-                <option value="A"> A</option>
+                <option value="A">A</option>
                 <option value="B">B</option>
               </select>
             </div>
+          </div>
+
+          {/* Image Upload */}
+          <div className="mt-6">
+            <label
+              htmlFor="image"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Upload Image
+            </label>
+            <input
+              type="file"
+              id="image"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
+            />
+            {preview && (
+              <img
+                src={preview}
+                alt="Preview"
+                className="mt-3 w-32 h-32 object-cover rounded-md border"
+              />
+            )}
           </div>
 
           {/* Submit Button */}
