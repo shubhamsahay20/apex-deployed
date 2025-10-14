@@ -19,7 +19,7 @@ const QRDropdownPage = () => {
 
   const [open, setOpen] = useState(false); // dropdown open/close
   const wrapperRef = useRef(null);
-  const debounceValue = useDebounce(search,500)
+  const debounceValue = useDebounce(search, 500);
 
   // 🔹 Fetch products
   const fetchProducts = async (pageNo = 1, searchTerm = '') => {
@@ -51,15 +51,15 @@ const QRDropdownPage = () => {
   };
 
   // 🔹 Initial + search change
- useEffect(() => {
-  if (!open) return; // Only fetch if dropdown is open
+  useEffect(() => {
+    if (!open) return; // Only fetch if dropdown is open
 
-  // Call API only if debounced value length is 0 or >= 2
-  if (debounceValue.length === 0 || debounceValue.length >= 2) {
-    setPage(1);
-    fetchProducts(1, debounceValue);
-  }
-}, [debounceValue, open]);
+    // Call API only if debounced value length is 0 or >= 2
+    if (debounceValue.length === 0 || debounceValue.length >= 2) {
+      setPage(1);
+      fetchProducts(1, debounceValue);
+    }
+  }, [debounceValue, open]);
 
   // 🔹 On page change
   useEffect(() => {

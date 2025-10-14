@@ -244,3 +244,231 @@ export const printQRCodePDF = async (qrData, selectedProduction, productData) =>
     return null;
   }
 };
+
+/* -------------------- ✅ SCHEMES REPORT (NEW) -------------------- */
+export const exportSchemesPDF = (schemes) => {
+  if (!schemes || schemes.length === 0) {
+    return alert('No data to export');
+  }
+
+  const doc = new jsPDF();
+
+  const headers = [['Starting Date', 'Ending Date', 'Scheme Name', 'Scheme Description', 'Scheme Type', 'To Apply']];
+
+  const rows = schemes.map(scheme => [
+    scheme.date || '',
+    scheme.expireDate || '',
+    scheme.schemesName || '',
+    scheme.schemesDescription || '',
+    scheme.schemesType || '',
+    scheme.schemesQuantity || '',
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Schemes Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  doc.save('schemes_report.pdf');
+};
+
+export const printSchemesPDF = (schemes) => {
+  if (!schemes || schemes.length === 0) {
+    return alert('No data to print');
+  }
+
+  const doc = new jsPDF();
+
+  const headers = [['Starting Date', 'Ending Date', 'Scheme Name', 'Scheme Description', 'Scheme Type', 'To Apply']];
+
+  const rows = schemes.map(scheme => [
+    scheme.date || '',
+    scheme.expireDate || '',
+    scheme.schemesName || '',
+    scheme.schemesDescription || '',
+    scheme.schemesType || '',
+    scheme.schemesQuantity || '',
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Schemes Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  window.open(doc.output('bloburl'), '_blank').print();
+};
+export const exportProductionDataPDF = (productions) => {
+  if (!productions || productions.length === 0) return alert('No data to export');
+
+  const doc = new jsPDF();
+  const headers = [['Date', 'Production No', 'Article', 'Quantity', 'Factory']];
+  const rows = productions.map(item => [
+    new Date(item.productionDate).toLocaleDateString('en-GB'),
+    item.productionNo || '',
+    item.article || '',
+    item.productionQuantity || '',
+    item.factory?.name || ''
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Production Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  doc.save('production_report.pdf');
+};
+
+export const printProductionDataPDF = (productions) => {
+  if (!productions || productions.length === 0) return alert('No data to print');
+
+  const doc = new jsPDF();
+  const headers = [['Date', 'Production No', 'Article', 'Quantity', 'Factory']];
+  const rows = productions.map(item => [
+    new Date(item.productionDate).toLocaleDateString('en-GB'),
+    item.productionNo || '',
+    item.article || '',
+    item.productionQuantity || '',
+    item.factory?.name || ''
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Production Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  window.open(doc.output('bloburl'), '_blank').print();
+};
+export const exportArticlesDataPDF = (articles) => {
+  if (!articles || articles.length === 0) return alert('No data to export');
+
+  const doc = new jsPDF();
+  const headers = [
+    [
+      'Article',
+      'Category Code',
+      'Size',
+      'Color',
+      'Soft/Hard',
+      'Quality',
+      'Production Qty',
+      'Warehouse Qty',
+      'Total Quantity',
+    ],
+  ];
+
+  const rows = articles.map((row) => [
+    row.article || '',
+    row.categoryCode || '',
+    row.size || '',
+    row.color || '',
+    row.type || '',
+    row.quality || '',
+    row.Production_Qty || '',
+    row.Warehouse_Qty || '',
+    row.Total_Available || '',
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Articles Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  doc.save('articles_report.pdf');
+};
+// Add this to your PdfModel.js
+export const exportSalesOrdersPDF = (orders) => {
+  if (!orders || orders.length === 0) return alert('No data to export');
+
+  const doc = new jsPDF();
+  const headers = [
+    [
+      'Date',
+      'Sale Order',
+      'Customer',
+      'Account Status',
+      'Inventory Status',
+      'Warehouse Status',
+      'Delivery Status',
+    ],
+  ];
+
+  const rows = orders.map((row) => [
+    new Date(row.updatedAt).toLocaleString('en-GB'),
+    row.salesOrderNo || '',
+    row.customer?.name || '',
+    row.accountSectionApproval || '',
+    row.inventoryManagerApproval || '',
+    row.ScannedByWarehouseManager || '',
+    row.deliveryStatus || '',
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Sales Orders Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  doc.save('sales_orders_report.pdf');
+};
+
+export const printSalesOrdersPDF = (orders) => {
+  if (!orders || orders.length === 0) return alert('No data to print');
+
+  const doc = new jsPDF();
+  const headers = [
+    [
+      'Date',
+      'Sale Order',
+      'Customer',
+      'Account Status',
+      'Inventory Status',
+      'Warehouse Status',
+      'Delivery Status',
+    ],
+  ];
+
+  const rows = orders.map((row) => [
+    new Date(row.updatedAt).toLocaleString('en-GB'),
+    row.salesOrderNo || '',
+    row.customer?.name || '',
+    row.accountSectionApproval || '',
+    row.inventoryManagerApproval || '',
+    row.ScannedByWarehouseManager || '',
+    row.deliveryStatus || '',
+  ]);
+
+  doc.setFontSize(14);
+  doc.text('Sales Orders Report', 14, 10);
+
+  autoTable(doc, {
+    head: headers,
+    body: rows,
+    startY: 20,
+  });
+
+  window.open(doc.output('bloburl'), '_blank').print();
+};
+

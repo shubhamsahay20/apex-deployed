@@ -27,6 +27,9 @@ const ViewProduction = () => {
           user.accessToken,
           id,
         );
+
+        console.log("res",res);
+        
         setProductionData(res.data.data || {});
       } catch (error) {
         console.error('Error fetching production:', error);
@@ -38,7 +41,7 @@ const ViewProduction = () => {
     fetchData();
   }, [user.accessToken, id]);
 
-  const category = productionData?.category?.[0] || {};
+  // const category = productionData?.category?.[0] || {};
 
 if(loading) return <Loader/>
 
@@ -63,11 +66,11 @@ if(loading) return <Loader/>
             value={productionData.productionNo}
           />
           <DetailField label="ARTICLE" value={productionData.article} />
-          <DetailField label="CATEGORY CODE" value={category.categoryCode} />
-          <DetailField label="COLOR" value={category.color} />
-          <DetailField label="QUALITY" value={category.quality} />
-          <DetailField label="SIZE" value={category.size} />
-          <DetailField label="TYPE" value={category.type} />
+          <DetailField label="CATEGORY NAME" value={productionData?.category?.categoryCode} />
+          <DetailField label="COLOR" value={productionData?.category?.color} />
+          <DetailField label="QUALITY" value={productionData?.category?.quality} />
+          <DetailField label="SIZE" value={productionData?.category?.size} />
+          <DetailField label="TYPE" value={productionData?.category?.type} />
         </div>
       </div>
     </div>

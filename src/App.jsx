@@ -107,6 +107,7 @@ import StockVerify from './components/WarehouseAdmin/components/StockVerify';
 import ViewProduction from './components/ProductionAdmin/components/ViewProduction';
 import AccountSectionViewOrder from './components/AccountingAdmin/components/AccountSectionViewOrder'
 import ViewWarehouseStock from './components/WarehouseAdmin/components/ViewWarehouseStock'
+import ViewArticle from './components/SuperAdmin/components/catagories/ViewArtical'
 
 function App () {
   const [loading, setLoading] = useState(true)
@@ -664,6 +665,17 @@ function App () {
                     <ProtectedRoutes role={['Admin']}>
                       <PageTitle title='Category ' />
                       <AddCategory />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path='/ViewArticle-details/:id'
+                element={
+                  <>
+                    <ProtectedRoutes role={['Admin']}>
+                      <PageTitle title='ViewArticle ' />
+                      <ViewArticle />
                     </ProtectedRoutes>
                   </>
                 }

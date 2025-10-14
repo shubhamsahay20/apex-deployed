@@ -16,6 +16,11 @@ const CreateQRCode = () => {
   const [selectedProduction, setSelectedProduction] = useState('');
   const [factory, setFactory] = useState('');
   const [articleNo, setArticleNo] = useState('');
+  const [categoryName, setCategoryName] = useState('');
+  const [quality, setQuality] = useState('');
+  const [color, setColor] = useState('');
+  const [type, setType] = useState('');
+  const [size, setSize] = useState('');
   const [warehouse, setWarehouse] = useState('');
   const [quantities, setQuantities] = useState({});
   const [qrData, setQrData] = useState([]);
@@ -44,8 +49,7 @@ const CreateQRCode = () => {
         searchTerm,
       );
 
-      console.log("res",res);
-      
+      console.log('res  is coming', res.data);
 
       const products = res.data?.products || [];
       const pagination = res.data?.pagination;
@@ -89,6 +93,8 @@ const CreateQRCode = () => {
 
   const handleCreateQr = async () => {
     const selectedProd = productData.find((p) => p._id === selectedProduction);
+    console.log("selected prode }}}} ",selectedProd);
+    
     if (!selectedProd) {
       toast.error('Please select a production number first');
       return;
@@ -103,7 +109,15 @@ const CreateQRCode = () => {
       warehouse: warehouse,
       factory_name: selectedProd.factory?.name,
       productionNo: selectedProd.productionNo,
-      productIds: [selectedProd.article],
+      productsInput: [{
+       article: selectedProd.article,
+       categoryCode:selectedProd.category.categoryCode,
+       color:selectedProd.category.color,
+       size:selectedProd.category.size,
+       type:selectedProd.category.type,
+       quality:selectedProd.category.quality
+
+      }],
     };
 
     setLoading(true);
@@ -207,6 +221,12 @@ const CreateQRCode = () => {
       setFactory(selected.factory?.name || '');
       setArticleNo(selected.article || '');
       setQuantities({ [selected._id]: selected.productionQuantity || 1 });
+      setCategoryName(selected.category.categoryCode || '');
+      setQuality(selected.category.quality || '');
+      setType(selected.category.type || '');
+      setColor(selected.category.color || '');
+      setSize(selected.category.size || '');
+
       setOpen(false);
     } else {
       setFactory('');
@@ -309,6 +329,51 @@ const CreateQRCode = () => {
         </div>
 
         <div>
+          <label className="block mb-1 text-sm text-gray-700">Category</label>
+          <input
+            className="w-full p-2 rounded border border-gray-300"
+            value={categoryName}
+            readOnly
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm text-gray-700">Color</label>
+          <input
+            className="w-full p-2 rounded border border-gray-300"
+            value={color}
+            readOnly
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm text-gray-700">Type</label>
+          <input
+            className="w-full p-2 rounded border border-gray-300"
+            value={type}
+            readOnly
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm text-gray-700">Size</label>
+          <input
+            className="w-full p-2 rounded border border-gray-300"
+            value={size}
+            readOnly
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 text-sm text-gray-700">Quality</label>
+          <input
+            className="w-full p-2 rounded border border-gray-300"
+            value={quality}
+            readOnly
+          />
+        </div>
+
+        <div>
           <label className="block mb-1 text-sm text-gray-700">Factory</label>
           <input
             className="w-full p-2 rounded border border-gray-300"
@@ -343,6 +408,7 @@ const CreateQRCode = () => {
           <thead>
             <tr className="border-b">
               <th className="py-2 text-left">Article</th>
+              <th className="py-2 ">Quality</th>
               <th className="py-2">Size</th>
               <th className="py-2">Color</th>
               <th className="py-2">Soft/Hard</th>
@@ -356,11 +422,11 @@ const CreateQRCode = () => {
               .map((prod) => (
                 <tr className="border-b last:border-0" key={prod._id}>
                   <td className="py-2">{prod.article}</td>
-                  <td className="py-2 text-center">{prod.category[0]?.size}</td>
-                  <td className="py-2 text-center">
-                    {prod.category[0]?.color}
-                  </td>
-                  <td className="py-2 text-center">{prod.category[0]?.type}</td>
+                  <td className="py-2 text-center">{prod?.category?.quality}</td>
+
+                  <td className="py-2 text-center">{prod?.category?.size}</td>
+                  <td className="py-2 text-center">{prod.category?.color}</td>
+                  <td className="py-2 text-center">{prod.category?.type}</td>
                   <td className="py-2 flex items-center justify-center gap-2">
                     <span className="w-6 text-center">
                       {quantities[prod._id] || 1}

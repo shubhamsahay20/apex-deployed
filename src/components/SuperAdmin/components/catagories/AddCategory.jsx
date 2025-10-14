@@ -1,10 +1,122 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../../../Context/AuthContext';
 import authService from '../../../../api/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { ChevronDown, X } from 'lucide-react';
+
+// Multi-Select Dropdown Component
+function MultiSelectDropdown({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder,
+  id,
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelect = (option) => {
+    if (value.includes(option)) {
+      onChange(value.filter((v) => v !== option));
+    } else {
+      onChange([...value, option]);
+    }
+  };
+
+  const handleRemove = (option, e) => {
+    e.stopPropagation();
+    onChange(value.filter((v) => v !== option));
+  };
+
+  const clearAll = (e) => {
+    e.stopPropagation();
+    onChange([]);
+  };
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
+        {label}
+      </label>
+      <div
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white cursor-pointer flex items-center flex-wrap gap-2"
+      >
+        {value.length === 0 ? (
+          <span className="text-gray-400">{placeholder}</span>
+        ) : (
+          value.map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"
+            >
+              {item}
+              <button
+                type="button"
+                onClick={(e) => handleRemove(item, e)}
+                className="hover:bg-blue-200 rounded p-0.5"
+              >
+                <X size={14} />
+              </button>
+            </span>
+          ))
+        )}
+        <div className="ml-auto flex items-center gap-1">
+          {value.length > 0 && (
+            <button
+              type="button"
+              onClick={clearAll}
+              className="hover:bg-gray-100 rounded p-1"
+            >
+              <X size={16} className="text-gray-500" />
+            </button>
+          )}
+          <ChevronDown
+            size={20}
+            className={`text-gray-500 transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            }`}
+          />
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+          {options.map((option) => (
+            <div
+              key={option}
+              onClick={() => handleSelect(option)}
+              className={`px-3 py-2 cursor-pointer transition-colors ${
+                value.includes(option)
+                  ? 'bg-blue-50 text-blue-800'
+                  : 'hover:bg-gray-50 text-gray-700'
+              }`}
+            >
+              {option}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AddCategory({ onSubmit, onCancel }) {
   const { user } = useAuth();
@@ -15,9 +127,9 @@ export default function AddCategory({ onSubmit, onCancel }) {
     categoryName: '',
     size: '',
     color: '',
-    soft_hard: '',
-    A_B: '',
-    image: null, // new field
+    soft_hard: [],
+    A_B: [],
+    image: null,
   });
 
   const [preview, setPreview] = useState(null);
@@ -54,11 +166,11 @@ export default function AddCategory({ onSubmit, onCancel }) {
       toast.error('Color is required');
       return false;
     }
-    if (!formData.soft_hard.trim()) {
+    if (formData.soft_hard.length === 0) {
       toast.error('Soft/Hard type is required');
       return false;
     }
-    if (!formData.A_B.trim()) {
+    if (formData.A_B.length === 0) {
       toast.error('Quality (A/B) is required');
       return false;
     }
@@ -76,18 +188,18 @@ export default function AddCategory({ onSubmit, onCancel }) {
     if (!validateForm()) return;
 
     const payload = new FormData();
-    payload.append('article',(formData.articleName));
+    payload.append('article', formData.articleName);
     payload.append(
       'category',
       JSON.stringify([
         {
-          categoryCode: parseInt(formData.categoryName),
+          categoryCode: formData.categoryName,
           color: formData.color.trim(),
           size: formData.size.trim(),
-          type: formData.soft_hard.trim(),
-          quality: formData.A_B.trim(),
+          type: formData.soft_hard,
+          quality: formData.A_B,
         },
-      ])
+      ]),
     );
     payload.append('image', formData.image);
 
@@ -185,45 +297,25 @@ export default function AddCategory({ onSubmit, onCancel }) {
               />
             </div>
 
-            {/* Soft/Hard */}
-            <div>
-              <label
-                htmlFor="soft_hard"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Soft/Hard
-              </label>
-              <select
-                id="soft_hard"
-                value={formData.soft_hard}
-                onChange={(e) => handleChange('soft_hard', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
-              >
-                <option value="">Choose Soft/Hard</option>
-                <option value="Soft">Soft</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
+            {/* Soft/Hard - Multi Select */}
+            <MultiSelectDropdown
+              id="soft_hard"
+              label="Soft/Hard"
+              options={['Soft', 'Hard']}
+              value={formData.soft_hard}
+              onChange={(value) => handleChange('soft_hard', value)}
+              placeholder="Choose Soft/Hard"
+            />
 
-            {/* A/B */}
-            <div>
-              <label
-                htmlFor="A/B"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                A/B
-              </label>
-              <select
-                id="A/B"
-                value={formData.A_B}
-                onChange={(e) => handleChange('A_B', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
-              >
-                <option value="">Choose A/B</option>
-                <option value="A">A</option>
-                <option value="B">B</option>
-              </select>
-            </div>
+            {/* A/B - Multi Select */}
+            <MultiSelectDropdown
+              id="A_B"
+              label="A/B"
+              options={['A', 'B']}
+              value={formData.A_B}
+              onChange={(value) => handleChange('A_B', value)}
+              placeholder="Choose A/B"
+            />
           </div>
 
           {/* Image Upload */}

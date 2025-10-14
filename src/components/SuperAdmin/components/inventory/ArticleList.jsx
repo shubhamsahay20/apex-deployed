@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import InventoryCards from './InventoryCards'
-import { exportProductionPDF } from '../../../../utils/PdfModel'
+import { exportArticlesDataPDF } from '../../../../utils/PdfModel'
 import { useAuth } from '../../../../Context/AuthContext'
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify'  
 import salesService from '../../../../api/sales.service'
 import reportService from '../../../../api/report.service' // ✅ add this to fetch inventory summary
 import { useDebounce } from '../../../../hooks/useDebounce'
@@ -16,8 +16,7 @@ const ArticleList = () => {
   const [inventoryData, setInventoryData] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const debounceValue = useDebounce(searchQuery, 500)
-  const[loading,setLoading]= useState(false)
-
+  const [loading, setLoading] = useState(false)
 
   // ✅ Fetch inventory summary (for top cards)
   useEffect(() => {
@@ -29,7 +28,7 @@ const ArticleList = () => {
         setInventoryData(res?.data || {})
       } catch (error) {
         toast.error(error.response?.data?.message)
-      } finally{
+      } finally {
         setLoading(false)
       }
     }
@@ -54,7 +53,7 @@ const ArticleList = () => {
         setArticledetails(res?.data || [])
       } catch (error) {
         toast.error(error.response?.data?.message)
-      } finally{
+      } finally {
         setLoading(false)
       }
     }
@@ -89,7 +88,7 @@ const ArticleList = () => {
     }
   ]
 
-  if(loading)return <Loader/>
+  if (loading) return <Loader />
 
   return (
     <div className='space-y-6 bg-gray-100 min-h-screen'>
@@ -116,7 +115,7 @@ const ArticleList = () => {
             </button> */}
             <button
               className='text-sm border px-3 py-1.5 rounded-md'
-              onClick={() => exportProductionPDF(articledetails)}
+              onClick={() => exportArticlesDataPDF(articledetails)}
             >
               Export
             </button>

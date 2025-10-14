@@ -3,7 +3,7 @@ import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import { PiPencilSimpleLineBold } from 'react-icons/pi';
 import DeleteModal from '../../../../utils/DeleteModal';
 import {
-  exportProductionPDF,
+ exportSchemesPDF,
   printProductionPDF,
 } from '../../../../utils/PdfModel';
 import { toast } from 'react-toastify';
@@ -35,8 +35,10 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
             10,
             debounceValue,
           );
-          console.log('res data', res?.data.schemes);
+          console.log('res data-------------->', res?.data.schemes);
           setSchemes(res.data?.schemes);
+          console.log('schemes',schemes);
+          
           setTotalPage(res.data?.pagination?.totalpages);
         } catch (error) {
           toast.error(error.response?.message);
@@ -103,7 +105,7 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
             Filters
           </button> */}
           <button
-            onClick={() => exportProductionPDF(schemes)}
+            onClick={() => exportSchemesPDF(schemes)}
             className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"
           >
             Export

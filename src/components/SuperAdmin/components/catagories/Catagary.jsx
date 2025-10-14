@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Loader from '../../../../common/Loader';
-import { FaFilter, FaPlus, FaSearch } from 'react-icons/fa';
+import { FiEye } from 'react-icons/fi';
+import { FaPlus, FaSearch } from 'react-icons/fa';
 import { FiTrash2 } from 'react-icons/fi';
 import { PiPencilSimpleLineBold } from 'react-icons/pi';
 import { IoMdArrowRoundDown, IoMdArrowRoundUp } from 'react-icons/io';
@@ -59,12 +60,20 @@ const Category = () => {
     setLoading(true);
     try {
       const res = await authService.DeleteCategory(selectId, user.accessToken);
-      toast.success(res.data?.data?.message || 'Article deleted successfully');
-      setCategories((prev) => prev.filter((item) => item._id !== selectId));
+      toast.success(res.data?.data?.message || 'Category deleted successfully');
+
+      // Update categories to remove deleted category
+      setCategories((prev) =>
+        prev.map((article) => ({
+          ...article,
+          category: article.category.filter((c) => c._id !== selectId),
+        }))
+      );
+
       setShowDeleteModal(false);
       setSelectId(null);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Error deleting Article');
+      toast.error(error?.response?.data?.message || 'Error deleting category');
     } finally {
       setLoading(false);
     }
@@ -77,12 +86,14 @@ const Category = () => {
         user.accessToken,
         currentPage,
         10,
-        debounceValue,
+        debounceValue
       );
       setCategories(response?.data?.data || []);
       setTotalPages(response?.data?.pagination?.totalPages || 1);
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to fetch categories');
+      toast.error(
+        error?.response?.data?.message || 'Failed to fetch categories'
+      );
     } finally {
       setLoading(false);
     }
@@ -95,8 +106,8 @@ const Category = () => {
   }, [user.accessToken, debounceValue, currentPage]);
 
   const handleEdit = (id) => navigate(`/editcategory/${id}`);
-  const handleDelete = (item) => {
-    setSelectId(item._id);
+  const handleDelete = (catId) => {
+    setSelectId(catId);
     setShowDeleteModal(true);
   };
 
@@ -155,14 +166,18 @@ const Category = () => {
             </thead>
             <tbody className="text-gray-700">
               {categories
-                .filter((row) => row.isActive === true)
                 .map((row, idx) => {
-                  const first = row.category[0];
-                  const hasMore = row.category.length > 1;
+                  const activeCategories =
+                    row.category?.filter((c) => c.isActive !== false) || [];
+                  if (activeCategories.length === 0) return null;
+
+                  const first = activeCategories[0];
+                  const hasMore = activeCategories.length > 1;
                   const isExpanded = expandedRows[idx];
 
                   return (
                     <React.Fragment key={idx}>
+                      {/* First category row */}
                       <tr className="border-b hover:bg-gray-50">
                         <td className="px-6 py-4 flex items-center gap-2">
                           {row.article}
@@ -179,21 +194,53 @@ const Category = () => {
                         <td className="px-6 py-4">{first.categoryCode}</td>
                         <td className="px-6 py-4">{first.size}</td>
                         <td className="px-6 py-4">{first.color}</td>
-                        <td className="px-6 py-4">{first.type}</td>
-                        <td className="px-6 py-4">{first.quality}</td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {Array.isArray(first.type)
+                              ? first.type.map((item, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                                  >
+                                    {item}
+                                  </span>
+                                ))
+                              : first.type}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap gap-1">
+                            {Array.isArray(first.quality)
+                              ? first.quality.map((item, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
+                                  >
+                                    {item}
+                                  </span>
+                                ))
+                              : first.quality}
+                          </div>
+                        </td>
                         <td className="px-6 py-4">
                           <div className="flex justify-center gap-4 text-lg">
                             <button
+                              title="View"
+                              onClick={() =>
+                                navigate(`/ViewArticle-details/${row._id}`)
+                              }
+                            >
+                              <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" />
+                            </button>
+                            <button
                               title="Edit"
-                              className="hover:scale-110 transition-transform"
                               onClick={() => handleEdit(row._id)}
                             >
                               <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
                             </button>
                             <button
                               title="Delete"
-                              className="hover:scale-110 transition-transform"
-                              onClick={() => handleDelete(row)}
+                              onClick={() => handleDelete(first._id)}
                             >
                               <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
                             </button>
@@ -201,8 +248,9 @@ const Category = () => {
                         </td>
                       </tr>
 
+                      {/* Expanded rows */}
                       {isExpanded &&
-                        row.category.slice(1).map((cat, i) => (
+                        activeCategories.slice(1).map((cat, i) => (
                           <tr
                             key={`${idx}-${i}`}
                             className="border-b bg-gray-50 text-gray-700"
@@ -211,9 +259,50 @@ const Category = () => {
                             <td className="px-6 py-4">{cat.categoryCode}</td>
                             <td className="px-6 py-4">{cat.size}</td>
                             <td className="px-6 py-4">{cat.color}</td>
-                            <td className="px-6 py-4">{cat.type}</td>
-                            <td className="px-6 py-4">{cat.quality}</td>
-                            <td className="px-6 py-4"></td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-wrap gap-1">
+                                {Array.isArray(cat.type)
+                                  ? cat.type.map((item, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                                      >
+                                        {item}
+                                      </span>
+                                    ))
+                                  : cat.type}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-wrap gap-1">
+                                {Array.isArray(cat.quality)
+                                  ? cat.quality.map((item, idx) => (
+                                      <span
+                                        key={idx}
+                                        className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
+                                      >
+                                        {item}
+                                      </span>
+                                    ))
+                                  : cat.quality}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex justify-center gap-4 text-lg">
+                                <button
+                                  title="Edit"
+                                  onClick={() => handleEdit(row._id)}
+                                >
+                                  <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
+                                </button>
+                                <button
+                                  title="Delete"
+                                  onClick={() => handleDelete(cat._id)}
+                                >
+                                  <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                         ))}
                     </React.Fragment>
@@ -248,7 +337,7 @@ const Category = () => {
         <DeleteModal
           onClose={() => setShowDeleteModal(false)}
           isOpen={showDeleteModal}
-          name="Article"
+          name="Category"
           onConfirm={confirmDelete}
         />
       </div>
