@@ -72,6 +72,14 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Available Quantity
                 </th>
+
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Wishlist Quantity
+                </th>
+
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Require Quantity
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -103,9 +111,17 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
                     {item.type}
                   </td>
                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
-                    {item.orderedQty}
+                    {item.OrderedQuantity}
                   </td>
-                  <td className="py-3 px-4">{item.availableQty}</td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.availableQty}
+                  </td>
+                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.WishListQuantity}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.requiredQuantity}
+                  </td>
                 </tr>
               ))}
             </tbody>

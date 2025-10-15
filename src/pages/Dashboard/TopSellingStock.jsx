@@ -38,6 +38,9 @@ export function TopSellingStock({
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Color
                 </th>
+                   <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                  Size
+                </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Quality
                 </th>
@@ -67,6 +70,9 @@ export function TopSellingStock({
                   </td>
                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
                     {item.color}
+                  </td>
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                    {item.size}
                   </td>
                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
                     {item.quality}

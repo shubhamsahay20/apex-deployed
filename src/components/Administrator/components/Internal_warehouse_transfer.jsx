@@ -610,6 +610,7 @@ const InternalWarehouseTransfer = () => {
             className="w-full p-2 rounded border border-gray-300"
             value={category.categoryCode}
             readOnly
+            type='text'
           />
         </div>
         <div>

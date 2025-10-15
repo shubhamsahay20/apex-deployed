@@ -44,7 +44,7 @@ const CategoryDashboard = () => {
   const [search, setSearch] = useState('');
   const debounceValue = useDebounce(search, 500);
 
-  const [openIndex, setOpenIndex] = useState(null); // ✅ FIX: track open dropdown by index
+  const [openIndex, setOpenIndex] = useState(null);
   const wrapperRef = useRef(null);
 
   // Fetch products
@@ -237,11 +237,60 @@ const CategoryDashboard = () => {
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target))
-        setOpenIndex(null); // ✅ FIX
+        setOpenIndex(null);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Get unique colors for selected article
+  const getUniqueColors = (articleId) => {
+    const product = products.find((p) => p._id === articleId);
+    if (!product) return [];
+    const colors = new Set(product.category.map((cat) => cat.color));
+    return Array.from(colors);
+  };
+
+  // Get sizes for selected article and color
+  const getSizesForColor = (articleId, selectedColor) => {
+    const product = products.find((p) => p._id === articleId);
+    if (!product || !selectedColor) return [];
+    const sizes = product.category
+      .filter((cat) => cat.color === selectedColor)
+      .map((cat) => cat.size);
+    return Array.from(new Set(sizes));
+  };
+
+  // Get types for selected article, color, and size
+  const getTypesForColorSize = (articleId, selectedColor, selectedSize) => {
+    const product = products.find((p) => p._id === articleId);
+    if (!product || !selectedColor || !selectedSize) return [];
+    const types = product.category
+      .filter((cat) => cat.color === selectedColor && cat.size === selectedSize)
+      .flatMap((cat) => cat.type || []);
+    return Array.from(new Set(types));
+  };
+
+  // Get qualities for selected article, color, size, and type
+  const getQualitiesForColorSizeType = (
+    articleId,
+    selectedColor,
+    selectedSize,
+    selectedType
+  ) => {
+    const product = products.find((p) => p._id === articleId);
+    if (!product || !selectedColor || !selectedSize || !selectedType)
+      return [];
+    const qualities = product.category
+      .filter(
+        (cat) =>
+          cat.color === selectedColor &&
+          cat.size === selectedSize &&
+          cat.type?.includes(selectedType)
+      )
+      .flatMap((cat) => cat.quality || []);
+    return Array.from(new Set(qualities));
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
@@ -378,7 +427,7 @@ const CategoryDashboard = () => {
 
                     {openIndex === idx && (
                       <div
-                        className="absolute mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto"
+                        className="absolute mt-1 w-full bg-white border rounded shadow max-h-48 overflow-y-auto z-10"
                         onScroll={handleScroll}
                       >
                         <input
@@ -399,17 +448,17 @@ const CategoryDashboard = () => {
                                 articleId: p._id,
                                 article: p.article,
                                 categoryCode: category.categoryCode || '',
-                                color: category.color || '',
-                                size: category.size || '',
-                                type: category.type || '',
-                                quality: category.quality || '',
+                                color: '',
+                                size: '',
+                                type: '',
+                                quality: '',
                                 quantity: updated[idx].quantity || '',
                               };
                               setFormData((prev) => ({
                                 ...prev,
                                 items: updated,
                               }));
-                              setOpenIndex(null); // ✅ FIX: close only this dropdown
+                              setOpenIndex(null);
                             }}
                             className="px-3 py-2 hover:bg-blue-50 cursor-pointer"
                           >
@@ -434,32 +483,102 @@ const CategoryDashboard = () => {
                     placeholder="Category Code"
                     value={item.categoryCode}
                     readOnly
-                    className="w-full border rounded px-3 py-2"
+                    className="w-full border rounded px-3 py-2 bg-gray-100"
                   />
-                  <input
-                    placeholder="Color"
+
+                  {/* Color Select */}
+                  <select
                     value={item.color}
-                    readOnly
+                    onChange={(e) => {
+                      const updated = [...formData.items];
+                      updated[idx].color = e.target.value;
+                      updated[idx].size = '';
+                      updated[idx].type = '';
+                      updated[idx].quality = '';
+                      setFormData((prev) => ({ ...prev, items: updated }));
+                    }}
                     className="w-full border rounded px-3 py-2"
-                  />
-                  <input
-                    placeholder="Size"
+                    disabled={!item.article}
+                  >
+                    <option value="">Select Color</option>
+                    {getUniqueColors(item.articleId).map((color) => (
+                      <option key={color} value={color}>
+                        {color}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Size Select */}
+                  <select
                     value={item.size}
-                    readOnly
+                    onChange={(e) => {
+                      const updated = [...formData.items];
+                      updated[idx].size = e.target.value;
+                      updated[idx].type = '';
+                      updated[idx].quality = '';
+                      setFormData((prev) => ({ ...prev, items: updated }));
+                    }}
                     className="w-full border rounded px-3 py-2"
-                  />
-                  <input
-                    placeholder="Type"
+                    disabled={!item.color}
+                  >
+                    <option value="">Select Size</option>
+                    {getSizesForColor(item.articleId, item.color).map(
+                      (size) => (
+                        <option key={size} value={size}>
+                          {size}
+                        </option>
+                      )
+                    )}
+                  </select>
+
+                  {/* Type Select */}
+                  <select
                     value={item.type}
-                    readOnly
+                    onChange={(e) => {
+                      const updated = [...formData.items];
+                      updated[idx].type = e.target.value;
+                      updated[idx].quality = '';
+                      setFormData((prev) => ({ ...prev, items: updated }));
+                    }}
                     className="w-full border rounded px-3 py-2"
-                  />
-                  <input
-                    placeholder="Quality"
+                    disabled={!item.size}
+                  >
+                    <option value="">Select Type</option>
+                    {getTypesForColorSize(
+                      item.articleId,
+                      item.color,
+                      item.size
+                    ).map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* Quality Select */}
+                  <select
                     value={item.quality}
-                    readOnly
+                    onChange={(e) => {
+                      const updated = [...formData.items];
+                      updated[idx].quality = e.target.value;
+                      setFormData((prev) => ({ ...prev, items: updated }));
+                    }}
                     className="w-full border rounded px-3 py-2"
-                  />
+                    disabled={!item.type}
+                  >
+                    <option value="">Select Quality</option>
+                    {getQualitiesForColorSizeType(
+                      item.articleId,
+                      item.color,
+                      item.size,
+                      item.type
+                    ).map((quality) => (
+                      <option key={quality} value={quality}>
+                        {quality}
+                      </option>
+                    ))}
+                  </select>
+
                   <input
                     placeholder="Quantity"
                     type="number"

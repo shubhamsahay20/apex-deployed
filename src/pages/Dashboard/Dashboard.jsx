@@ -63,6 +63,7 @@ export default function Dashboard() {
           (topstockResponse.data || []).map((item) => ({
             article: item.article,
             categoryCode: item.categoryCode,
+            size: item.size,
             color: item.color,
             quality: item.quality,
             type: item.type,
@@ -84,7 +85,9 @@ export default function Dashboard() {
             type: item.type,
             size: item.size,
             availableQty: item.availableQty,
-            orderedQty: item.orderedQty,
+            OrderedQuantity: item.OrderedQuantity,
+            WishListQuantity:item.WishListQuantity,
+            requiredQuantity:item.requiredQuantity
           })),
         );
       } catch (error) {
