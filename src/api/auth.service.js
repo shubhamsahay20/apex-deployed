@@ -73,6 +73,14 @@ const getCategoryById = (token, id) => {
   });
 };
 
+const getCategoryByIdForSingle = (token, id) => {
+  return API.get(`/product/getone/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 const DeleteCategory = (id, token) => {
   return API.delete(`/product/${id}`, {
     headers: {
@@ -283,4 +291,5 @@ export default {
   getProfile,
   getCustomersBySalesPerson,
   DeleteArticleCode,
+  getCategoryByIdForSingle
 };

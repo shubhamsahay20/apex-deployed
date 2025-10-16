@@ -288,7 +288,12 @@ export default function AddCategory({ onSubmit, onCancel }) {
         user.accessToken,
         payload
       );
-      toast.success(res?.data?.message || 'Category Added Successfully');
+
+      
+
+      console.log("response which i am geting ",res);
+      
+      toast.success(res?.data?.message || 'Article Added Successfully');
       navigate('/categories');
     } catch (error) {
       toast.error(error?.response?.data?.message || 'Failed to add category');
