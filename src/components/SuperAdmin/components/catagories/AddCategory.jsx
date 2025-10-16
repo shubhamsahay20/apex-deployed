@@ -6,6 +6,7 @@ import authService from '../../../../api/auth.service';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ChevronDown, X } from 'lucide-react';
+import { RxCross2 } from "react-icons/rx";
 
 // Multi-Select Dropdown Component
 function MultiSelectDropdown({
@@ -118,6 +119,81 @@ function MultiSelectDropdown({
   );
 }
 
+// Multi-Input Field Component
+function MultiInputField({ label, value, onChange, placeholder, id }) {
+  const [inputValue, setInputValue] = useState('');
+  const inputRef = useRef(null);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
+      if (!value.includes(inputValue.trim())) {
+        onChange([...value, inputValue.trim()]);
+      }
+      setInputValue('');
+    }
+  };
+
+  const handleRemove = (item, e) => {
+    e.stopPropagation();
+    onChange(value.filter((v) => v !== item));
+  };
+
+  const clearAll = () => {
+    onChange([]);
+  };
+
+  return (
+    <div className="relative">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
+        {label}
+      </label>
+      <div
+        onClick={() => inputRef.current?.focus()}
+        className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white cursor-text flex items-center flex-wrap gap-2"
+      >
+        {value.map((item) => (
+          <span
+            key={item}
+            className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"
+          >
+            {item}
+            <button
+              type="button"
+              onClick={(e) => handleRemove(item, e)}
+              className="hover:bg-blue-200 rounded p-0.5"
+            >
+              <X size={14} />
+            </button>
+          </span>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          id={id}
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={value.length === 0 ? placeholder : ''}
+          className="flex-1 min-w-[120px] outline-none bg-transparent"
+        />
+        {value.length > 0 && (
+          <button
+            type="button"
+            onClick={clearAll}
+            className="hover:bg-gray-100 rounded p-1"
+          >
+            <X size={16} className="text-gray-500" />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AddCategory({ onSubmit, onCancel }) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -125,14 +201,14 @@ export default function AddCategory({ onSubmit, onCancel }) {
   const [formData, setFormData] = useState({
     articleName: '',
     categoryName: '',
-    size: '',
-    color: '',
+    size: [],
+    color: [],
     soft_hard: [],
     A_B: [],
-    image: null,
+    image: [], // changed to array
   });
 
-  const [preview, setPreview] = useState(null);
+  const [preview, setPreview] = useState([]);
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -142,11 +218,23 @@ export default function AddCategory({ onSubmit, onCancel }) {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setFormData((prev) => ({ ...prev, image: file }));
-      setPreview(URL.createObjectURL(file));
-    }
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    const newPreviews = files.map((file) => URL.createObjectURL(file));
+    setFormData((prev) => ({
+      ...prev,
+      image: [...prev.image, ...files],
+    }));
+    setPreview((prev) => [...prev, ...newPreviews]);
+  };
+
+  const handleRemoveImage = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      image: prev.image.filter((_, i) => i !== index),
+    }));
+    setPreview((prev) => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
@@ -158,11 +246,11 @@ export default function AddCategory({ onSubmit, onCancel }) {
       toast.error('Category name is required');
       return false;
     }
-    if (!formData.size.trim()) {
+    if (formData.size.length === 0) {
       toast.error('Size is required');
       return false;
     }
-    if (!formData.color.trim()) {
+    if (formData.color.length === 0) {
       toast.error('Color is required');
       return false;
     }
@@ -174,8 +262,8 @@ export default function AddCategory({ onSubmit, onCancel }) {
       toast.error('Quality (A/B) is required');
       return false;
     }
-    if (!formData.image) {
-      toast.error('Image is required');
+    if (formData.image.length === 0) {
+      toast.error('At least one image is required');
       return false;
     }
 
@@ -184,27 +272,22 @@ export default function AddCategory({ onSubmit, onCancel }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateForm()) return;
 
     const payload = new FormData();
     payload.append('article', formData.articleName);
-    payload.append(
-      'category',
-      JSON.stringify([
-        {
-          categoryCode: formData.categoryName,
-          color: formData.color.trim(),
-          size: formData.size.trim(),
-          type: formData.soft_hard,
-          quality: formData.A_B,
-        },
-      ]),
-    );
-    payload.append('image', formData.image);
+    payload.append('categoryCode', formData.categoryName);
+    payload.append('colors', JSON.stringify(formData.color));
+    payload.append('sizes', JSON.stringify(formData.size));
+    payload.append('type', JSON.stringify(formData.soft_hard));
+    payload.append('quality', JSON.stringify(formData.A_B));
+    formData.image.forEach((file) => payload.append('image', file));
 
     try {
-      const res = await authService.addCategory(user.accessToken, payload);
+      const res = await authService.addCategoryForMultipleArticle(
+        user.accessToken,
+        payload
+      );
       toast.success(res?.data?.message || 'Category Added Successfully');
       navigate('/categories');
     } catch (error) {
@@ -213,12 +296,12 @@ export default function AddCategory({ onSubmit, onCancel }) {
   };
 
   return (
-    <div className=" w-full h-full">
-      <div className="w-full h-[650px] bg-white rounded-lg shadow-sm  mx-auto">
+    <div className="w-full h-full">
+      <div className="w-full h-[650px] bg-white rounded-lg shadow-sm mx-auto">
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <h1 className="text-xl font-semibold text-gray-900">
-            Create Category{' '}
+            Create Article
           </h1>
         </div>
 
@@ -262,42 +345,24 @@ export default function AddCategory({ onSubmit, onCancel }) {
             </div>
 
             {/* Size */}
-            <div>
-              <label
-                htmlFor="size"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Size
-              </label>
-              <input
-                type="text"
-                id="size"
-                placeholder="Enter Size"
-                value={formData.size}
-                onChange={(e) => handleChange('size', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
+            <MultiInputField
+              id="size"
+              label="Size"
+              value={formData.size}
+              onChange={(value) => handleChange('size', value)}
+              placeholder="Type and press Enter"
+            />
 
             {/* Color */}
-            <div>
-              <label
-                htmlFor="color"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Color
-              </label>
-              <input
-                type="text"
-                id="color"
-                placeholder="Enter Color"
-                value={formData.color}
-                onChange={(e) => handleChange('color', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-              />
-            </div>
+            <MultiInputField
+              id="color"
+              label="Color"
+              value={formData.color}
+              onChange={(value) => handleChange('color', value)}
+              placeholder="Type and press Enter"
+            />
 
-            {/* Soft/Hard - Multi Select */}
+            {/* Soft/Hard */}
             <MultiSelectDropdown
               id="soft_hard"
               label="Soft/Hard"
@@ -307,7 +372,7 @@ export default function AddCategory({ onSubmit, onCancel }) {
               placeholder="Choose Soft/Hard"
             />
 
-            {/* A/B - Multi Select */}
+            {/* A/B */}
             <MultiSelectDropdown
               id="A_B"
               label="A/B"
@@ -333,12 +398,25 @@ export default function AddCategory({ onSubmit, onCancel }) {
               onChange={handleImageChange}
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
             />
-            {preview && (
-              <img
-                src={preview}
-                alt="Preview"
-                className="mt-3 w-32 h-32 object-cover rounded-md border"
-              />
+            {preview.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-3">
+                {preview.map((img, index) => (
+                  <div key={index} className="relative w-32 h-32">
+                    <img
+                      src={img}
+                      alt={`Preview ${index}`}
+                      className="w-full h-full object-cover rounded-md border"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveImage(index)}
+                      className="absolute top-1 right-1 text-red rounded-full p-1 hover:bg-red-600"
+                    >
+                    <RxCross2 />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 

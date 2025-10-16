@@ -171,6 +171,9 @@ const Category = () => {
                     row.category?.filter((c) => c.isActive !== false) || [];
                   if (activeCategories.length === 0) return null;
 
+                  console.log("rowww", row);
+                  
+
                   const first = activeCategories[0];
                   const hasMore = activeCategories.length > 1;
                   const isExpanded = expandedRows[idx];
@@ -234,7 +237,7 @@ const Category = () => {
                             </button>
                             <button
                               title="Edit"
-                              onClick={() => handleEdit(row._id)}
+                              onClick={() => handleEdit(first._id)}
                             >
                               <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
                             </button>
@@ -291,7 +294,7 @@ const Category = () => {
                               <div className="flex justify-center gap-4 text-lg">
                                 <button
                                   title="Edit"
-                                  onClick={() => handleEdit(row._id)}
+                                  onClick={() => handleEdit(cat._id)}
                                 >
                                   <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
                                 </button>

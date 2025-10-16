@@ -41,7 +41,7 @@ const ViewArticle = () => {
           <h1 className="text-3xl font-semibold text-gray-900">
             {articleData.article}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Article ID: {articleData._id}</p>
+          {/* <p className="text-sm text-gray-500 mt-1">Article ID: {articleData._id}</p> */}
         </div>
 
         <button

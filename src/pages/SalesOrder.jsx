@@ -10,25 +10,7 @@ import salesService from '../api/sales.service'
 import { useDebounce } from '../hooks/useDebounce'
 import Loader from '../common/Loader' // ✅ import loader
 
-const data = [
-  {
-    date: '11/12/22 14:45',
-    orderNo: 'SO/563723',
-    customer: 'John Mathew',
-    quantity: 20,
-    stock: 'In-stock',
-    status: 'Order In-Progress'
-  },
-  {
-    date: '21/12/22 12:00',
-    orderNo: 'SO/563486',
-    customer: 'John Mathew',
-    quantity: 45,
-    stock: 'Out of stock',
-    status: '-'
-  }
-  // ...rest of data
-]
+
 
 const SalesOrder = () => {
   const [salesDetails, setSalesDetails] = useState([])
@@ -114,8 +96,11 @@ const SalesOrder = () => {
               <tr>
                 <th className='px-3 py-2'>Date & Time</th>
                 <th className='px-3 py-2'>Sales Order No.</th>
+                <th className='px-3 py-2'>Sales Person</th>
+                <th className='px-3 py-2'>Sales Person Phone</th>
                 <th className='px-3 py-2'>Customer</th>
-                <th className='px-3 py-2'>Quantity</th>
+                <th className='px-3 py-2'>Customer Phone</th>
+                <th className='px-3 py-2'>Articles Total Quantity</th>
                 <th className='px-3 py-2'>Account Status</th>
                 <th className='px-3 py-2'>Inventory Status</th>
                 {/* <th className="px-3 py-2">Status</th>
@@ -139,11 +124,20 @@ const SalesOrder = () => {
                   <td className='px-3 py-2 whitespace-nowrap'>
                     {row.salesOrderNo}
                   </td>
+                   <td className='px-3 py-2 whitespace-nowrap'>
+                    {row.createdBy.name}
+                  </td>
+                  <td className='px-3 py-2 whitespace-nowrap'>
+                    {row.createdBy.phone}
+                  </td>
                   <td className='px-3 py-2 whitespace-nowrap'>
                     {row.customer.name}
                   </td>
+                   <td className='px-3 py-2 whitespace-nowrap'>
+                    {row.customer.phone}
+                  </td>
                   <td className='px-3 py-2 whitespace-nowrap'>
-                    {row.items?.map(item => item.quantity)}
+                    {row.items?.reduce((total,item)=> total + (item.quantity || 0),0)}
                   </td>
                   <td className='px-3 py-2 whitespace-nowrap'>
                     <span

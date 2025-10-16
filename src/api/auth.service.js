@@ -29,12 +29,27 @@ const verifyOtp = ({ phone, otp }) =>
     return res.data;
   });
 
-const addCategory = (token, data) =>
-  API.post('/product/category', data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+// const addCategory = (token, data) =>
+//   API.post('/product/category', data, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//   });
+
+const addCategoryForMultipleArticle = async (token, data) => {
+  if (!token) throw new Error('Token is Not Valid');
+
+  try {
+    const res = await API.post(`/product/addArticle`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.log('error while sending response', error);
+  }
+};
 
 const getCategories = (token, page = 1, limit = 10, searchQuery = '') =>
   API.get(`/product?page=${page}&limit=${limit}&search=${searchQuery}`, {
@@ -248,7 +263,8 @@ export default {
   verifyOtp,
   logout,
   getCategories,
-  addCategory,
+  // addCategory,
+  addCategoryForMultipleArticle,
   editCategory,
   getCategoryById,
   DeleteCategory,
