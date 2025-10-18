@@ -24,11 +24,6 @@ export default function AddArticleCode() {
 
   const [formData, setFormData] = useState({
     articleName: '',
-    categoryName: '',
-    size: '',
-    color: '',
-    soft_hard: '',
-    A_B: '',
   });
 
   // 🔹 Fetch articles
@@ -100,7 +95,6 @@ export default function AddArticleCode() {
     try {
       const payload = {
         article: articleData.article,
-        categoryCode: articleData.category[0].categoryCode,
         articleCode: addArticleCode,
       };
       const res = await authService.addArticleCode(user.accessToken, payload);
@@ -188,97 +182,6 @@ export default function AddArticleCode() {
               </div>
             </div>
 
-            {/* Category Name */}
-            <div>
-              <label
-                htmlFor="categoryName"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Category Number
-              </label>
-              <input
-                type="number"
-                id="categoryName"
-                placeholder="Enter Category Name"
-                value={formData.categoryName}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-100"
-                required
-              />
-            </div>
-
-            {/* Size */}
-            <div>
-              <label
-                htmlFor="size"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Size
-              </label>
-              <input
-                type="text"
-                id="size"
-                placeholder="Enter Size"
-                value={formData.size}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            {/* Color */}
-            <div>
-              <label
-                htmlFor="color"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Color
-              </label>
-              <input
-                type="text"
-                id="color"
-                placeholder="Enter Color"
-                value={formData.color}
-                readOnly
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            {/* Soft/Hard */}
-            <div>
-              <label
-                htmlFor="soft_hard"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Soft/Hard
-              </label>
-              <input
-                id="soft_hard"
-                value={formData.soft_hard}
-                disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            {/* A/B */}
-            <div>
-              <label
-                htmlFor="A_B"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                A/B
-              </label>
-              <input
-                id="A_B"
-                value={formData.A_B}
-                disabled
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
             {/* Article Code */}
             <div>
               <label
@@ -288,7 +191,7 @@ export default function AddArticleCode() {
                 Article Code
               </label>
               <input
-                type="number"
+                type="text"
                 id="Article-code"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 required

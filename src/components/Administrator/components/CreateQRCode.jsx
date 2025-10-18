@@ -93,8 +93,8 @@ const CreateQRCode = () => {
 
   const handleCreateQr = async () => {
     const selectedProd = productData.find((p) => p._id === selectedProduction);
-    console.log("selected prode }}}} ",selectedProd);
-    
+    console.log('selected prode }}}} ', selectedProd);
+
     if (!selectedProd) {
       toast.error('Please select a production number first');
       return;
@@ -109,15 +109,16 @@ const CreateQRCode = () => {
       warehouse: warehouse,
       factory_name: selectedProd.factory?.name,
       productionNo: selectedProd.productionNo,
-      productsInput: [{
-       article: selectedProd.article,
-       categoryCode:selectedProd.category.categoryCode,
-       color:selectedProd.category.color,
-       size:selectedProd.category.size,
-       type:selectedProd.category.type,
-       quality:selectedProd.category.quality
-
-      }],
+      productsInput: [
+        {
+          article: selectedProd.article,
+          categoryCode: selectedProd.category.categoryCode,
+          color: selectedProd.category.color,
+          size: selectedProd.category.size,
+          type: selectedProd.category.type,
+          quality: selectedProd.category.quality,
+        },
+      ],
     };
 
     setLoading(true);
@@ -126,6 +127,16 @@ const CreateQRCode = () => {
       const res = await qrService.AddQrCode(user.accessToken, payload);
       toast.success(res.data?.message || 'Qr generated');
       setQrData(res);
+      setSelectedProduction('');
+      setFactory('');
+      setArticleNo('');
+      setCategoryName('');
+      setQuality('');
+      setColor('');
+      setType('');
+      setSize('');
+      setWarehouse('');
+      setQuantities({});
     } catch (error) {
       toast.error(error.response?.data?.error);
     } finally {
@@ -255,6 +266,11 @@ const CreateQRCode = () => {
     setWarehouse('');
     setQuantities({});
     setQrData([]);
+    setQuality('');
+    setColor('');
+    setType('');
+    setSize('');
+
   };
 
   const hasQrData =
@@ -422,7 +438,9 @@ const CreateQRCode = () => {
               .map((prod) => (
                 <tr className="border-b last:border-0" key={prod._id}>
                   <td className="py-2">{prod.article}</td>
-                  <td className="py-2 text-center">{prod?.category?.quality}</td>
+                  <td className="py-2 text-center">
+                    {prod?.category?.quality}
+                  </td>
 
                   <td className="py-2 text-center">{prod?.category?.size}</td>
                   <td className="py-2 text-center">{prod.category?.color}</td>

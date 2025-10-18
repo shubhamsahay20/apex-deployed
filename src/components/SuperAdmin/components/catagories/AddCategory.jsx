@@ -296,7 +296,7 @@ export default function AddCategory({ onSubmit, onCancel }) {
       toast.success(res?.data?.message || 'Article Added Successfully');
       navigate('/categories');
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to add category');
+      toast.error(error?.response?.data?.message || 'Failed to add Article May be image size is large');
     }
   };
 

@@ -108,10 +108,8 @@ const EditRole = () => {
       console.log('response after role update', res);
       console.log('response user access token', user.accessToken);
       console.log('response user id', id);
-      console.log('payload 2', payload);
 
       toast.success(res.message || 'User details updated successfully');
-      console.log('payload 3', payload);
 
       navigate('/role-management');
     } catch (error) {

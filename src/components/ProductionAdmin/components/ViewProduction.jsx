@@ -28,8 +28,8 @@ const ViewProduction = () => {
           id,
         );
 
-        console.log("res",res);
-        
+        console.log("res", res);
+
         setProductionData(res.data.data || {});
       } catch (error) {
         console.error('Error fetching production:', error);
@@ -41,9 +41,7 @@ const ViewProduction = () => {
     fetchData();
   }, [user.accessToken, id]);
 
-  // const category = productionData?.category?.[0] || {};
-
-if(loading) return <Loader/>
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 bg-[#F5F6FA] min-h-screen">
@@ -59,6 +57,20 @@ if(loading) return <Loader/>
         <h2 className="text-3xl font-bold text-gray-800 border-b pb-4 mb-8">
           Production Details
         </h2>
+
+        {/* ✅ Image Section - now directly below the heading */}
+        {productionData?.category?.image && (
+          <div className="mb-10">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">{productionData.article} Image</h3>
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 shadow-sm flex justify-center">
+              <img
+                src={productionData.category.image}
+                alt="Category"
+                className="max-h-64 object-contain rounded-lg"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-gray-700">
           <DetailField
@@ -76,8 +88,5 @@ if(loading) return <Loader/>
     </div>
   );
 };
-
-// Reusable component for individual field
-
 
 export default ViewProduction;

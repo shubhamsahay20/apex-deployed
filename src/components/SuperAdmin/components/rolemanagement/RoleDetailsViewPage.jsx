@@ -1,27 +1,27 @@
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { FaFilePdf } from 'react-icons/fa'
-import { exportSalesPDF, printSalesPDF } from '../../../../utils/PdfModel'
-import { useAuth } from '../../../../Context/AuthContext'
-import roleService from '../../../../api/role.service'
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { FaFilePdf } from 'react-icons/fa';
+import { exportSalesPDF, printSalesPDF } from '../../../../utils/PdfModel';
+import { useAuth } from '../../../../Context/AuthContext';
+import roleService from '../../../../api/role.service';
 
 const RoleDetailsViewPage = () => {
-  const { role, id } = useParams()
-  const { user } = useAuth()
-  const [userDetail, setUserDetail] = useState(null)
+  const { role, id } = useParams();
+  const { user } = useAuth();
+  const [userDetail, setUserDetail] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await roleService.getRoleByID(user.accessToken, id)
-        console.log('response from backend', res.data)
-        setUserDetail(res?.data || null)
+        const res = await roleService.getRoleByID(user.accessToken, id);
+        console.log('response from backend', res.data);
+        setUserDetail(res?.data || null);
       } catch (error) {
-        console.error('Error fetching role details:', error)
+        console.error('Error fetching role details:', error);
       }
-    }
-    fetchData()
-  }, [id, user.accessToken])
+    };
+    fetchData();
+  }, [id, user.accessToken]);
 
   return (
     <div className="bg-gray-50 min-h-screen p-8 space-y-10">
@@ -31,7 +31,7 @@ const RoleDetailsViewPage = () => {
           {/* Avatar + Info */}
           <div className="flex items-center gap-8">
             <img
-              src={userDetail.image}
+              src={userDetail.profileImage}
               alt="avatar"
               className="w-28 h-28 rounded-full object-cover shadow-lg border-2 border-gray-200"
             />
@@ -90,7 +90,7 @@ const RoleDetailsViewPage = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default RoleDetailsViewPage
+export default RoleDetailsViewPage;

@@ -8,12 +8,13 @@ const EditArticleCode = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [articleData, setArticleData] = useState([]);
+  const [articleData, setArticleData] = useState({});
 
   useEffect(() => {
     (async () => {
       try {
         const res = await authService.getCategoryById(user.accessToken, id);
+        console.log('data', res.data.data);
         if (res?.data?.data) {
           setArticleData(res.data.data);
         } else {
@@ -27,17 +28,23 @@ const EditArticleCode = () => {
     })();
   }, [user.accessToken, id]);
 
-  console.log('data', articleData);
+  console.log('article details', articleData.article);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const data = articleData.articleCode;
-      console.log(data);
+    if(!articleData.articleCode.trim()){
+       toast.error("Article Code can not be empty")
+       return
+    }
 
-      await authService.editCategory(user.accessToken, id, {
-        articleCode: data,
-      });
+    try {
+      const data = {
+        article:articleData.article,
+        articleCode: articleData.articleCode,
+      };
+      console.log("data as payload",data);
+
+      await authService.editArticleCode(user.accessToken, id, data);
       toast.success('Article Code Updated Successfully');
       navigate('/article-codes');
     } catch (error) {
@@ -69,9 +76,9 @@ const EditArticleCode = () => {
                 Article Name
               </label>
               <input
-                disabled
-                type="number"
-                value={articleData.article}
+                type="text"
+                readOnly
+                value={articleData?.article}
                 id="categoryName"
                 placeholder="Enter  Category Name"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -86,7 +93,7 @@ const EditArticleCode = () => {
                 Category Name
               </label>
               <input
-                disabled
+                readOnly
                 value={
                   articleData.category &&
                   articleData.category[0] &&
@@ -118,7 +125,7 @@ const EditArticleCode = () => {
                     articleCode: e.target.value,
                   }))
                 }
-                type="number"
+                type="text"
                 id="Article code"
                 placeholder="Enter Article Code"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

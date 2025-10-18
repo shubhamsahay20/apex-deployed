@@ -472,3 +472,44 @@ export const printSalesOrdersPDF = (orders) => {
   window.open(doc.output('bloburl'), '_blank').print();
 };
 
+// export const exportArticlesPDF = (articles) => {
+//   if (!articles || articles.length === 0) return alert('No data to export');
+
+//   const doc = new jsPDF();
+//   const headers = [
+//     [
+//       'Article',
+//       'Category Code',
+//       'Size',
+//       'Color',
+//       'Soft/Hard',
+//       'Quality',
+//       'Production Qty',
+//       'Warehouse Qty',
+//       'Total Quantity',
+//     ],
+//   ];
+
+//   const rows = articles.map((row) => [
+//     row.article || '',
+//     row.categoryCode || '',
+//     row.size || '',
+//     row.color || '',
+//     row.type || '',
+//     row.quality || '',
+//     row.Production_Qty || '',
+//     row.Warehouse_Qty || '',
+//     row.Total_Available || '',
+//   ]);
+
+//   doc.setFontSize(14);
+//   doc.text('Articles Report', 14, 10);
+
+//   autoTable(doc, {
+//     head: headers,
+//     body: rows,
+//     startY: 20,
+//   });
+
+//   doc.save('articles_report.pdf');
+// };

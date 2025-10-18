@@ -48,6 +48,7 @@ const addCategoryForMultipleArticle = async (token, data) => {
     return res.data;
   } catch (error) {
     console.log('error while sending response', error);
+    throw error;
   }
 };
 
@@ -58,8 +59,24 @@ const getCategories = (token, page = 1, limit = 10, searchQuery = '') =>
     },
   });
 
-const editCategory = (token, id, data) =>
-  API.put(`/product/${id}/update`, data, {
+const editCategory = async (token, id, data) => {
+  if(!token || !id)  return
+  try {
+    const res = await API.put(`/product/${id}/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    console.log('error while editing article', error);
+    throw error;
+  }
+};
+
+const editArticleCode = (token, id, data) =>
+  API.put(`/product/${id}/articlecode`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -114,6 +131,7 @@ const addArticleCode = async (token, data) => {
     return res.data;
   } catch (error) {
     console.log('error', error.response.data.message);
+    throw error;
   }
 };
 
@@ -274,6 +292,7 @@ export default {
   // addCategory,
   addCategoryForMultipleArticle,
   editCategory,
+  editArticleCode,
   getCategoryById,
   DeleteCategory,
   UploadCsv,
@@ -291,5 +310,5 @@ export default {
   getProfile,
   getCustomersBySalesPerson,
   DeleteArticleCode,
-  getCategoryByIdForSingle
+  getCategoryByIdForSingle,
 };

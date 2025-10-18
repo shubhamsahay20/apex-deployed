@@ -169,8 +169,8 @@ const Wishlist = () => {
                           <td className="px-6 py-5">{e.color}</td>
                           <td className="px-6 py-5">{e.type}</td>
                           <td className="px-6 py-5">{e.quality}</td>
-                          <td className="px-6 py-5"></td>
-                          <td className="px-6 py-5"></td>
+                          <td className="px-6 py-5">{e.quantity}</td>
+                          <td className="px-6 py-5">{item.customer?.name}</td>
                         </tr>
                       ))}
                   </React.Fragment>

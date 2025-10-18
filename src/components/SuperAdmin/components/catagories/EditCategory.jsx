@@ -8,7 +8,14 @@ import { toast } from 'react-toastify';
 import { ChevronDown, X } from 'lucide-react';
 
 // ✅ Multi-Select Dropdown
-function MultiSelectDropdown({ label, options, value, onChange, placeholder, id }) {
+function MultiSelectDropdown({
+  label,
+  options,
+  value,
+  onChange,
+  placeholder,
+  id,
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = React.useRef(null);
 
@@ -42,7 +49,10 @@ function MultiSelectDropdown({ label, options, value, onChange, placeholder, id 
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-2">
+      <label
+        htmlFor={id}
+        className="block text-sm font-medium text-gray-700 mb-2"
+      >
         {label}
       </label>
       <div
@@ -70,13 +80,19 @@ function MultiSelectDropdown({ label, options, value, onChange, placeholder, id 
         )}
         <div className="ml-auto flex items-center gap-1">
           {value.length > 0 && (
-            <button type="button" onClick={clearAll} className="hover:bg-gray-100 rounded p-1">
+            <button
+              type="button"
+              onClick={clearAll}
+              className="hover:bg-gray-100 rounded p-1"
+            >
               <X size={16} className="text-gray-500" />
             </button>
           )}
           <ChevronDown
             size={20}
-            className={`text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+            className={`text-gray-500 transition-transform ${
+              isOpen ? 'rotate-180' : ''
+            }`}
           />
         </div>
       </div>
@@ -130,11 +146,16 @@ const EditCategory = () => {
     }
   };
 
-  // ✅ Fetch category by ID (updated to match your response)
+  console.log('previously', preview);
+
+  // ✅ Fetch category by ID
   useEffect(() => {
     (async () => {
       try {
-        const response = await authService.getCategoryByIdForSingle(user.accessToken, id);
+        const response = await authService.getCategoryByIdForSingle(
+          user.accessToken,
+          id,
+        );
         const data = response.data.data;
 
         setFormData({
@@ -147,14 +168,26 @@ const EditCategory = () => {
           image: null,
         });
 
-        if (data.category.image?.length > 0) setPreview(data.category.image[0]);
+        if (data.category?.image?.[0]) {
+          setPreview(data.category.image[0]); // for remote URL
+          console.log('Preview URL:', data.category.image[0]);
+        }
+
+        if (data.category?.image?.[0]) {
+          console.log('IMAGE URL FROM BACKEND:', data.category.image[0]);
+          setPreview(data.category.image[0]);
+        }
+
+        console.log('img', data.category.image[0]);
       } catch (error) {
-        toast.error(error?.response?.data?.message || 'Failed to fetch category data');
+        toast.error(
+          error?.response?.data?.message || 'Failed to fetch category data',
+        );
       }
     })();
   }, [id, user.accessToken]);
 
-  // ✅ Submit function adjusted to send category as object
+  // ✅ Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -172,25 +205,19 @@ const EditCategory = () => {
 
     const payload = new FormData();
     payload.append('article', formData.articleName);
-    payload.append(
-      'category',
-      JSON.stringify({
-        categoryCode: formData.categoryName,
-        size: formData.size,
-        color: formData.color,
-        type: formData.soft_hard,
-        quality: formData.A_B,
-      })
-    );
-
+    payload.append('size', formData.size);
+    payload.append('color', formData.color);
     if (formData.image) payload.append('image', formData.image);
 
     try {
       const res = await authService.editCategory(user.accessToken, id, payload);
-      toast.success(res?.data?.message || 'Category updated successfully');
+      toast.success(res?.data?.message || 'Article updated successfully');
       navigate('/categories');
     } catch (error) {
-      toast.error(error?.response?.data?.message || 'Failed to update category');
+      toast.error(
+        error?.response?.data?.message ||
+          'Failed to Edit Article May be the image size is large',
+      );
     }
   };
 
@@ -204,9 +231,12 @@ const EditCategory = () => {
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Article Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Article Name
+              </label>
               <input
                 type="text"
+                readOnly
                 value={formData.articleName}
                 onChange={(e) => handleChange('articleName', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
@@ -214,58 +244,57 @@ const EditCategory = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Category Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Category Name
+              </label>
               <input
                 type="text"
+                readOnly
                 value={formData.categoryName}
                 onChange={(e) => handleChange('categoryName', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* ✅ Modified Size input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Size</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Size
+              </label>
               <input
                 type="text"
                 value={formData.size}
                 onChange={(e) => handleChange('size', e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // prevent form submission
+                    document.getElementById('colorInput')?.focus(); // move focus to next input
+                  }
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
+            {/* ✅ Color input with ID for focus */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Color</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Color
+              </label>
               <input
+                id="colorInput"
                 type="text"
                 value={formData.color}
                 onChange={(e) => handleChange('color', e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
-
-            {/* Multi-selects */}
-            <MultiSelectDropdown
-              id="soft_hard"
-              label="Soft/Hard"
-              options={['Soft', 'Hard']}
-              value={formData.soft_hard}
-              onChange={(value) => handleChange('soft_hard', value)}
-              placeholder="Choose Soft/Hard"
-            />
-
-            <MultiSelectDropdown
-              id="A_B"
-              label="A/B"
-              options={['A', 'B']}
-              value={formData.A_B}
-              onChange={(value) => handleChange('A_B', value)}
-              placeholder="Choose A/B"
-            />
           </div>
 
           {/* Image Upload */}
           <div className="mt-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Upload Image
+            </label>
             <input
               type="file"
               accept="image/*"
@@ -273,7 +302,11 @@ const EditCategory = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
             />
             {preview && (
-              <img src={preview} alt="Preview" className="mt-3 w-32 h-32 object-cover rounded-md border" />
+              <img
+                src={preview}
+                alt="Preview"
+                className="mt-3 w-32 h-32 object-cover rounded-md border"
+              />
             )}
           </div>
 

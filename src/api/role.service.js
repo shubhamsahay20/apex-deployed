@@ -1,12 +1,19 @@
 import { toast } from 'react-toastify';
 import API from './api';
 
-const AddRole = (token, data) => {
-  return API.post(`/auth/create-new-account`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const AddRole = async (token, data) => {
+  if (!token || !data) return;
+  try {
+    const res = await API.post(`/auth/create-new-account`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error while adding role', error);
+    throw error;
+  }
 };
 
 const getSalesPerson = (token) => {
@@ -88,17 +95,16 @@ const updateRoleByID = async (token, id, data) => {
     return res.data;
   } catch (error) {
     toast.error(error?.response?.data?.message || 'Error Updating role');
+    throw error
   }
 };
-
-
 
 const deleteRoleByID = async (token, id) => {
   try {
     if (!token && !id) {
       return new Error('Error not valid token or id');
     }
-    const res = await API.delete(`auth/${id}/action`,  {
+    const res = await API.delete(`auth/${id}/action`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -120,5 +126,5 @@ export default {
   getAdministrator,
   updateRoleByID,
   getRoleByID,
-  deleteRoleByID
+  deleteRoleByID,
 };

@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import authService from "../../../../api/auth.service";
-import { useAuth } from "../../../../Context/AuthContext";
-import Loader from "../../../../common/Loader";
-import { toast } from "react-toastify";
-import { ArrowLeft } from "lucide-react";
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import authService from '../../../../api/auth.service';
+import { useAuth } from '../../../../Context/AuthContext';
+import Loader from '../../../../common/Loader';
+import { toast } from 'react-toastify';
+import { ArrowLeft } from 'lucide-react';
 
 const ViewArticle = () => {
   const { id } = useParams();
+  console.log("id",id);
+  
   const { user } = useAuth();
   const navigate = useNavigate();
   const [articleData, setArticleData] = useState(null);
@@ -17,9 +19,11 @@ const ViewArticle = () => {
     setLoading(true);
     try {
       const res = await authService.getCategoryById(user.accessToken, id);
+      console.log("res",res);
+      
       setArticleData(res.data?.data);
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to fetch details");
+      toast.error(error?.response?.data?.message || 'Failed to fetch details');
       navigate(-1);
     } finally {
       setLoading(false);
@@ -31,7 +35,8 @@ const ViewArticle = () => {
   }, [id]);
 
   if (loading) return <Loader />;
-  if (!articleData) return <p className="text-center text-gray-500 mt-10">No data found</p>;
+  if (!articleData)
+    return <p className="text-center text-gray-500 mt-10">No data found</p>;
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -76,14 +81,18 @@ const ViewArticle = () => {
 
               <div className="space-y-1 text-gray-600 text-sm">
                 <p>
-                  <span className="font-medium text-gray-700">Color:</span> {cat.color}
+                  <span className="font-medium text-gray-700">Color:</span>{' '}
+                  {cat.color}
                 </p>
                 <p>
-                  <span className="font-medium text-gray-700">Size:</span> {cat.size}
+                  <span className="font-medium text-gray-700">Size:</span>{' '}
+                  {cat.size}
                 </p>
-                <p>
-                  <span className="font-medium text-gray-700">Article Code:</span>{" "}
-                  {cat.articleCode || "—"}
+                <p className="text-red-600">
+                  <span className="font-medium  text-gray-700">
+                    Article Code :
+                  </span>{' '}
+                  {articleData.articleCode || 'ArticleCode Not Assign '}
                 </p>
               </div>
 
@@ -104,7 +113,9 @@ const ViewArticle = () => {
 
               {/* Quality */}
               <div className="mt-3">
-                <p className="text-sm font-medium text-gray-700 mb-1">Quality</p>
+                <p className="text-sm font-medium text-gray-700 mb-1">
+                  Quality
+                </p>
                 <div className="flex flex-wrap gap-2">
                   {cat.quality?.map((q, i) => (
                     <span

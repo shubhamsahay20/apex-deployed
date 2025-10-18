@@ -56,7 +56,9 @@ const ProductionManager_Dashboard = () => {
             type: item.type,
             size: item.size,
             availableQty: item.availableQty,
-            orderedQty: item.orderedQty,
+            OrderedQuantity: item.OrderedQuantity,
+            WishListQuantity: item.WishListQuantity,
+            requiredQuantity: item.requiredQuantity,
           }))
         );
       } catch (error) {

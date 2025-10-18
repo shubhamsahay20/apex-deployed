@@ -121,7 +121,7 @@ const ArticleCode = () => {
               <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
               <input
                 type="text"
-                placeholder="Search by Article Code"
+                placeholder="Search by Article "
                 className="pl-8 pr-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring w-full"
                 value={searchTerm}
                 onChange={(e) => (
@@ -157,7 +157,7 @@ const ArticleCode = () => {
                     {row.category.map((item) => item.categoryCode)}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {row.articlecode || (
+                    {row.articleCode || (
                       <p className=" text-red-600">Article code not assigned</p>
                     )}
                   </td>
@@ -169,7 +169,13 @@ const ArticleCode = () => {
                       </button>
                       <button
                         title="Edit"
-                        onClick={() => navigate(`/edit-articlecode/${row._id}`)}
+                        onClick={() => {
+                          if (!row.articleCode) {
+                            toast.info('Please add the Article Code first');
+                            return;
+                          }
+                          navigate(`/edit-articlecode/${row._id}`);
+                        }}
                       >
                         <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
                       </button>

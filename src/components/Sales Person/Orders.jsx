@@ -1,87 +1,19 @@
 import React, { useEffect, useState } from 'react';
-// import { FaEye, FaTrash } from "react-icons/fa";
-import { FiFilter } from 'react-icons/fi';
-import { FiEye, FiTrash2 } from 'react-icons/fi';
+import { FiFilter, FiTrash2 } from 'react-icons/fi';
+import { IoMdArrowRoundUp, IoMdArrowRoundDown } from 'react-icons/io';
 import cartService from '../../api/cart.service';
 import { useAuth } from '../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import Loader from '../../common/Loader';
-
-const orders = [
-  {
-    saleOrderNo: 'SO/538960',
-    article: '301',
-    requirements: '6X10 / 16',
-    size: '6X10',
-    color: 'BK',
-    softHard: 'S/H',
-    quantity: '20',
-    customer: 'Soilt IT Sol',
-    availability: 'In-stock',
-  },
-  {
-    saleOrderNo: 'SO/538968',
-    article: '401',
-    requirements: '6X10 / 16',
-    size: '6X10',
-    color: 'BK',
-    softHard: 'S',
-    quantity: '20',
-    customer: 'Angela Carter',
-    availability: 'In-stock',
-  },
-  {
-    saleOrderNo: 'SO/538961',
-    article: '422',
-    requirements: '6X9 / 24',
-    size: '6X9',
-    color: 'BK',
-    softHard: 'H',
-    quantity: '20',
-    customer: 'Victor james',
-    availability: 'Out of stock',
-  },
-  {
-    saleOrderNo: 'SO/538963',
-    article: '356',
-    requirements: '8X10 / 24',
-    size: '8X10',
-    color: 'BK',
-    softHard: 'S/H',
-    quantity: '20',
-    customer: 'Sharp Camela',
-    availability: 'Out of stock',
-  },
-  {
-    saleOrderNo: 'SO/138967',
-    article: '786',
-    requirements: '6X9 / 14',
-    size: '6X9',
-    color: 'BK',
-    softHard: 'H',
-    quantity: '20',
-    customer: 'Jhon Ronan',
-    availability: 'In-stock',
-  },
-  {
-    saleOrderNo: 'SO/128960',
-    article: '706',
-    requirements: '6X10 / 19',
-    size: '6X10',
-    color: 'BK',
-    softHard: 'H',
-    quantity: '20',
-    customer: 'Victor james',
-    availability: 'Low stock',
-  },
-];
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const Orders = () => {
   const { user } = useAuth();
   const [myOrder, setMyOrder] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-
+  const [expandedRows, setExpandedRows] = useState({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -89,7 +21,6 @@ const Orders = () => {
       setLoading(true);
       try {
         const res = await cartService.salesPersonOrderList(user.accessToken);
-        console.log('get all order', res.data);
         setMyOrder(res.data || []);
         setTotalPages(res.pagination?.totalPages);
       } catch (error) {
@@ -101,7 +32,60 @@ const Orders = () => {
     fetchData();
   }, [user.accessToken]);
 
+  const toggleExpand = (idx) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
+  };
+
+  // -------------------- Export PDF --------------------
+  const exportOrdersPDF = (orders) => {
+    if (!orders || orders.length === 0) return alert('No data to export');
+
+    const doc = new jsPDF();
+    const headers = [
+      [
+        'Sale Order No',
+        'Article',
+        'Category Code',
+        'Color',
+        'Size',
+        'Type',
+        'Quality',
+        'Quantity',
+        'Customer',
+      ],
+    ];
+
+    const rows = orders.flatMap((order) =>
+      order.items.map((item, idx) => [
+        idx === 0 ? order.salesOrderNo : '', // show order number only for first item
+        item.article,
+        item.categoryCode,
+        item.color,
+        item.size,
+        item.type,
+        item.quality,
+        item.quantity,
+        order.customer?.name || '',
+      ])
+    );
+
+    doc.setFontSize(14);
+    doc.text('Sales Orders Report', 14, 10);
+
+    autoTable(doc, {
+      head: headers,
+      body: rows,
+      startY: 20,
+    });
+
+    doc.save('sales_orders_report.pdf');
+  };
+
   if (loading) return <Loader />;
+
   return (
     <div className="p-4 bg-white rounded shadow">
       {/* Header */}
@@ -113,7 +97,10 @@ const Orders = () => {
           <button className="flex items-center gap-1 px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700">
             <FiFilter /> Filters
           </button>
-          <button className="px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700">
+          <button
+            onClick={() => exportOrdersPDF(myOrder)}
+            className="px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700"
+          >
             Export
           </button>
         </div>
@@ -137,33 +124,60 @@ const Orders = () => {
             </tr>
           </thead>
           <tbody>
-            {myOrder.map((order, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
-                <td className="px-6 py-4">{order.salesOrderNo}</td>
-                <td className="px-6 py-4">
-                  {order.items.map((i) => i.article)}
-                </td>
-                <td className="px-6 py-4">
-                  {order.items.map((i) => i.categoryCode)}
-                </td>
-                <td className="px-6 py-4">{order.items.map((i) => i.color)}</td>
-                <td className="px-6 py-4">{order.items.map((i) => i.size)}</td>
-                <td className="px-6 py-4">{order.items.map((i) => i.type)}</td>
-                <td className="px-6 py-4">
-                  {order.items.map((i) => i.quality)}
-                </td>
-                <td className="px-6 py-4">
-                  {order.items.map((i) => i.quantity)}
-                </td>
-                <td className="px-6 py-4">{order.customer?.name}</td>
+            {myOrder.map((order, idx) => {
+              const firstItem = order.items[0];
+              const hasMore = order.items.length > 1;
+              const isExpanded = expandedRows[idx];
 
-                <td className="px-6 py-4">
-                  <div className="flex gap-3 justify-center items-center">
-                    <FiTrash2 className="text-red-500 cursor-pointer" />
-                  </div>
-                </td>
-              </tr>
-            ))}
+              return (
+                <React.Fragment key={idx}>
+                  <tr className="border-t hover:bg-gray-50">
+                    <td className="px-6 py-4 flex items-center gap-2">
+                      {order.salesOrderNo}
+                      {hasMore && (
+                        <button onClick={() => toggleExpand(idx)}>
+                          {isExpanded ? (
+                            <IoMdArrowRoundUp />
+                          ) : (
+                            <IoMdArrowRoundDown />
+                          )}
+                        </button>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">{firstItem.article}</td>
+                    <td className="px-6 py-4">{firstItem.categoryCode}</td>
+                    <td className="px-6 py-4">{firstItem.color}</td>
+                    <td className="px-6 py-4">{firstItem.size}</td>
+                    <td className="px-6 py-4">{firstItem.type}</td>
+                    <td className="px-6 py-4">{firstItem.quality}</td>
+                    <td className="px-6 py-4">{firstItem.quantity}</td>
+                    <td className="px-6 py-4">{order.customer?.name}</td>
+                    <td className="px-6 py-4 flex justify-center">
+                      <FiTrash2 className="text-red-500 cursor-pointer" />
+                    </td>
+                  </tr>
+
+                  {isExpanded &&
+                    order.items.slice(1).map((item, i) => (
+                      <tr
+                        key={`${idx}-${i}`}
+                        className="border-t bg-gray-50 text-gray-700"
+                      >
+                        <td className="px-6 py-4"></td>
+                        <td className="px-6 py-4">{item.article}</td>
+                        <td className="px-6 py-4">{item.categoryCode}</td>
+                        <td className="px-6 py-4">{item.color}</td>
+                        <td className="px-6 py-4">{item.size}</td>
+                        <td className="px-6 py-4">{item.type}</td>
+                        <td className="px-6 py-4">{item.quality}</td>
+                        <td className="px-6 py-4">{item.quantity}</td>
+                        <td className="px-6 py-4">{order.customer?.name}</td>
+                        <td className="px-6 py-4"></td>
+                      </tr>
+                    ))}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>

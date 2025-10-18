@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { exportProductionPDF } from '../../../../utils/PdfModel';
+import { exportArticlesPDF } from '../../../../utils/PdfModel';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import salesService from '../../../../api/sales.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import { FaSearch, FaFileExport } from 'react-icons/fa';
 import Loader from '../../../../common/Loader';
+import ImageModal from '../../../../utils/ImageModal';
 
 const ArticalData = () => {
   const { user } = useAuth();
@@ -15,10 +16,11 @@ const ArticalData = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
+  const [modalImage, setModalImage] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const res = await salesService.getAllArtical(
           user.accessToken,
@@ -30,8 +32,8 @@ const ArticalData = () => {
         setArticledetails(res?.data || []);
       } catch (error) {
         toast.error(error.response?.data?.message || 'Something went wrong');
-      } finally{
-        setLoading(false)
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,7 +42,7 @@ const ArticalData = () => {
     }
   }, [user, currentPage, debounceValue]);
 
-  if(loading) return <Loader/>
+  if (loading) return <Loader />;
 
   return (
     <div className="space-y-6 bg-gray-100 min-h-screen p-4 sm:p-6">
@@ -65,7 +67,7 @@ const ArticalData = () => {
             {/* Export Button */}
             <button
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg shadow hover:bg-blue-700 transition"
-              onClick={() => exportProductionPDF(articledetails)}
+              onClick={() => exportArticlesPDF(articledetails)}
             >
               <FaFileExport size={14} /> Export
             </button>
@@ -77,6 +79,7 @@ const ArticalData = () => {
           <table className="w-full text-sm text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b text-gray-600">
+                <th className="p-3 font-medium">Article Image</th>
                 <th className="p-3 font-medium">Article</th>
                 <th className="p-3 font-medium">Category Code</th>
                 <th className="p-3 font-medium">Size</th>
@@ -103,6 +106,18 @@ const ArticalData = () => {
                         isLowStock ? 'bg-red-100' : ''
                       }`}
                     >
+                      <td className="p-3 font-medium text-gray-900">
+                        <img
+                          src={row.image}
+                          alt="profile"
+                          onClick={() => setModalImage(row.image)}
+                          className="w-10 h-10 rounded-full object-cover border border-gray-200 sm:w-8 sm:h-8 md:w-10 md:h-10"
+                        />
+                      </td>
+                      <ImageModal imageUrl={modalImage}
+                      onClose={()=>setModalImage(null)}
+                       />
+
                       <td className="p-3 font-medium text-gray-900">
                         {row.article}
                       </td>

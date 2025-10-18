@@ -67,7 +67,7 @@ const Category = () => {
         prev.map((article) => ({
           ...article,
           category: article.category.filter((c) => c._id !== selectId),
-        }))
+        })),
       );
 
       setShowDeleteModal(false);
@@ -86,13 +86,13 @@ const Category = () => {
         user.accessToken,
         currentPage,
         10,
-        debounceValue
+        debounceValue,
       );
       setCategories(response?.data?.data || []);
       setTotalPages(response?.data?.pagination?.totalPages || 1);
     } catch (error) {
       toast.error(
-        error?.response?.data?.message || 'Failed to fetch categories'
+        error?.response?.data?.message || 'Failed to fetch categories',
       );
     } finally {
       setLoading(false);
@@ -165,152 +165,158 @@ const Category = () => {
               </tr>
             </thead>
             <tbody className="text-gray-700">
-              {categories
-                .map((row, idx) => {
-                  const activeCategories =
-                    row.category?.filter((c) => c.isActive !== false) || [];
-                  if (activeCategories.length === 0) return null;
+              {categories.map((row, idx) => {
+                const activeCategories =
+                  row.category?.filter((c) => c.isActive !== false) || [];
+                if (activeCategories.length === 0) return null;
 
-                  console.log("rowww", row);
-                  
+                console.log('rowww', row);
 
-                  const first = activeCategories[0];
-                  const hasMore = activeCategories.length > 1;
-                  const isExpanded = expandedRows[idx];
+                const first = activeCategories[0];
+                const hasMore = activeCategories.length > 1;
+                const isExpanded = expandedRows[idx];
 
-                  return (
-                    <React.Fragment key={idx}>
-                      {/* First category row */}
-                      <tr className="border-b hover:bg-gray-50">
-                        <td className="px-6 py-4 flex items-center gap-2">
-                          {row.article}
-                          {hasMore && (
-                            <button onClick={() => toggleExpand(idx)}>
-                              {isExpanded ? (
-                                <IoMdArrowRoundUp />
-                              ) : (
-                                <IoMdArrowRoundDown />
-                              )}
-                            </button>
-                          )}
-                        </td>
-                        <td className="px-6 py-4">{first.categoryCode}</td>
-                        <td className="px-6 py-4">{first.size}</td>
-                        <td className="px-6 py-4">{first.color}</td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap gap-1">
-                            {Array.isArray(first.type)
-                              ? first.type.map((item, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
-                                  >
-                                    {item}
-                                  </span>
-                                ))
-                              : first.type}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex flex-wrap gap-1">
-                            {Array.isArray(first.quality)
-                              ? first.quality.map((item, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
-                                  >
-                                    {item}
-                                  </span>
-                                ))
-                              : first.quality}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="flex justify-center gap-4 text-lg">
-                            <button
-                              title="View"
-                              onClick={() =>
-                                navigate(`/ViewArticle-details/${row._id}`)
-                              }
-                            >
-                              <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" />
-                            </button>
-                            <button
-                              title="Edit"
-                              onClick={() => handleEdit(first._id)}
-                            >
-                              <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
-                            </button>
-                            <button
-                              title="Delete"
-                              onClick={() => handleDelete(first._id)}
-                            >
-                              <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-
-                      {/* Expanded rows */}
-                      {isExpanded &&
-                        activeCategories.slice(1).map((cat, i) => (
-                          <tr
-                            key={`${idx}-${i}`}
-                            className="border-b bg-gray-50 text-gray-700"
+                return (
+                  <React.Fragment key={idx}>
+                    {/* First category row */}
+                    <tr className="border-b hover:bg-gray-50">
+                      <td className="px-6 py-4 flex items-center gap-2">
+                        {row.article}
+                        {hasMore && (
+                          <button onClick={() => toggleExpand(idx)}>
+                            {isExpanded ? (
+                              <IoMdArrowRoundUp />
+                            ) : (
+                              <IoMdArrowRoundDown />
+                            )}
+                          </button>
+                        )}
+                      </td>
+                      <td className="px-6 py-4">{first.categoryCode}</td>
+                      <td className="px-6 py-4">{first.size}</td>
+                      <td className="px-6 py-4">{first.color}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {Array.isArray(first.type)
+                            ? first.type.map((item, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                                >
+                                  {item}
+                                </span>
+                              ))
+                            : first.type}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {Array.isArray(first.quality)
+                            ? first.quality.map((item, idx) => (
+                                <span
+                                  key={idx}
+                                  className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
+                                >
+                                  {item}
+                                </span>
+                              ))
+                            : first.quality}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-center gap-4 text-lg">
+                          <button
+                            title="View"
+                            onClick={() =>
+                              navigate(`/ViewArticle-details/${first._id}`)
+                            }
                           >
-                            <td className="px-6 py-4"></td>
-                            <td className="px-6 py-4">{cat.categoryCode}</td>
-                            <td className="px-6 py-4">{cat.size}</td>
-                            <td className="px-6 py-4">{cat.color}</td>
-                            <td className="px-6 py-4">
-                              <div className="flex flex-wrap gap-1">
-                                {Array.isArray(cat.type)
-                                  ? cat.type.map((item, idx) => (
-                                      <span
-                                        key={idx}
-                                        className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
-                                      >
-                                        {item}
-                                      </span>
-                                    ))
-                                  : cat.type}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex flex-wrap gap-1">
-                                {Array.isArray(cat.quality)
-                                  ? cat.quality.map((item, idx) => (
-                                      <span
-                                        key={idx}
-                                        className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
-                                      >
-                                        {item}
-                                      </span>
-                                    ))
-                                  : cat.quality}
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex justify-center gap-4 text-lg">
-                                <button
-                                  title="Edit"
-                                  onClick={() => handleEdit(cat._id)}
-                                >
-                                  <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
-                                </button>
-                                <button
-                                  title="Delete"
-                                  onClick={() => handleDelete(cat._id)}
-                                >
-                                  <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                    </React.Fragment>
-                  );
-                })}
+                            <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" />
+                          </button>
+                          <button
+                            title="Edit"
+                            onClick={() => handleEdit(first._id)}
+                          >
+                            <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
+                          </button>
+                          <button
+                            title="Delete"
+                            onClick={() => handleDelete(first._id)}
+                          >
+                            <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {/* Expanded rows */}
+                    {isExpanded &&
+                      activeCategories.slice(1).map((cat, i) => (
+                        <tr
+                          key={`${idx}-${i}`}
+                          className="border-b bg-gray-50 text-gray-700"
+                        >
+                          <td className="px-6 py-4"></td>
+                          <td className="px-6 py-4">{cat.categoryCode}</td>
+                          <td className="px-6 py-4">{cat.size}</td>
+                          <td className="px-6 py-4">{cat.color}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-wrap gap-1">
+                              {Array.isArray(cat.type)
+                                ? cat.type.map((item, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium"
+                                    >
+                                      {item}
+                                    </span>
+                                  ))
+                                : cat.type}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-wrap gap-1">
+                              {Array.isArray(cat.quality)
+                                ? cat.quality.map((item, idx) => (
+                                    <span
+                                      key={idx}
+                                      className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
+                                    >
+                                      {item}
+                                    </span>
+                                  ))
+                                : cat.quality}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex justify-center gap-4 text-lg">
+                              <button
+                                title="View"
+                                onClick={() =>
+                                  navigate(`/ViewArticle-details/${cat._id}`)
+                                }
+                              >
+                                <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" />
+                              </button>
+                              <button
+                                title="Edit"
+                                onClick={() => handleEdit(cat._id)}
+                              >
+                                <PiPencilSimpleLineBold className="text-green-600 hover:text-green-700 cursor-pointer" />
+                              </button>
+                              <button
+                                title="Delete"
+                                onClick={() => handleDelete(cat._id)}
+                              >
+                                <FiTrash2 className="text-red-600 hover:text-red-700 cursor-pointer" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </React.Fragment>
+                );
+              })}
             </tbody>
           </table>
         </div>
