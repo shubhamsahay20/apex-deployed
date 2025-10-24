@@ -5,7 +5,7 @@ const ImageModal = ({ imageUrl, onClose }) => {
 
   return (
     <div
-      className="fixed mt-20 inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
+      className="fixed mt-20 bg-black bg-opacity-50 inset-0 flex items-center justify-center z-50 transition-opacity"
       onClick={onClose}
     >
       <div

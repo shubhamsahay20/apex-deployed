@@ -1,4 +1,3 @@
-// auth.service.js
 import API from './api';
 
 const register = ({ name, email, password, role, phone }) =>
@@ -52,15 +51,26 @@ const addCategoryForMultipleArticle = async (token, data) => {
   }
 };
 
-const getCategories = (token, page = 1, limit = 10, searchQuery = '') =>
-  API.get(`/product?page=${page}&limit=${limit}&search=${searchQuery}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const getCategories = async (token, page = 1, limit = 10, searchQuery = '') => {
+  try {
+    const res = await API.get(
+      `/product?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+
+    return res;
+  } catch (error) {
+    console.log('error while geting article data', error);
+    throw error;
+  }
+};
 
 const editCategory = async (token, id, data) => {
-  if(!token || !id)  return
+  if (!token || !id) return;
   try {
     const res = await API.put(`/product/${id}/update`, data, {
       headers: {
@@ -75,27 +85,50 @@ const editCategory = async (token, id, data) => {
   }
 };
 
-const editArticleCode = (token, id, data) =>
-  API.put(`/product/${id}/articlecode`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-const getCategoryById = (token, id) => {
-  return API.get(`/product/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const editArticleCode = async (token, id, data) => {
+  if (!token || !id) return;
+  try {
+    const res = await API.put(`/product/${id}/articlecode`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error  to edit article', error);
+    throw error;
+  }
 };
 
-const getCategoryByIdForSingle = (token, id) => {
-  return API.get(`/product/getone/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const getCategoryById = async (token, id) => {
+  if (!token || !id) return;
+  try {
+    const res = await API.get(`/product/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res;
+  } catch (error) {
+    console.log('error to get article details', error);
+    throw error;
+  }
+};
+
+const getCategoryByIdForSingle = async (token, id) => {
+  if (!token || !id) return;
+  try {
+    const res = await API.get(`/product/getone/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error to get single id', error);
+    throw error;
+  }
 };
 
 const DeleteCategory = (id, token) => {
@@ -114,12 +147,20 @@ const DeleteArticleCode = (id, token) => {
   });
 };
 
-const UploadCsv = (token, data) =>
-  API.post('/product/upload-csv', data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const UploadCsv = async (token, data) => {
+  if (!token || !data) return;
+  try {
+    const res = await API.post('/product/upload-csv', data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error to upload csv file', error);
+    throw error;
+  }
+};
 
 const addArticleCode = async (token, data) => {
   try {
@@ -154,23 +195,39 @@ const getAllCustomers = (token, page, limit, searchQuery = '') => {
   );
 };
 
-const getCustomersBySalesPerson = (token, page, limit, searchQuery = '') => {
-  return API.get(
-    `/customer/get/bysalesperson?page=${page}&limit=${limit}&search=${searchQuery}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
+const getCustomersBySalesPerson = async (
+  token,
+  page,
+  limit,
+  searchQuery = '',
+) => {
+  try {
+    const res = await API.get(
+      `/customer/get/bysalesperson?page=${page}&limit=${limit}&search=${searchQuery}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    },
-  );
+    );
+    return res;
+  } catch (error) {
+    console.log('error to get customer by sales person', error);
+
+    throw error;
+  }
 };
 
 const getAllCustomersWithoutPagination = (token) => {
-  return API.get(`/customer/get`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  try {
+    return API.get(`/customer/get`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    throw error;
+  }
 };
 const addCustomer = async (token, data) => {
   try {
@@ -188,28 +245,48 @@ const addCustomer = async (token, data) => {
   }
 };
 
-const EditCustomer = (token, id, data) => {
-  return API.put(`/customer/${id}/update`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const EditCustomer = async (token, id, data) => {
+  if (!token || !id) return;
+  try {
+    const res = await API.put(`/customer/${id}/update`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error to edity customer ', error);
+    throw error;
+  }
 };
 
-const getCustomerById = (token, id) => {
-  return API.get(`/sale-order/customerOrderHistory/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const getCustomerById = async (token, id) => {
+  try {
+    const res = await API.get(`/sale-order/customerOrderHistory/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error while geting customer', error);
+    throw error;
+  }
 };
 
-const DeleteCustomer = (token, id) => {
-  return API.delete(`/customer/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const DeleteCustomer = async (token, id) => {
+  if (!token || !id) return;
+  try {
+    const res = await API.delete(`/customer/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    console.log('error deleting customer ', error);
+    throw error;
+  }
 };
 
 const otpvalidation = async (token, data) => {
@@ -222,7 +299,9 @@ const otpvalidation = async (token, data) => {
 
     return res;
   } catch (error) {
-    throw new Error('Error while validating otp');
+    console.log('error in opt validation', error);
+
+    throw error;
   }
 };
 
@@ -236,7 +315,7 @@ const forgetOtp = async (token, data) => {
 
     return res;
   } catch (error) {
-    throw new Error('Error while validating otp');
+    throw error;
   }
 };
 

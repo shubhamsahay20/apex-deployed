@@ -1,6 +1,6 @@
 import API from './api';
 
-const addNotes = async (token,id,data) => {
+const addNotes = async (token, id, data) => {
   try {
     if (!token) {
       throw new Error('Authorization token is no valid');
@@ -19,5 +19,5 @@ const addNotes = async (token,id,data) => {
 };
 
 export default {
-    addNotes
-}
+  addNotes,
+};

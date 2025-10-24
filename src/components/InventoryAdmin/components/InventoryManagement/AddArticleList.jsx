@@ -181,6 +181,3 @@ function AddArticleList() {
 }
 
 export default AddArticleList;
-
-
-

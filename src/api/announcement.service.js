@@ -9,10 +9,15 @@ const getAuthHeaders = (token) => {
   return { Authorization: `Bearer ${token}` };
 };
 
-const addAnnouncement = (token, data) => {
-  return API.post(`/announcement/create`, data, {
-    headers: getAuthHeaders(token),
-  });
+const addAnnouncement = async (token, data) => {
+  try {
+    const res = await API.post(`/announcement/create`, data, {
+      headers: getAuthHeaders(token),
+    });
+    return res;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getAnnouncement = async (token, page, limit, searchQueary = '') => {
@@ -27,6 +32,7 @@ const getAnnouncement = async (token, page, limit, searchQueary = '') => {
     return res.data;
   } catch (error) {
     toast.error(error.response?.data.message || 'Error');
+    throw error;
   }
 };
 
@@ -43,6 +49,7 @@ const getAnnouncementById = async (token, id) => {
     return res.data;
   } catch (error) {
     toast.error(error.response?.data.message || 'Error');
+    throw error;
   }
 };
 
@@ -55,6 +62,7 @@ const updateAnnouncementById = async (token, id, data) => {
     return res.data;
   } catch (error) {
     toast.error(error.response?.data.message || 'Error');
+    throw error;
   }
 };
 
@@ -67,6 +75,7 @@ const deleteAnnouncement = async (token, id) => {
     return res.data;
   } catch (error) {
     toast.error(error.response?.data.message || 'Error');
+    throw error;
   }
 };
 

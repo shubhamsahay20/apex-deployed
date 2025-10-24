@@ -4,7 +4,7 @@ import { exportArticlesDataPDF } from '../../../../utils/PdfModel';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import salesService from '../../../../api/sales.service';
-import reportService from '../../../../api/report.service'; // ✅ add this to fetch inventory summary
+import reportService from '../../../../api/report.service';
 import { useDebounce } from '../../../../hooks/useDebounce';
 import Loader from '../../../../common/Loader';
 import ImageModal from '../../../../utils/ImageModal';
@@ -18,74 +18,67 @@ const ArticleList = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
   const [loading, setLoading] = useState(false);
-    const [modalImage, setModalImage] = useState(null);
-  
+  const [modalImage, setModalImage] = useState(null);
 
-  // ✅ Fetch inventory summary (for top cards)
+  // ✅ Fetch Inventory Summary
   useEffect(() => {
-    setLoading(true);
     const fetchInventorySummary = async () => {
       try {
+        setLoading(true);
         const res = await reportService.inventorySummary(user.accessToken);
-        console.log('Inventory Summary:', res?.data);
         setInventoryData(res?.data || {});
       } catch (error) {
-        toast.error(error.response?.data?.message);
+        toast.error(error.response?.data?.message || 'Failed to fetch inventory data');
       } finally {
         setLoading(false);
       }
     };
-    if (user?.accessToken) {
-      fetchInventorySummary();
-    }
+    if (user?.accessToken) fetchInventorySummary();
   }, [user]);
 
-  // ✅ Fetch article list
+  // ✅ Fetch Article List
   useEffect(() => {
-    setLoading(true);
     const fetchData = async () => {
       try {
+        setLoading(true);
         const res = await salesService.getAllArtical(
           user.accessToken,
           currentPage,
           10,
-          debounceValue,
+          debounceValue
         );
-        console.log('get all articles', res?.data);
-        setTotalPages(res?.pagination?.totalPages);
         setArticledetails(res?.data || []);
+        setTotalPages(res?.pagination?.totalPages || 1);
       } catch (error) {
-        toast.error(error.response?.data?.message);
+        toast.error(error.response?.data?.message || 'Failed to load articles');
       } finally {
         setLoading(false);
       }
     };
     if (user?.accessToken) {
-      if (debounceValue.length === 0 || debounceValue.length >= 2) {
-        fetchData();
-      }
+      if (debounceValue.length === 0 || debounceValue.length >= 2) fetchData();
     }
   }, [user, currentPage, debounceValue]);
 
-  // ✅ Dynamic cards using backend data
+  // ✅ Inventory Summary Cards
   const cards = [
     {
-      label: ' Available Stock',
+      label: 'Available Stock',
       value: inventoryData?.totalStock || 0,
       color: 'text-blue-600',
     },
     {
-      label: 'Total Number of Approved Qunatity',
+      label: 'Approved Quantity',
       value: inventoryData?.totalQuantity || 0,
       color: 'text-indigo-600',
     },
     {
-      label: 'Total Order Till date',
+      label: 'Total Orders',
       value: inventoryData?.totalOrder || 0,
       color: 'text-orange-500',
     },
     {
-      label: 'Total Stock Delivered Till Date',
+      label: 'Delivered Stock',
       value: inventoryData?.deliverables || 0,
       color: 'text-green-600',
     },
@@ -94,109 +87,141 @@ const ArticleList = () => {
   if (loading) return <Loader />;
 
   return (
-    <div className="space-y-6 bg-gray-100 min-h-screen">
-      <h2 className="text-lg font-semibold text-gray-800">Inventory</h2>
+    <div className="min-h-screen bg-gray-50 p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <h2 className="text-2xl font-semibold text-gray-800 tracking-tight">
+          Inventory Overview
+        </h2>
+      </div>
 
-      {/* ✅ Now top cards are from backend */}
+      {/* Summary Cards */}
       <InventoryCards cards={cards} />
 
-      <div className="bg-white p-4 rounded-md shadow-sm border">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-gray-700">Products List</h3>
-          <div className="flex items-center gap-2">
+      {/* Table Container */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+        {/* Search and Export */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-5">
+          <h3 className="text-lg font-semibold text-gray-700">
+            Articles List
+          </h3>
+
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => (
-                setSearchQuery(e.target.value), setCurrentPage(1)
-              )}
-              placeholder="Search Article, order"
-              className="text-sm px-3 py-1.5 border rounded-md"
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              placeholder="Search article, code, or order"
+              className="w-full md:w-64 px-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
-            {/* <button className="text-sm border px-3 py-1.5 rounded-md">
-              Today
-            </button> */}
             <button
-              className="text-sm border px-3 py-1.5 rounded-md"
               onClick={() => exportArticlesDataPDF(articledetails)}
+              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
             >
               Export
             </button>
           </div>
         </div>
 
-        <div className="overflow-auto">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead>
-              <tr className="bg-gray-50 border-b text-gray-600">
-                <th className="p-2">Article Image</th>
-                <th className="p-2">Article</th>
-                <th>Category Code</th>
-                <th>Size</th>
-                <th>Color</th>
-                <th>Soft/Hard</th>
-                <th>Quality</th>
-                <th>Production Quantity</th>
-                <th>Warehouse Quantity</th>
-                <th>Total Quantity</th>
+        {/* Table */}
+        <div className="overflow-x-auto rounded-md border border-gray-100">
+          <table className="min-w-full text-sm border-collapse">
+            <thead className="bg-gray-100 sticky top-0 z-10">
+              <tr className="text-gray-700">
+                <th className="p-3 text-left font-medium">Image</th>
+                <th className="p-3 text-left font-medium">Article</th>
+                <th className="p-3 text-left font-medium">Category Code</th>
+                <th className="p-3 text-left font-medium">Size</th>
+                <th className="p-3 text-left font-medium">Color</th>
+                <th className="p-3 text-left font-medium">Soft/Hard</th>
+                <th className="p-3 text-left font-medium">Quality</th>
+                <th className="p-3 text-center font-medium">Production Qty</th>
+                <th className="p-3 text-center font-medium">Warehouse Qty</th>
+                <th className="p-3 text-center font-medium">Total Qty</th>
               </tr>
             </thead>
+
             <tbody>
-              {articledetails?.map((row, idx) => (
-                <tr key={idx} className="border-t hover:bg-gray-50">
-                  <td className="p-3 font-medium text-gray-900">
-                    <img
-                      src={row.image}
-                      alt="profile"
-                      onClick={() => setModalImage(row.image)}
-                      className="w-10 h-10 rounded-full object-cover border border-gray-200 sm:w-8 sm:h-8 md:w-10 md:h-10"
-                    />
-                  </td>
-                  <td className="p-2">{row.article}</td>
-
-                  
-
-                  <ImageModal onClose={()=>setModalImage(null)} imageUrl={modalImage}/>
-                  <td>{row.categoryCode}</td>
-                  <td>{row.size}</td>
-                  <td className="font-semibold">{row.color}</td>
-                  <td>{row.type}</td>
-                  <td>{row.quality}</td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Production_Qty}
-                  </td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Warehouse_Qty}
-                  </td>
-                  <td className="text-blue-600 font-medium">
-                    {row.Total_Available}
+              {articledetails?.length > 0 ? (
+                articledetails.map((row, idx) => (
+                  <tr
+                    key={idx}
+                    className={`border-t ${
+                      idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                    } hover:bg-gray-100 transition`}
+                  >
+                    <td className="p-3">
+                      <img
+                        src={row.image}
+                        alt={row.article}
+                        onClick={() => setModalImage(row.image)}
+                        className="w-12 h-12 object-cover rounded-full border border-gray-300 cursor-pointer hover:scale-105 transition-transform"
+                      />
+                    </td>
+                    <td className="p-3 font-semibold text-gray-800">
+                      {row.article}
+                    </td>
+                    <td className="p-3 text-gray-700">{row.categoryCode}</td>
+                    <td className="p-3 text-gray-700">{row.size}</td>
+                    <td className="p-3 text-gray-700">{row.color}</td>
+                    <td className="p-3 text-gray-700">{row.type}</td>
+                    <td className="p-3 text-gray-700">{row.quality}</td>
+                    <td className="p-3 text-center text-blue-600 font-medium">
+                      {row.Production_Qty}
+                    </td>
+                    <td className="p-3 text-center text-blue-600 font-medium">
+                      {row.Warehouse_Qty}
+                    </td>
+                    <td className="p-3 text-center text-green-600 font-semibold">
+                      {row.Total_Available}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="10"
+                    className="text-center py-8 text-gray-500 italic"
+                  >
+                    No articles found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
 
-        <div className="flex items-center justify-between mt-4">
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-6 gap-2">
           <button
             onClick={() => setCurrentPage((prev) => prev - 1)}
             disabled={currentPage === 1}
-            className="text-sm border px-4 py-1.5 rounded"
+            className="text-sm border border-gray-300 px-4 py-1.5 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Previous
           </button>
-          <span className="text-xs text-gray-500">
+
+          <span className="text-xs text-gray-600">
             Page {currentPage} of {totalPages}
           </span>
+
           <button
             onClick={() => setCurrentPage((prev) => prev + 1)}
             disabled={currentPage === totalPages}
-            className="text-sm border px-4 py-1.5 rounded"
+            className="text-sm border border-gray-300 px-4 py-1.5 rounded-md bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
           >
             Next
           </button>
         </div>
       </div>
+
+      {/* Image Modal */}
+      {modalImage && (
+        <ImageModal imageUrl={modalImage} onClose={() => setModalImage(null)} />
+      )}
     </div>
   );
 };

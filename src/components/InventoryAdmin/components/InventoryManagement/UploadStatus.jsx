@@ -8,7 +8,6 @@ import { toast } from 'react-toastify'
 import ApproveModal from '../../../../utils/ApproveModal'
 import inventoryService from '../../../../api/inventory.service'
 import RejectModal from '../../../../utils/RejectModal'
-import reportService from '../../../../api/report.service'
 
 const UploadStatus = () => {
   const { id } = useParams()
@@ -19,8 +18,6 @@ const UploadStatus = () => {
   const [warehouses, setWarehouses] = useState([])
   const [approveModalOpan, setApproveModalOpan] = useState(false)
   const [rejectModalOpan, setRejectModalOpan] = useState(false)
-  const [approveModalId, setApproveModalId] = useState(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [stockReport, setStockReport] = useState([])
   const [allocations, setAllocations] = useState({})
   const [currentPage, setCurrentPage] = useState(1)
@@ -48,7 +45,6 @@ const UploadStatus = () => {
       }
 
       console.log('Payload to send:', payload)
-
       const res = await inventoryService.approval(user.accessToken, id, payload)
       console.log('approval response', res)
       toast.success(res.message || 'Order approved and allocations saved!')
@@ -69,7 +65,6 @@ const UploadStatus = () => {
       }
 
       const res = await inventoryService.approval(user.accessToken, id, payload)
-
       console.log('reject response', res)
       toast.info(res.message || 'Order Rejected Successfully')
       setRejectModalOpan(false)
@@ -121,6 +116,15 @@ const UploadStatus = () => {
     }))
   }
 
+  // Remove warehouse allocation row
+  const removeWarehouseAllocation = (itemIndex, allocIndex) => {
+    setAllocations(prev => {
+      const updated = [...(prev[itemIndex] || [])]
+      updated.splice(allocIndex, 1)
+      return { ...prev, [itemIndex]: updated }
+    })
+  }
+
   // Update warehouse selection
   const handleSelect = (itemIndex, allocIndex, warehouseId) => {
     setAllocations(prev => {
@@ -134,23 +138,25 @@ const UploadStatus = () => {
   const handleQuantity = (itemIndex, allocIndex, quantity, maxQty) => {
     setAllocations(prev => {
       const updated = [...(prev[itemIndex] || [])]
-
+      const prevQty = updated[allocIndex].quantity
       const newQuantity = Number(quantity) || 0
-      updated[allocIndex].quantity = newQuantity
 
-      // Calculate sum for this article
-      const total = updated.reduce(
+      // Calculate total if this change is applied
+      const tempUpdated = [...updated]
+      tempUpdated[allocIndex].quantity = newQuantity
+      const total = tempUpdated.reduce(
         (sum, a) => sum + (Number(a.quantity) || 0),
         0
       )
 
       if (total > maxQty) {
-        alert(
-          `Total quantity for this article cannot exceed ${maxQty}. Currently: ${total}`
-        )
-        return prev // reject update
+        alert(`Total quantity for this article cannot exceed ${maxQty}.`)
+        // revert to old value
+        updated[allocIndex].quantity = prevQty
+        return { ...prev, [itemIndex]: updated }
       }
 
+      updated[allocIndex].quantity = newQuantity
       return { ...prev, [itemIndex]: updated }
     })
   }
@@ -171,7 +177,7 @@ const UploadStatus = () => {
         </h2>
       </div>
 
-      {/* Stock Report Section - moved to top */}
+      {/* Stock Report */}
       <div className='mb-10 bg-white shadow rounded-lg p-6'>
         <h3 className='text-lg font-semibold text-gray-700 mb-4'>
           Stock Report
@@ -182,8 +188,8 @@ const UploadStatus = () => {
               <thead className='bg-gray-100 text-gray-700'>
                 <tr>
                   <th className='px-4 py-2 text-left'>Article</th>
-                  <th className='px-4 py-2 text-left'>Factory Name </th>
-                  <th className='px-4 py-2 text-left'>Warehouse Name </th>
+                  <th className='px-4 py-2 text-left'>Factory Name</th>
+                  <th className='px-4 py-2 text-left'>Warehouse Name</th>
                   <th className='px-4 py-2 text-left'>Factory Quantity</th>
                   <th className='px-4 py-2 text-left'>Warehouse Quantity</th>
                   <th className='px-4 py-2 text-left'>Total Quantity</th>
@@ -234,7 +240,6 @@ const UploadStatus = () => {
 
       {/* Orders */}
       <div key={orders._id} className='mb-10 bg-white shadow rounded-lg p-6'>
-        {/* Order Info */}
         <div className='mb-4'>
           <h3 className='text-lg font-semibold text-gray-700'>
             Sales Order No: {orders.salesOrderNo}
@@ -247,7 +252,6 @@ const UploadStatus = () => {
           </p>
         </div>
 
-        {/* Items Table */}
         <div className='overflow-x-auto'>
           <table className='w-full border border-gray-200 rounded-lg overflow-hidden'>
             <thead className='bg-gray-100 text-gray-700'>
@@ -276,7 +280,6 @@ const UploadStatus = () => {
                   <td className='px-4 py-2'>{item.quality}</td>
                   <td className='px-4 py-2'>{item.quantity}</td>
 
-                  {/* Multi Warehouse Allocations */}
                   <td className='px-4 py-2'>
                     {(allocations[itemIndex] || []).map((alloc, allocIndex) => (
                       <div
@@ -294,7 +297,6 @@ const UploadStatus = () => {
                           {warehouses
                             .filter(
                               wh =>
-                                // Show warehouse if it's not already selected OR it is the current one
                                 !allocations[itemIndex]?.some(
                                   (a, i) =>
                                     a.warehouseId === wh._id && i !== allocIndex
@@ -321,10 +323,22 @@ const UploadStatus = () => {
                           }
                           className='border rounded p-1 w-20'
                         />
+
+                        {/* Show remove button only if more than one allocation exists */}
+                        {allocations[itemIndex]?.length > 1 && (
+                          <button
+                            type='button'
+                            onClick={() =>
+                              removeWarehouseAllocation(itemIndex, allocIndex)
+                            }
+                            className='text-red-500 text-xs border border-red-400 rounded px-2 hover:bg-red-50'
+                          >
+                            Remove
+                          </button>
+                        )}
                       </div>
                     ))}
 
-                    {/* Add another warehouse row */}
                     <button
                       onClick={() => addWarehouseAllocation(itemIndex)}
                       className='text-blue-600 text-sm'
@@ -332,7 +346,6 @@ const UploadStatus = () => {
                       + Add Warehouse
                     </button>
 
-                    {/* Show total vs max */}
                     {allocations[itemIndex] && (
                       <p className='text-xs text-gray-600 mt-1'>
                         Total Assigned:{' '}

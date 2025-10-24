@@ -54,7 +54,7 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
       return;
     }
     if (!formData.name.trim()) {
-      toast.error('Title is required');
+      toast.error('Scheme Name is required');
       return;
     }
     if (!formData.description.trim()) {

@@ -4,7 +4,7 @@ import { FaCarBattery, FaSearch } from 'react-icons/fa';
 import { FiEdit, FiX, FiEye, FiTrash2 } from 'react-icons/fi';
 
 import {
-  exportProductionPDF,
+  exportStockVerifyPDF,
   printProductionPDF,
 } from '../../../utils/PdfModel';
 import { toast } from 'react-toastify';
@@ -141,7 +141,7 @@ const StockVerify = () => {
 
             {/* Export Button */}
             <button
-              onClick={() => exportProductionPDF(salesDetails)}
+              onClick={() => exportStockVerifyPDF(salesDetails)}
               className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"
             >
               Export
