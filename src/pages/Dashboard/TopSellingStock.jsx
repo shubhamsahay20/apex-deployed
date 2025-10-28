@@ -3,9 +3,11 @@
 export function TopSellingStock({
   heading = 'Top Selling Stock',
   data,
+  topcurrentPage,
+  setTopCurrentPage,
+  topstocktotalPages,
   onSeeAll,
 }) {
- 
   const stockData = data && data.length > 0 ? data : undefined;
 
   return (
@@ -38,7 +40,7 @@ export function TopSellingStock({
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Color
                 </th>
-                   <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Size
                 </th>
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
@@ -92,6 +94,25 @@ export function TopSellingStock({
             No stock data available
           </div>
         )}
+      </div>
+      <div className="flex items-center justify-between mt-4 text-sm">
+        <button
+          disabled={topcurrentPage === 1}
+          onClick={() => setTopCurrentPage((prev) => prev - 1)}
+          className="border px-4 py-1.5 rounded"
+        >
+          Previous
+        </button>
+        <span className="text-gray-500">
+          Page {topcurrentPage} of {topstocktotalPages}
+        </span>
+        <button
+          disabled={topcurrentPage === topstocktotalPages}
+          onClick={() => setTopCurrentPage((prev) => prev + 1)}
+          className="border px-4 py-1.5 rounded"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

@@ -342,7 +342,7 @@ const getProfile = async (token) => {
     });
     return res.data;
   } catch (error) {
-    throw new Error('Error while geting profile');
+    throw error
   }
 };
 
@@ -356,6 +356,7 @@ const editProfile = async (token, id, data) => {
     return res.data;
   } catch (error) {
     console.log(error?.response?.data?.message);
+    throw error
   }
 };
 

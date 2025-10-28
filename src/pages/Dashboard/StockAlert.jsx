@@ -2,7 +2,14 @@
 
 import React from 'react';
 
-export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
+export function StockAlert({
+  heading = 'Stock Alert',
+  currentPage,
+  setCurrentPage,
+  totalPages,
+  data,
+  onSeeAll,
+}) {
   const defaultData = [
     { id: '033', name: 'Blue Sneakers', quantity: '60 Cartons', status: 'Low' },
     { id: '304', name: 'Red Sneakers', quantity: '36 Cartons', status: 'Low' },
@@ -15,17 +22,6 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
   ];
 
   const alertData = data && data.length > 0 ? data : defaultData;
-
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'Critical':
-        return 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400';
-      case 'Out of Stock':
-        return 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400';
-      default:
-        return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
-    }
-  };
 
   return (
     <div className="bg-white dark:bg-meta-4 rounded-2xl shadow-md border border-gray-200 dark:border-gray-800 overflow-hidden">
@@ -72,11 +68,9 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Available Quantity
                 </th>
-
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Wishlist Quantity
                 </th>
-
                 <th className="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
                   Require Quantity
                 </th>
@@ -116,7 +110,7 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
                     {item.availableQty}
                   </td>
-                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                  <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
                     {item.WishListQuantity}
                   </td>
                   <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
@@ -131,6 +125,25 @@ export function StockAlert({ heading = 'Stock Alert', data, onSeeAll }) {
             No stock alerts available
           </div>
         )}
+      </div>
+      <div className="flex items-center justify-between mt-4 text-sm">
+        <button
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((prev) => prev - 1)}
+          className="border px-4 py-1.5 rounded"
+        >
+          Previous
+        </button>
+        <span className="text-gray-500">
+           Page {currentPage} of {totalPages}
+        </span>
+        <button
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((prev) => prev + 1)}
+          className="border px-4 py-1.5 rounded"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

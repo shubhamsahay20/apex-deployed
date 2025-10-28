@@ -9,11 +9,8 @@ import { SalesChart } from '../../../pages/Dashboard/SalesChart';
 import { toast } from 'react-toastify';
 import reportService from '../../../api/report.service';
 import { useAuth } from '../../../Context/AuthContext';
-import topsellingstockService from '../../../api/topsellingstock.service'; 
+import topsellingstockService from '../../../api/topsellingstock.service';
 import Loader from '../../../common/Loader';
-
-
-
 
 const InventorySummaryItem = ({ title, value, color }) => (
   <div className="px-1">
@@ -30,11 +27,13 @@ const ProductionManager_Dashboard = () => {
   const { user } = useAuth();
   const [productionChartData, setProductionChartData] = useState([]);
   const [lowStock, setLowStock] = useState([]);
-  const [loading,setLoading] =  useState(false)
+  const [loading, setLoading] = useState(false);
+  const [lowStockCurrentPage, setLowStockCurrentPage] = useState(1);
+  const [lowStockTotalPages, setLowStockTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         // ✅ Production Chart Data
         const res = await reportService.productionChart(user.accessToken);
@@ -46,7 +45,11 @@ const ProductionManager_Dashboard = () => {
         setProductionChartData(formattedProductionData);
 
         // ✅ Low Stock Data
-        const lowStockRes = await topsellingstockService.lowStock(user.accessToken);
+        const lowStockRes = await topsellingstockService.lowStock(
+          user.accessToken,
+          lowStockCurrentPage,
+          3,
+        );
         setLowStock(
           (lowStockRes.data || []).map((item) => ({
             article: item.article,
@@ -59,18 +62,19 @@ const ProductionManager_Dashboard = () => {
             OrderedQuantity: item.OrderedQuantity,
             WishListQuantity: item.WishListQuantity,
             requiredQuantity: item.requiredQuantity,
-          }))
+          })),
         );
+        setLowStockTotalPages(lowStockRes.pagination.pages)
       } catch (error) {
         toast.error(error.response?.data?.message || 'Error fetching data');
-      } finally{
-        setLoading(false)
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-  }, [user.accessToken]);
+  }, [user.accessToken,lowStockCurrentPage]);
 
-  if(loading) return <Loader/>
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
@@ -149,7 +153,13 @@ const ProductionManager_Dashboard = () => {
 
         {/* Stock Alerts */}
         <div className="w-full">
-          <StockAlert data={lowStock} onSeeAll={handleStockAlertSeeAll} />
+          <StockAlert
+            currentPage={lowStockCurrentPage}
+            setCurrentPage={(page) => setLowStockCurrentPage(page)}
+            totalPages={lowStockTotalPages}
+            data={lowStock}
+            onSeeAll={handleStockAlertSeeAll}
+          />
         </div>
       </div>
     </div>

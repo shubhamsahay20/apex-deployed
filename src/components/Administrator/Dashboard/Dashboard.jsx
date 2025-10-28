@@ -1,49 +1,53 @@
-import { InventorySummary } from './InventorySummary'
-import { ProductSummary } from './ProductSummary'
-import { SalesChart } from './SalesChart'
-import { StockAlert } from '../../../pages/Dashboard/StockAlert'
-import reportService from '../../../api/report.service'
-import topsellingstockService from '../../../api/topsellingstock.service'
-import { useEffect, useState } from 'react'
-import { useAuth } from '../../../Context/AuthContext'
-import Loader from '../../../common/Loader'
+import { InventorySummary } from './InventorySummary';
+import { ProductSummary } from './ProductSummary';
+import { SalesChart } from './SalesChart';
+import { StockAlert } from '../../../pages/Dashboard/StockAlert';
+import reportService from '../../../api/report.service';
+import topsellingstockService from '../../../api/topsellingstock.service';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../../Context/AuthContext';
+import Loader from '../../../common/Loader';
 
-export default function AdministratorDashboard () {
-  const [productionSummary, setProductionSummary] = useState(null)
-  const [inventorySummary, setInventorySummary] = useState(null)
-  const [warehouseData, setWarehouseData] = useState([])
-  const [lowStock, setLowStock] = useState([]) 
-  const [loading, setLoading] = useState(false)
+export default function AdministratorDashboard() {
+  const [productionSummary, setProductionSummary] = useState(null);
+  const [inventorySummary, setInventorySummary] = useState(null);
+  const [warehouseData, setWarehouseData] = useState([]);
+  const [lowStock, setLowStock] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [lowStockCurrentPage, setLowStockCurrentPage] = useState(1);
+  const [lowStockTotalPages, setLowStockTotalPages] = useState(1);
 
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     const fetchData = async () => {
       try {
         const productionres = await reportService.productionSummary(
-          user.accessToken
-        )
-        setProductionSummary(productionres.data || [])
+          user.accessToken,
+        );
+        setProductionSummary(productionres.data || []);
 
         const inventoryres = await reportService.inventorySummary(
-          user.accessToken
-        )
-        setInventorySummary(inventoryres.data || [])
+          user.accessToken,
+        );
+        setInventorySummary(inventoryres.data || []);
 
-        const warehouseres = await reportService.Chart(user.accessToken)
+        const warehouseres = await reportService.Chart(user.accessToken);
         const formattedWarehouseData =
-          warehouseres.data?.warehouseData.map(item => ({
+          warehouseres.data?.warehouseData.map((item) => ({
             month: item.warehouseName,
-            value: item.totalWarehouseStock
-          })) || []
-        setWarehouseData(formattedWarehouseData)
+            value: item.totalWarehouseStock,
+          })) || [];
+        setWarehouseData(formattedWarehouseData);
 
         const lowStockRes = await topsellingstockService.lowStock(
-          user.accessToken
-        )
+          user.accessToken,
+          lowStockCurrentPage,
+          5,
+        );
         setLowStock(
-          (lowStockRes.data || []).map(item => ({
+          (lowStockRes.data || []).map((item) => ({
             article: item.article,
             categoryCode: item.categoryCode,
             color: item.color,
@@ -52,48 +56,56 @@ export default function AdministratorDashboard () {
             size: item.size,
             availableQty: item.availableQty,
             OrderedQuantity: item.OrderedQuantity,
-            WishListQuantity: item.WishListQuantity, 
-            requiredQuantity: item.requiredQuantity 
-          }))
-        )
+            WishListQuantity: item.WishListQuantity,
+            requiredQuantity: item.requiredQuantity,
+          })),
+        );
+
+        setLowStockTotalPages(lowStockRes.pagination.pages);
       } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Error fetching data:', error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchData()
-  }, [user.accessToken])
+    };
+    fetchData();
+  }, [user.accessToken, lowStockCurrentPage]);
 
   const handleStockAlertSeeAll = () => {
-    console.log('Navigate to detailed alerts view')
-  }
+    console.log('Navigate to detailed alerts view');
+  };
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   return (
-    <div className='min-h-screen bg-meta-2 dark:bg-boxdark-2'>
-      <div className='max-w-6xl mx-auto space-y-6 pt-4'>
+    <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
+      <div className="max-w-6xl mx-auto space-y-6 pt-4">
         {/* Top Summary Cards */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <InventorySummary data={inventorySummary} />
           <ProductSummary data={productionSummary} />
         </div>
 
         {/* Sales Chart */}
-        <div className='w-full'>
+        <div className="w-full">
           <SalesChart
-            head='Articles'
-            title='Stock Overview Data'
+            head="Articles"
+            title="Stock Overview Data"
             data={warehouseData}
           />
         </div>
 
         {/* Stock Alerts (full width, below chart) */}
-        <div className='w-full'>
-          <StockAlert data={lowStock} onSeeAll={handleStockAlertSeeAll} />
+        <div className="w-full">
+          <StockAlert
+            currentPage={lowStockCurrentPage}
+            setCurrentPage={(page) => setLowStockCurrentPage(page)}
+            totalPages={lowStockTotalPages}
+            data={lowStock}
+            onSeeAll={handleStockAlertSeeAll}
+          />
         </div>
       </div>
     </div>
-  )
+  );
 }

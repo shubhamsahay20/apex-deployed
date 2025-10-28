@@ -79,7 +79,7 @@ const InternalTransfer = () => {
                 <th className="px-3 py-2">Quantity</th>
                 <th className="px-3 py-2">From Warehouse</th>
                 <th className="px-3 py-2">To Warehouse</th>
-                <th className="px-3 py-2 text-center">Action</th>
+                {/* <th className="px-3 py-2 text-center">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -122,9 +122,9 @@ const InternalTransfer = () => {
                       <td className="px-3 py-2 whitespace-nowrap">
                         {rows[0].toWarehouse}
                       </td>
-                      <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">
+                      {/* <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">
                         <FiTrash2 className="text-red-500 cursor-pointer" />
-                      </td>
+                      </td> */}
                     </tr>
 
                     {isExpanded &&
@@ -148,9 +148,9 @@ const InternalTransfer = () => {
                           <td className="px-3 py-2 whitespace-nowrap">
                             {row.toWarehouse}
                           </td>
-                          <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">
+                          {/* <td className="px-3 py-2 whitespace-nowrap flex items-center gap-3 justify-center">
                             <FiTrash2 className="text-red-500 cursor-pointer" />
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                   </React.Fragment>

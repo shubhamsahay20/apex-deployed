@@ -91,7 +91,7 @@ const WarehouseManagement = () => {
     } catch (error) {
       toast.error(error.response?.data?.message);
     } finally {
-      setDeleteLoading(false); // ✅ Stop delete loader
+      setDeleteLoading(false); 
     }
   };
 

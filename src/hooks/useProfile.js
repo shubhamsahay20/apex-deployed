@@ -7,8 +7,11 @@ export default function useProfile(accessToken) {
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
+    setLoading(true)
     try {
       const res = await authService.getProfile(accessToken);
+      console.log("res for profile",res);
+      
       setProfileData(res.data);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to fetch profile');

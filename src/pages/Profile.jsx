@@ -17,15 +17,14 @@ import Loader from '../common/Loader';
 const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const { user } = useAuth();
-  const id = user.user.id
-  
-  
-  
+  const id = user.user.id;
+
   const { profileData, refetchProfile, loading } = useProfile(user.accessToken);
 
   const [formData, setFormData] = useState({});
+  const [previewImage, setPreviewImage] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  // Prefill form when profileData loads
   useEffect(() => {
     if (profileData) setFormData(profileData);
   }, [profileData]);
@@ -38,10 +37,17 @@ const Profile = () => {
     }));
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Find changed fields
     const changedFields = {};
     Object.keys(formData).forEach((key) => {
       if (formData[key] !== profileData[key]) {
@@ -49,29 +55,60 @@ const Profile = () => {
       }
     });
 
+    if (selectedFile) {
+      changedFields.profileImage = selectedFile;
+    }
+
     if (Object.keys(changedFields).length === 0) {
       toast.info('No changes detected.');
       return;
     }
 
-    console.log("My change fields",changedFields);
-    
-
     try {
-      const res = await authService.editProfile(
-        user.accessToken,
-        id,
-        changedFields,
-      );
-      toast.success('Profile updated successfully!');
+      const formDataToSend = new FormData();
+      for (const key in changedFields) {
+        formDataToSend.append(key, changedFields[key]);
+      }
+
+      const res = await authService.editProfile(user.accessToken, id, formDataToSend);
+      toast.success(res.message || 'Profile updated successfully!');
       await refetchProfile();
       setEditMode(false);
+      setSelectedFile(null);
+      setPreviewImage(null);
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Update failed');
+      console.log("error +++",error);
+      
+      toast.error(error.response?.data?.message || 'Update failed may be image is to large ');
     }
   };
 
-  if (loading)return <Loader/>
+  if (loading) return <Loader />;
+
+  // Avatar fallback helper
+  const getAvatar = (name, imageSrc, size = 'w-32 h-32') => {
+    const initial = name?.charAt(0)?.toUpperCase() || 'U';
+    const colors = ['#E57373', '#64B5F6', '#81C784', '#FFD54F', '#BA68C8', '#4DB6AC'];
+    const color = colors[initial.charCodeAt(0) % colors.length];
+
+    if (imageSrc) {
+      return (
+        <img
+          src={imageSrc}
+          alt="Profile"
+          className={`${size} rounded-full border-4 border-white shadow-lg object-cover`}
+        />
+      );
+    }
+    return (
+      <div
+        className={`${size} rounded-full flex items-center justify-center text-white text-3xl font-semibold border shadow-lg`}
+        style={{ backgroundColor: color }}
+      >
+        {initial}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -85,14 +122,21 @@ const Profile = () => {
 
           <div className="flex flex-col sm:flex-row gap-12">
             <div className="flex flex-col items-center gap-4">
-              <img
-                src={userSix}
-                alt="Profile"
-                className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
-              />
-              <button className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition">
+              {getAvatar(formData.name, previewImage || formData.profileImage)}
+
+              <label
+                htmlFor="profileImage"
+                className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 cursor-pointer transition"
+              >
                 <FaEdit /> Change Picture
-              </button>
+              </label>
+              <input
+                id="profileImage"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageChange}
+              />
             </div>
 
             <form
@@ -177,11 +221,7 @@ const Profile = () => {
         <div className="bg-white border border-gray-200 rounded-2xl shadow-lg p-8 relative mb-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-10">
             <div className="flex flex-col items-center">
-              <img
-                src={userSix}
-                alt="Profile"
-                className="w-32 h-32 rounded-full border-4 border-white shadow-lg"
-              />
+              {getAvatar(profileData.name, profileData.profileImage)}
               <button
                 className="mt-4 flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-blue-600 transition"
                 onClick={() => setEditMode(true)}
@@ -196,26 +236,10 @@ const Profile = () => {
               </h2>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ProfileInfo
-                  icon={<FaUser />}
-                  label="Name"
-                  value={profileData.name}
-                />
-                <ProfileInfo
-                  icon={<FaPhone />}
-                  label="Phone"
-                  value={profileData.phone}
-                />
-                <ProfileInfo
-                  icon={<FaEnvelope />}
-                  label="Email"
-                  value={profileData.email}
-                />
-                <ProfileInfo
-                  icon={<FaMapMarkerAlt />}
-                  label="Location"
-                  value={profileData.location}
-                />
+                <ProfileInfo icon={<FaUser />} label="Name" value={profileData.name} />
+                <ProfileInfo icon={<FaPhone />} label="Phone" value={profileData.phone} />
+                <ProfileInfo icon={<FaEnvelope />} label="Email" value={profileData.email} />
+                <ProfileInfo icon={<FaMapMarkerAlt />} label="Location" value={profileData.location} />
               </div>
             </div>
           </div>

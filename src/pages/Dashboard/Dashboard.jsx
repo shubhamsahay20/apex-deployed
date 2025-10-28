@@ -23,12 +23,17 @@ export default function Dashboard() {
   const [inventorySummary, setInventorySummary] = useState(null);
   const [topStock, setTopStock] = useState([]);
   const [lowStock, setLowStock] = useState([]);
-  const[loading,setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [lowStockCurrentPage, setLowStockCurrentPage] = useState(1);
+  const [lowStockTotalPages, setLowStockTotalPages] = useState(1);
+
+  const [topStockCurrentPage, setTopStockCurrentPage] = useState(1);
+  const [topStockTotalPages, setTopStockTotalPages] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         const res = await reportService.salesSummary(user.accessToken);
         console.log('Dashboard data', res.data);
         setSalesSummary(res.data || []);
@@ -58,7 +63,11 @@ export default function Dashboard() {
 
         const topstockResponse = await topsellingstockService.topSellingStock(
           user.accessToken,
+          topStockCurrentPage,
+          5,
         );
+        console.log('res top', topstockResponse);
+
         setTopStock(
           (topstockResponse.data || []).map((item) => ({
             article: item.article,
@@ -70,12 +79,15 @@ export default function Dashboard() {
             totalQuantity: item.totalQuantity,
           })),
         );
-        console.log('topsellingstock result ', topstockResponse);
+
+        setTopStockTotalPages(topstockResponse.pagination.totalPages);
 
         const lowStock = await topsellingstockService.lowStock(
           user.accessToken,
+          lowStockCurrentPage,
+          5,
         );
-        console.log('low stock', lowStock.data);
+        console.log('low stock', lowStock);
         setLowStock(
           (lowStock.data || []).map((item) => ({
             article: item.article,
@@ -86,76 +98,22 @@ export default function Dashboard() {
             size: item.size,
             availableQty: item.availableQty,
             OrderedQuantity: item.OrderedQuantity,
-            WishListQuantity:item.WishListQuantity,
-            requiredQuantity:item.requiredQuantity
+            WishListQuantity: item.WishListQuantity,
+            requiredQuantity: item.requiredQuantity,
           })),
         );
+        setLowStockTotalPages(lowStock.pagination.pages);
       } catch (error) {
         console.error('Error fetching data:', error);
-      } finally{
-        setLoading(false)
+        toast.error(error.response.data.message);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [lowStockCurrentPage, topStockCurrentPage]);
 
   console.log('usestate', topStock);
-
-  const salesData = [
-    { month: 'Jan', value: 55000 },
-    { month: 'Feb', value: 58000 },
-    { month: 'Mar', value: 45000 },
-    { month: 'Apr', value: 38000 },
-    { month: 'May', value: 42000 },
-    { month: 'Jun', value: 28000 },
-    { month: 'Jul', value: 55000 },
-    { month: 'Aug', value: 45000 },
-    { month: 'Sep', value: 45000 },
-    { month: 'Oct', value: 35000 },
-  ];
-
-  const preOrderData = [
-    { month: 'Jan', value: 4000 },
-    { month: 'Feb', value: 2000 },
-    { month: 'Mar', value: 3000 },
-    { month: 'Apr', value: 2500 },
-    { month: 'May', value: 2200 },
-  ];
-
-  const topSellingStock = [
-    {
-      articleNo: '101',
-      soldQty: 30,
-      remainingQty: 12,
-      opportunityLoss: 6,
-      stockAvailability: 23,
-    },
-    {
-      articleNo: '301',
-      soldQty: 21,
-      remainingQty: 15,
-      opportunityLoss: 23,
-      stockAvailability: 54,
-    },
-    {
-      articleNo: '401',
-      soldQty: 19,
-      remainingQty: 17,
-      opportunityLoss: 9,
-      stockAvailability: 62,
-    },
-  ];
-
-  const stockAlerts = [
-    { id: '033', name: 'Blue Sneakers', quantity: '60 Cartons', status: 'Low' },
-    { id: '304', name: 'Red Sneakers', quantity: '36 Cartons', status: 'Low' },
-    {
-      id: '322',
-      name: 'Green Sneakers',
-      quantity: '12 Cartons',
-      status: 'Low',
-    },
-  ];
 
   // Event handlers for "See All" buttons
   const handlePreOrdersSeeAll = () => {
@@ -170,7 +128,7 @@ export default function Dashboard() {
     console.log('Navigate to detailed alerts view');
   };
 
-  if(loading) return <Loader/>
+  if (loading) return <Loader />;
 
   return (
     <div className="  min-h-screen bg-meta-2 dark:bg-boxdark-2">
@@ -203,15 +161,26 @@ export default function Dashboard() {
         {/* Tables Section */}
         <div className="flex flex-col lg:flex-row gap-6">
           <div className="w-full  ">
-            <TopSellingStock data={topStock} onSeeAll={handleTopStockSeeAll} />
+            <TopSellingStock
+              topcurrentPage={topStockCurrentPage}
+              setTopCurrentPage={(page) => setTopStockCurrentPage(page)}
+              topstocktotalPages={topStockTotalPages}
+              data={topStock}
+              onSeeAll={handleTopStockSeeAll}
+            />
           </div>
         </div>
-         <div className="flex flex-col lg:flex-row gap-6">
-          <div className='w-full'>
-
-            <StockAlert data={lowStock} onSeeAll={handleStockAlertSeeAll} />
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="w-full">
+            <StockAlert
+              currentPage={lowStockCurrentPage}
+              setCurrentPage={(page) => setLowStockCurrentPage(page)}
+              totalPages={lowStockTotalPages}
+              data={lowStock}
+              onSeeAll={handleStockAlertSeeAll}
+            />
           </div>
-          </div>
+        </div>
       </div>
     </div>
   );

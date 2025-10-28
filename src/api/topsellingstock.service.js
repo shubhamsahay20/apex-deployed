@@ -1,41 +1,46 @@
 import API from './api';
 
-const topSellingStock = async (token) => {
+const topSellingStock = async (token, page, limit) => {
   try {
     if (!token) {
       throw new Error('Authorization Token Require');
     }
-    const res = await API.get(`/report-and-dashbord/top-sales`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await API.get(
+      `/report-and-dashbord/top-sales?page=${page}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     return res.data;
   } catch (error) {
-    throw new Error('Error while geting order');
+    throw error;
   }
 };
 
-const lowStock = async (token) => {
+const lowStock = async (token, page, limit) => {
   try {
     if (!token) {
       throw new Error('Authorization Token Require');
     }
-    const res = await API.get(`/report-and-dashbord/low-stock `, {
-      headers: {
-        Authorization: `Bearer ${token}`,
+    const res = await API.get(
+      `/report-and-dashbord/low-stock?page=${page}&limit=${limit} `,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       },
-    });
+    );
 
     return res.data;
   } catch (error) {
-    throw new Error('Error while geting order');
+    throw error;
   }
 };
-
 
 export default {
   topSellingStock,
-  lowStock
+  lowStock,
 };
