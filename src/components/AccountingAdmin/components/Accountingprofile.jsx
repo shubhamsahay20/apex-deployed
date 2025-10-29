@@ -209,10 +209,6 @@ const Accountingprofile = () => {
                 <thead className="bg-gray-50 border-t border-b text-gray-600">
                   <tr>
                     <th className="px-6 py-3">Article</th>
-                    {/* <th className="px-6 py-3">Size</th>
-                    <th className="px-6 py-3">Color</th>
-                    <th className="px-6 py-3">Soft/Hard</th>
-                    <th className="px-6 py-3">Quantity Available</th> */}
                     <th className="px-6 py-3">Comment</th>
                     <th className="px-6 py-3">Action</th>
                   </tr>
@@ -221,10 +217,6 @@ const Accountingprofile = () => {
                   {orderData.map((item, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-6 py-3">{item.article}</td>
-                      {/* <td className="px-6 py-3">{item.size}</td>
-                      <td className="px-6 py-3">{item.requirements}</td>
-                      <td className="px-6 py-3">{item.type}</td>
-                      <td className="px-6 py-3">{item.quantity}</td> */}
                       <td className="px-6 py-3">{item.customer}</td>
                       <td className="px-6 py-3 text-red-500 cursor-pointer">
                         <FiTrash2 />

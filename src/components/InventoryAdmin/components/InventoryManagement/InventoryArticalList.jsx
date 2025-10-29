@@ -122,28 +122,6 @@ const InventoryArticalList = () => {
     })
   }
 
-  // const handleDelete = (id) => {
-  //   setCancel(cancel.filter((item) => item.id !== id));
-  //   setDeleteModalOpen(true);
-  // };
-
-  // const handleAccept = async (order) => {
-  //   console.log('order id', order._id);
-
-  //   setApproveModalId(order._id);
-  //   setApproveModalOpan(true);
-  // };
-
-  // ✅ Reject function
-  // const handleReject = (order) => {
-  //   try {
-  //     setSelectedOrder(order._id);
-  //     setActionType('Rejected');
-  //     setIsModalOpen(true);
-  //   } catch (error) {
-  //     toast.error(error.res.data.message);
-  //   }
-  // };
 
   // ✅ Save Note
   const handleSaveNote = async () => {
@@ -181,34 +159,7 @@ const InventoryArticalList = () => {
 
   return (
     <div>
-      {/* <div className="bg-white rounded-lg p-4 text shadow-sm">
-        <h2 className="text-gray-800 text-base font-semibold mb-4">
-          Inventory
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 divide-x">
-          <InventorySummaryItem
-            title="Cartons Available"
-            value="1,114"
-            color="text-blue-600"
-          />
-          <InventorySummaryItem
-            title="Today's Production"
-            value="124"
-            color="text-indigo-700"
-          />
-          <InventorySummaryItem
-            title="Today's Orders"
-            value="2,868"
-            color="text-orange-500"
-          />
-          <InventorySummaryItem
-            title="Today's Sale"
-            value="1,442"
-            color="text-green-600"
-          />
-        </div>
-      </div> */}
-
+      
       <div className='bg-white rounded shadow p-4 my-4'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'>
           <h2 className='text-lg font-semibold text-gray-800'>
@@ -227,9 +178,7 @@ const InventoryArticalList = () => {
               />
               <FaSearch className='absolute top-2.5 left-2.5 text-gray-400 text-sm' />
             </div>
-            {/* <button className="flex items-center gap-1 border px-3 py-1.5 rounded-md text-sm text-gray-700 border-gray-300">
-              <CiCalendar className="text-sm" /> Today
-            </button> */}
+          
 
             <button
               className='border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300'
@@ -348,14 +297,7 @@ const InventoryArticalList = () => {
                       className='text-green-600 cursor-pointer'
                       onClick={() => handleView(row)}
                     />
-                    {/* <PiPencilSimpleLineBold
-                      className="text-blue-600 cursor-pointer"
-                      onClick={() => handleEdit(row)}
-                    /> */}
-                    {/* <FiTrash2
-                      onClick={() => handleDelete(row.id)}
-                      className="text-red-500 cursor-pointer"
-                    /> */}
+                   
                   </td>
                 </tr>
               ))}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { FiSearch } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '../../../../Context/AuthContext'; // import from react-router
+import { useAuth } from '../../../../Context/AuthContext'; 
 
 const SearchBox = () => {
   const { user } = useAuth();
@@ -34,12 +34,7 @@ const SearchBox = () => {
       
       : (
         <div className="relative w-64">
-          {/* <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
-            placeholder="Search product, order"
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md dark:border-strokedark dark:bg-boxdark  focus:outline-none focus:ring-2 focus:ring-blue-500"
-          /> */}
+        
         </div>
       )}
     </>

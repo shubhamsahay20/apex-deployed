@@ -10,7 +10,7 @@ import {
 import { useAuth } from '../../../../Context/AuthContext'
 import { toast } from 'react-toastify'
 import logsService from '../../../../api/logs.service'
-import Loader from '../../../../common/Loader' // ⬅️ import Loader
+import Loader from '../../../../common/Loader' 
 import { useDebounce } from '../../../../hooks/useDebounce'
 
 const Logs = () => {
@@ -20,11 +20,10 @@ const Logs = () => {
   const [totalPage, setTotalPage] = useState(1)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedValue = useDebounce(searchQuery, 500)
-  const [loading, setLoading] = useState(false) // ⬅️ loading state
-
+  const [loading, setLoading] = useState(false) 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true) // ⬅️ show loader before API call
+      setLoading(true) 
       try {
         const res = await logsService.getLogs(
           user.accessToken,
@@ -37,7 +36,7 @@ const Logs = () => {
       } catch (error) {
         toast.error(error.response?.data?.message)
       } finally {
-        setLoading(false) // ⬅️ hide loader after API call
+        setLoading(false) 
       }
     }
     if (debouncedValue.length === 0 || debouncedValue.length >= 2) {
@@ -69,9 +68,7 @@ const Logs = () => {
           </div>
 
           {/* Date Filter */}
-          {/* <button className="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition">
-            <CiCalendar /> Filter by Date
-          </button> */}
+        
 
           {/* Print & PDF */}
           <button

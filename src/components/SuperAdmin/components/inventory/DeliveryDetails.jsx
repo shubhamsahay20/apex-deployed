@@ -18,7 +18,6 @@ const DeliveryDetails = () => {
       console.log('hii');
 
       try {
-        // 👇 replace with your actual API endpoint
         const res = await cartService.getSalesOrderById(user.accessToken, id);
         console.log('response which i am gettin', res);
 

@@ -20,7 +20,7 @@ const Admin_WishList = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
-  const [loading, setLoading] = useState(false); // ✅ Loader state
+  const [loading, setLoading] = useState(false); 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,8 +78,7 @@ const Admin_WishList = () => {
     console.log('hii');
   };
 
-  if (loading) return <Loader />; // ✅ Show loader while fetching
-
+  if (loading) return <Loader />;
   return (
     <div className="p-6 bg-white border rounded shadow-sm min-h-screen">
       <div className="flex items-center justify-between mb-4">

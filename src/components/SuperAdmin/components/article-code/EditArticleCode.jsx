@@ -101,7 +101,6 @@ const EditArticleCode = () => {
                     ? String(articleData.category[0].categoryCode)
                     : ''
                 }
-                // value={articleData?.category[0]?.categoryCode}
                 type="text"
                 id="categoryName"
                 placeholder="Enter Category Name"

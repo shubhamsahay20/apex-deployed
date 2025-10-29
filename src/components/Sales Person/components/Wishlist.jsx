@@ -8,7 +8,7 @@ import { IoMdArrowRoundDown } from 'react-icons/io'
 import DeleteModal from '../../../utils/DeleteModal'
 import salesService from '../../../api/sales.service'
 import { useDebounce } from '../../../hooks/useDebounce'
-import Loader from '../../../common/Loader' // ✅ Import Loader
+import Loader from '../../../common/Loader' 
 
 const Wishlist = () => {
   const [wishListOrder, setWishListOrder] = useState([]);
@@ -20,11 +20,11 @@ const Wishlist = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const debounceValue = useDebounce(searchQuery, 500);
-  const [loading, setLoading] = useState(false); // ✅ Loader state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); // ✅ Start loader
+      setLoading(true); 
       try {
         const res = await cartService.getWishListOrderBySalesPerson(
           user.accessToken,
@@ -78,7 +78,7 @@ const Wishlist = () => {
     console.log('hii');
   };
 
-  if (loading) return <Loader />; // ✅ Show loader while fetching
+  if (loading) return <Loader />; 
 
   return (
     <div className="p-6 bg-white border rounded shadow-sm min-h-screen">

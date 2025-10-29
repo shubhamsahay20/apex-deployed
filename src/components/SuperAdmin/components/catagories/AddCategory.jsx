@@ -205,7 +205,7 @@ export default function AddCategory({ onSubmit, onCancel }) {
     color: [],
     soft_hard: [],
     A_B: [],
-    image: [], // changed to array
+    image: [],
   });
 
   const [preview, setPreview] = useState([]);

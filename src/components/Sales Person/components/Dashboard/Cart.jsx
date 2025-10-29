@@ -14,11 +14,11 @@ const Cart = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
   const [selectedCart, setSelectedCart] = useState(null);
-  const [loading, setLoading] = useState(false); 
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const res = await cartService.getOrderBySalesPerson(user.accessToken);
         console.log('get all order', res.data);
@@ -26,7 +26,7 @@ const Cart = () => {
       } catch (error) {
         toast.error(error.response?.data?.message);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
     fetchData();
@@ -71,7 +71,7 @@ const Cart = () => {
     }
   };
 
-  if (loading) return <Loader />; 
+  if (loading) return <Loader />;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -83,9 +83,12 @@ const Cart = () => {
       </div>
 
       {/* Cart Customers */}
-      {salesOrder.filter((order) => order.items && order.items.length > 0).length === 0 ? (
+      {salesOrder.filter((order) => order.items && order.items.length > 0)
+        .length === 0 ? (
         <div className="max-w-6xl mx-auto text-center py-20">
-          <p className="text-lg font-semibold text-gray-600">🛒 Your cart is empty</p>
+          <p className="text-lg font-semibold text-gray-600">
+            🛒 Your cart is empty
+          </p>
         </div>
       ) : (
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -111,7 +114,7 @@ const Cart = () => {
                       📍 Customer ADDRESS
                     </p>
                     <p className="text-sm text-gray-700">
-                      {order.Location[0].address}, {order.Location[0].city},{" "}
+                      {order.Location[0].address}, {order.Location[0].city},{' '}
                       {order.Location[0].state}
                     </p>
                   </div>
@@ -136,7 +139,7 @@ const Cart = () => {
                       )}
 
                       <p className="font-medium text-gray-700 mb-2">
-                        Article:{" "}
+                        Article:{' '}
                         <span className="text-blue-600">{itm.article}</span>
                       </p>
 
@@ -156,7 +159,7 @@ const Cart = () => {
                       </div>
 
                       <p className="text-sm text-gray-700">
-                        Quantity:{" "}
+                        Quantity:{' '}
                         <span className="font-semibold text-blue-700">
                           {itm.quantity}
                         </span>

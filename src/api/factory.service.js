@@ -27,12 +27,15 @@ const getFactoryById = (token, id) => {
   });
 };
 
-const getFactoryStockId = (token, id, page, limit,searchQuery='') => {
-  return API.get(`/production/factory/${id}?page=${page}&limit=${limit}&search=${searchQuery}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
+const getFactoryStockId = (token, id, page, limit, searchQuery = '') => {
+  return API.get(
+    `/production/factory/${id}?page=${page}&limit=${limit}&search=${searchQuery}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
-  });
+  );
 };
 
 const EditFactoryById = (token, id, data) => {

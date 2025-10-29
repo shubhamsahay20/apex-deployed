@@ -1,11 +1,17 @@
 import API from './api';
 
-const addProduction = (token, data) => {
-  return API.post(`/production/addProduct`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+const addProduction = async (token, data) => {
+  if (!token) return;
+  try {
+    const res = await API.post(`/production/addProduct`, data, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return res;
+  } catch (error) {
+    throw error;
+  }
 };
 
 const getAllProduction = (token, page, limit, searchQuery = '') => {
@@ -44,7 +50,7 @@ const deleteProduction = (token, id) => {
       Authorization: `Bearer ${token}`,
     },
   });
-};
+};                                                                             
 
 const qrScan = async (token, data) => {
   try {
@@ -98,5 +104,5 @@ export default {
   byPassWithoutQr,
   outOfDeliveryWithoutQr,
   getProductionById,
-  getProductionWithNoQr
+  getProductionWithNoQr,
 };

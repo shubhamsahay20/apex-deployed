@@ -79,14 +79,7 @@ const InternalDetails = () => {
                         className="border px-4 py-2 rounded-md text-sm w-full"
                     />
                 </div>
-                {/* <div>
-                    <label className="text-sm font-medium"></label>
-                    <input
-                        type="text"
-                        value={state?.article || ""}
-                        className="border px-4 py-2 rounded-md text-sm w-full"
-                    />
-                </div> */}
+              
                 <div>
                     <label className="text-sm font-medium">Source Location</label>
                     <select
@@ -120,10 +113,6 @@ const InternalDetails = () => {
 
 
             </div>
-
-            {/* <p className="text-sm text-blue-600 font-medium mt-2">
-                Sale Order Reference Number: <span className="underline cursor-pointer">{state?.saleRef}</span>
-            </p> */}
 
             <div className="bg-white border rounded-lg p-4">
                 <h3 className="text-sm font-semibold text-gray-700 mb-3">Selected Products For Delivery</h3>

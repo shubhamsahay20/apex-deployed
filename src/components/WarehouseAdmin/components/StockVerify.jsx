@@ -210,20 +210,6 @@ const StockVerify = () => {
                         }}
                         className="text-green-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
                       />
-                      {/* <PiPencilSimpleLineBold
-                                         onClick={(e) => {
-                                           e.stopPropagation();
-                                           // your eye logic
-                                         }}
-                                         className="text-blue-500 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                                       /> */}
-                      {/* <FiTrash2
-                                         onClick={(e) => {
-                                           e.stopPropagation();
-                                           // your eye logic
-                                         }}
-                                         className="text-red-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                                       /> */}
                     </div>
                   </td>
                 </tr>
@@ -272,15 +258,6 @@ const StockVerify = () => {
               <option value="SCANNED">SCANNED</option>
               <option value="UNSCANNED">UNSCANNED</option>
             </select>
-
-            {/* Quantity field */}
-            {/* <label className="block mb-2 text-sm font-medium">Quantity</label>
-            <input
-              type="number"
-              value={scanQuantity}
-              onChange={(e) => setScanQuantity(e.target.value)}
-              className="border p-2 rounded w-full mb-4"
-            /> */}
 
             <div className="flex justify-end gap-3">
               <button

@@ -4,7 +4,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { useLocation } from 'react-router-dom';
 import cartService from '../../../api/cart.service';
 import { useAuth } from '../../../Context/AuthContext';
-// import API from '../../../../api/api';
+
 
 const AccountSectionViewOrder = () => {
   const [orders, setOrders] = useState({});
@@ -22,7 +22,7 @@ const AccountSectionViewOrder = () => {
       console.log('hii');
 
       try {
-        // 👇 replace with your actual API endpoint
+        
         const res = await cartService.getSalesOrderById(user.accessToken,id);
         console.log("response which i am gettin",res);
         

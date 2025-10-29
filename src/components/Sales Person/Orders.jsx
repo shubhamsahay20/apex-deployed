@@ -60,7 +60,7 @@ const Orders = () => {
 
     const rows = orders.flatMap((order) =>
       order.items.map((item, idx) => [
-        idx === 0 ? order.salesOrderNo : '', // show order number only for first item
+        idx === 0 ? order.salesOrderNo : '',
         item.article,
         item.categoryCode,
         item.color,

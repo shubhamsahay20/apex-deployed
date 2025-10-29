@@ -28,12 +28,6 @@ const verifyOtp = ({ phone, otp }) =>
     return res.data;
   });
 
-// const addCategory = (token, data) =>
-//   API.post('/product/category', data, {
-//     headers: {
-//       Authorization: `Bearer ${token}`,
-//     },
-//   });
 
 const addCategoryForMultipleArticle = async (token, data) => {
   if (!token) throw new Error('Token is Not Valid');
@@ -369,7 +363,6 @@ export default {
   verifyOtp,
   logout,
   getCategories,
-  // addCategory,
   addCategoryForMultipleArticle,
   editCategory,
   editArticleCode,

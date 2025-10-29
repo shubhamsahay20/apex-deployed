@@ -49,7 +49,6 @@ const ViewArticle = () => {
           <h1 className="text-3xl font-semibold text-gray-900">
             {articleData.article}
           </h1>
-          {/* <p className="text-sm text-gray-500 mt-1">Article ID: {articleData._id}</p> */}
         </div>
 
         <button
@@ -88,12 +87,7 @@ const ViewArticle = () => {
                 <span className="font-medium text-gray-700">Size:</span>{' '}
                 {articleData.size}
               </p>
-              {/* <p className="text-red-600">
-                <span className="font-medium  text-gray-700">
-                  Article Code :
-                </span>{' '}
-                {articleData.articleCode || 'ArticleCode Not Assign '}
-              </p> */}
+             
             </div>
 
             {/* Type */}

@@ -48,12 +48,12 @@ const getAnnouncementById = async (token, id) => {
 
     return res.data;
   } catch (error) {
-    toast.error(error.response?.data.message || 'Error');
     throw error;
   }
 };
 
 const updateAnnouncementById = async (token, id, data) => {
+  if (!token || !id) return;
   try {
     const res = await API.put(`/announcement/${id}/update`, data, {
       headers: getAuthHeaders(token),
@@ -61,7 +61,6 @@ const updateAnnouncementById = async (token, id, data) => {
 
     return res.data;
   } catch (error) {
-    toast.error(error.response?.data.message || 'Error');
     throw error;
   }
 };

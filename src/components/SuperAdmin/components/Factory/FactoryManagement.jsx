@@ -7,7 +7,7 @@ import { useAuth } from '../../../../Context/AuthContext'
 import { toast } from 'react-toastify'
 import DeleteModal from '../../../../utils/DeleteModal'
 import Loader from '../../../../common/Loader'
-import { useDebounce } from '../../../../hooks/useDebounce' // ✅ import debounce
+import { useDebounce } from '../../../../hooks/useDebounce' 
 
 const FactoryManagement = () => {
   const [showModal, setShowModal] = useState(false)
@@ -27,7 +27,7 @@ const FactoryManagement = () => {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPage, setTotalPage] = useState(1)
   
-  // ✅ Search state
+  
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 500)
 
@@ -39,7 +39,7 @@ const FactoryManagement = () => {
           user.accessToken,
           currentPage,
           10,
-          debouncedSearch // ✅ pass search term to API
+          debouncedSearch 
         )
         console.log('get factory', res.data.data)
         setFactoryData(res.data?.data.factories)
@@ -50,8 +50,7 @@ const FactoryManagement = () => {
         setLoading(false)
       }
     })()
-  }, [currentPage, user.accessToken, debouncedSearch]) // ✅ include debouncedSearch
-
+  }, [currentPage, user.accessToken, debouncedSearch]) 
   const handleChange = e => {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
@@ -94,11 +93,11 @@ const FactoryManagement = () => {
         <h2 className='text-lg font-semibold'>Factory Management</h2>
         <div className='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto mt-4 sm:mt-0'>
           
-          {/* ✅ Search Input */}
+          {/*  Search Input */}
           <input
             type='text'
             placeholder='Search by Factory Name, Country, State, City'
-            value={searchQuery} // ✅ controlled input
+            value={searchQuery} 
             onChange={e => setSearchQuery(e.target.value)}
             className='px-3 py-1.5 border rounded-md text-sm focus:outline-none focus:ring w-full sm:w-60'
           />

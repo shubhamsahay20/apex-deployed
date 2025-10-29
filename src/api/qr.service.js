@@ -10,7 +10,7 @@ const AddQrCode = async (token, data) => {
     return res.data;
   } catch (error) {
     console.error(error, 'Error while calling Qr Service');
-    throw error; // so caller knows it failed
+    throw error; 
   }
 };
 
@@ -24,7 +24,7 @@ const internalStockTransfer = async (token, data) => {
     return res.data;
   } catch (error) {
     console.error(error, 'Error while calling Qr Service');
-    throw error; // so caller knows it failed
+    throw error; 
   }
 };
 

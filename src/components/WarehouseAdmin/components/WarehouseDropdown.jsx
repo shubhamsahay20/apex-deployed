@@ -57,7 +57,7 @@ const WarehouseDropdown = () => {
 
   // 🔹 Initial + search change
   useEffect(() => {
-    if (!open) return; // Only fetch if dropdown is open
+    if (!open) return; 
 
     // Call API only if debounced value length is 0 or >= 2
     if (debounceValue.length === 0 || debounceValue.length >= 2) {

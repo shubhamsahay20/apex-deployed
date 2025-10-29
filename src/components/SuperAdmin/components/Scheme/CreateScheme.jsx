@@ -108,7 +108,7 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 placeholder="dd/mm/yyyy"
                 value={formData.date}
                 onChange={(e) => handleChange('date', e.target.value)}
-                min={today} // prevent past dates
+                min={today} 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -127,7 +127,7 @@ export default function CreateScheme({ onSubmit, onCancel }) {
                 placeholder="dd/mm/yyyy"
                 value={formData.expireDate}
                 onChange={(e) => handleChange('expireDate', e.target.value)}
-                min={formData.date || today} // prevent past dates and dates before Starting Date
+                min={formData.date || today} 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

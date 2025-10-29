@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 const AddNewCustomer = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [customer, setCustomer] = useState([]); // Sales Person list
+  const [customer, setCustomer] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     email: '',

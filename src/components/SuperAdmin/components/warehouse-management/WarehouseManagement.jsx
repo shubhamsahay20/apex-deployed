@@ -22,8 +22,8 @@ const WarehouseManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectId, setSelectId] = useState(null);
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false); // ✅ For main data loading
-  const [deleteLoading, setDeleteLoading] = useState(false); // ✅ For delete operation
+  const [loading, setLoading] = useState(false); 
+  const [deleteLoading, setDeleteLoading] = useState(false); 
   const [warehouseData, setWarehouseData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -31,10 +31,10 @@ const WarehouseManagement = () => {
   const debounceValue = useDebounce(searchQuery, 500);
   const navigate = useNavigate();
 
-  // ✅ Added currentPage dependency
+  //  Added currentPage dependency
 
   const fetchWarehouses = async () => {
-    setLoading(true); // ✅ Start main loader
+    setLoading(true); 
     try {
       const res = await warehouseService.getAllWarehouse(
         user.accessToken,
@@ -48,7 +48,7 @@ const WarehouseManagement = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message);
     } finally {
-      setLoading(false); // ✅ Stop main loader
+      setLoading(false); 
     }
   };
 
@@ -76,7 +76,7 @@ const WarehouseManagement = () => {
   };
 
   const confirmDelete = async () => {
-    setDeleteLoading(true); // ✅ Start delete loader
+    setDeleteLoading(true);
     if (!selectId) return;
 
     try {
@@ -119,7 +119,7 @@ const WarehouseManagement = () => {
         </div>
       </div>
 
-      {/* ✅ Show loader when fetching data */}
+      {/*  Show loader when fetching data */}
       {loading ? (
         <div className="flex justify-center py-8">
           <Loader />
@@ -177,7 +177,7 @@ const WarehouseManagement = () => {
           <div className="flex justify-between items-center mt-4 text-sm text-gray-600">
             <button
               onClick={() => setCurrentPage((prev) => prev - 1)}
-              disabled={currentPage === 1 || loading} // ✅ Disable while loading
+              disabled={currentPage === 1 || loading} 
               className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
@@ -187,7 +187,7 @@ const WarehouseManagement = () => {
             </span>
             <button
               onClick={() => setCurrentPage((prev) => prev + 1)}
-              disabled={currentPage === totalPage || loading} // ✅ Disable while loading
+              disabled={currentPage === totalPage || loading} 
               className="px-3 py-1 border rounded bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Next
@@ -305,7 +305,7 @@ const WarehouseManagement = () => {
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
         onConfirm={confirmDelete}
-        loading={deleteLoading} // ✅ Pass loading state to modal
+        loading={deleteLoading} 
       />
     </div>
   );

@@ -239,12 +239,6 @@ const CustomerEdit = () => {
           <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm">
             Save
           </button>
-          {/* <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100">
-            Print
-          </button>
-          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded text-sm hover:bg-gray-100">
-            PDF
-          </button> */}
         </div>
       </form>
     </div>

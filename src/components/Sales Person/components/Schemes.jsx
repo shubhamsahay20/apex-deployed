@@ -4,7 +4,7 @@ import schemesService from '../../../api/schemes.service';
 import { useAuth } from '../../../Context/AuthContext';
 import { IoFilter } from 'react-icons/io5';
 import { SchemeApplicationForm } from './SchemeApplicationForm';
-import Loader from '../../../common/Loader'; // ✅ Import Loader
+import Loader from '../../../common/Loader'; 
 
 const SchemeList = () => {
   const { user } = useAuth();
@@ -13,11 +13,11 @@ const SchemeList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
-  const [loading, setLoading] = useState(false); // ✅ Loader state
+  const [loading, setLoading] = useState(false); e
 
   useEffect(() => {
     (async () => {
-      setLoading(true); // ✅ Start loader
+      setLoading(true); 
       try {
         const res = await schemesService.getAllSchemes(
           user.accessToken,
@@ -29,7 +29,7 @@ const SchemeList = () => {
       } catch (error) {
         toast.error(error.response?.message || 'Error fetching schemes');
       } finally {
-        setLoading(false); // ✅ Stop loader
+        setLoading(false); 
       }
     })();
   }, [user, currentPage]);
@@ -42,7 +42,7 @@ const SchemeList = () => {
           <SchemeApplicationForm onBack={() => setShowForm(false)} />
         ) : (
           <>
-            {/* ✅ Show loader when fetching schemes */}
+           
             {loading ? (
               <Loader />
             ) : (

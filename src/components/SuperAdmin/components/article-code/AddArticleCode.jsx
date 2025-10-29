@@ -84,12 +84,10 @@ export default function AddArticleCode() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // 🔹 Fetch articles on page or search change
   useEffect(() => {
     fetchArticles(page, search);
   }, [page, search]);
 
-  // 🔹 Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

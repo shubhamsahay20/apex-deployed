@@ -5,7 +5,7 @@ import warehouseService from '../../../../api/warehouse.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 
-// ⬇️ import PDF utils
+//  import PDF utils
 import {
   exportProductionPDF,
   printProductionPDF,
@@ -171,7 +171,6 @@ const WarehouseDetails = () => {
               <th className="p-3 font-normal">Color</th>
               <th className="p-3 font-normal">Soft/Hard</th>
               <th className="p-3 font-normal">Quantity Available</th>
-              {/* <th className="p-3 font-normal">Action</th> */}
             </tr>
           </thead>
           <tbody className="text-[#1F2937]">
@@ -183,12 +182,7 @@ const WarehouseDetails = () => {
                 <td className="p-3">{item.color}</td>
                 <td className="p-3">{item.type}</td>
                 <td className="p-3">{item.AvailableQuantity}</td>
-                {/* <td
-                  className="p-3 text-center text-red-500 cursor-pointer"
-                  onClick={() => setDeleteIndex(index)}
-                >
-                  <FiTrash2 />
-                </td> */}
+               
               </tr>
             ))}
           </tbody>

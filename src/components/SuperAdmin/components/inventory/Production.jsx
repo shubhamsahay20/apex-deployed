@@ -76,13 +76,7 @@ const Production = () => {
   return (
     <div className=' space-y-6'>
       {/* Cards */}
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card title="Total Deliveries" value="1,114" color="text-blue-600" />
-        <Card title="Today's Deliveries" value="142" color="text-green-600" />
-        <Card title="Stock Availability" value="1,024" color="text-indigo-600" />
-        <Card title="Pending Deliveries" value="18" color="text-red-600" />
-      </div> */}
-
+     
       {/* Delivery Orders List */}
       <div className='bg-white rounded shadow p-4'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4'>

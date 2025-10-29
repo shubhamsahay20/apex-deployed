@@ -12,7 +12,7 @@ function WarehouseDashboard() {
   const [warehouseData, setWarehouseData] = useState([]);
   const [dashboardData, setDashboardData] = useState({});
   const [topStock, setTopStock] = useState([]);
-  const [lowStock, setLowStock] = useState([]); // ✅ added lowStock state
+  const [lowStock, setLowStock] = useState([]); 
   const [loading, setLoading] = useState(false);
 
   const [lowStockCurrentPage, setLowStockCurrentPage] = useState(1);
@@ -72,7 +72,7 @@ function WarehouseDashboard() {
 
         setTopStockTotalPages(topstockResponse.pagination.totalPages);
 
-        // ✅ fetch low stock here
+        //  fetch low stock here
         const lowStockResponse = await topsellingstockService.lowStock(
           user.accessToken,
           lowStockCurrentPage,
@@ -106,7 +106,7 @@ function WarehouseDashboard() {
   return (
     <div className="min-h-screen bg-meta-2 dark:bg-boxdark-2">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* ✅ Warehouse Summary */}
+        {/*  Warehouse Summary */}
         <div className="bg-white rounded-lg p-4 text shadow-sm">
           <h2 className="text-gray-800 text-base font-semibold mb-4">
             Warehouse Management
@@ -135,7 +135,7 @@ function WarehouseDashboard() {
           </div>
         </div>
 
-        {/* ✅ Charts + Top Selling */}
+        {/* Charts + Top Selling */}
         <div className="flex flex-col gap-6">
           <div className="w-full">
             <SalesChart data={warehouseData} title={'Warehouse Management'} />
@@ -153,7 +153,7 @@ function WarehouseDashboard() {
           </div>
         </div>
 
-        {/* ✅ Stock Alert moved to last, full width */}
+        {/*  Stock Alert moved to last, full width */}
         <div className="w-full">
           <StockAlert
             currentPage={lowStockCurrentPage}

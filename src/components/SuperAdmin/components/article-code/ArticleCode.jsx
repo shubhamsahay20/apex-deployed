@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Loader from '../../../../common/Loader'; // Loader import added
+import Loader from '../../../../common/Loader';
 import { FaPlus, FaSearch } from 'react-icons/fa';
 import { FiEye, FiTrash2 } from 'react-icons/fi';
 import { PiPencilSimpleLineBold } from 'react-icons/pi';
@@ -26,14 +26,14 @@ const ArticleCode = () => {
   const { user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false); // Loader state
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       (async () => {
-        setLoading(true); // Loader ON
+        setLoading(true); 
         try {
           const res = await authService.getCategories(
             user.accessToken,
@@ -54,7 +54,7 @@ const ArticleCode = () => {
             error?.response?.data.message || 'Failed to fetch categories',
           );
         }
-        setLoading(false); // Loader OFF
+        setLoading(false); 
       })();
     }
   }, [user.accessToken, debounceValue, currentPage]);
@@ -77,7 +77,7 @@ const ArticleCode = () => {
       toast.error('No category selected to delete');
       return;
     }
-    setLoading(true); // Loader ON
+    setLoading(true); 
     try {
       const res = await authService.DeleteArticleCode(
         selectId,
@@ -92,7 +92,7 @@ const ArticleCode = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message, 'Error deleting Category');
     }
-    setLoading(false); // Loader OFF
+    setLoading(false); 
   };
 
   const handleView = (item) => {
@@ -165,7 +165,6 @@ const ArticleCode = () => {
                   <td className="px-6 py-4">
                     <div className="flex justify-center gap-4 text-lg">
                       <button title="View" onClick={() => handleView(row)}>
-                        {/* <FiEye className="text-blue-600 hover:text-blue-700 cursor-pointer" /> */}
                       </button>
                       <button
                         title="Edit"

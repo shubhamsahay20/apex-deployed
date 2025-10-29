@@ -17,26 +17,27 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
 
   useEffect(() => {
     (async () => {
-     try {
-       const res = await announcementService.getAnnouncementById(
-         user.accessToken,
-         announcement,
-       );
-       console.log('its my res', res.data);
-       setFormData({
-         date: res.data?.date,
-         title: res.data?.title,
-         description: res.data?.description,
-       });
-     } catch (error) {
-      toast.error(error?.response?.data?.message) 
-     } finally{
-      setLoading(false)
-     }
+      try {
+        const res = await announcementService.getAnnouncementById(
+          user.accessToken,
+          announcement,
+        );
+        console.log('its my res', res.data);
+        setFormData({
+          date: res.data?.date,
+          title: res.data?.title,
+          description: res.data?.description,
+        });
+      } catch (error) {
+        toast.error(error?.response?.data?.message);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, [announcement]);
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!formData.date.trim()) {
       toast.error('Date is required');
       return;
@@ -50,8 +51,7 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
       return;
     }
 
-    e.preventDefault();
-    setLoading(true)
+    setLoading(true);
     try {
       const payload = {
         description: formData.description,
@@ -79,9 +79,11 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
         });
       }
     } catch (error) {
+      console.log('errr |||', error);
+
       toast.error(error.response?.data?.message);
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,7 +93,7 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
       [field]: value,
     }));
   };
-  if(loading) return <Loader/>
+  if (loading) return <Loader />;
 
   return (
     <div className=" bg-gray-50 min-h-screen">
@@ -125,7 +127,6 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
               />
             </div>
 
-            {/* Announcement Title Field */}
             <div>
               <label
                 htmlFor="title"
@@ -143,7 +144,6 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
               />
             </div>
 
-            {/* Description Field */}
             <div>
               <label
                 htmlFor="description"
@@ -162,7 +162,6 @@ export default function EditAnnouncement({ announcement, onSubmit, onCancel }) {
             </div>
           </div>
 
-          {/* Submit Button */}
           <div className="mt-6">
             <button
               type="submit"

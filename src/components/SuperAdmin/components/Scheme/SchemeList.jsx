@@ -101,9 +101,7 @@ export const SchemeList = ({ handleAddClick, handleEditClick }) => {
             />
             <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" />
           </div>
-          {/* <button className="border px-4 py-2 rounded text-sm text-gray-600 hover:bg-gray-50 flex items-center gap-1">
-            Filters
-          </button> */}
+        
           <button
             onClick={() => exportSchemesPDF(schemes)}
             className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"

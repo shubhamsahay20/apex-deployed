@@ -70,7 +70,7 @@ const CreateQRCode = () => {
 
   // search + open trigger
   useEffect(() => {
-    if (!open) return; // Only fetch if dropdown is open
+    if (!open) return;
 
     // Call API only if debounced value length is 0 or >= 2
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
@@ -286,7 +286,6 @@ const CreateQRCode = () => {
       <h2 className="text-lg font-semibold mb-4">Create QR Code</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {/* ✅ Search + Infinite Scroll Dropdown for Production No. */}
         <div className="relative text-left">
           <label className="block mb-1 text-sm text-gray-700">
             Production No.

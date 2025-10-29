@@ -7,9 +7,9 @@ import { toast } from 'react-toastify';
 import authService from '../../../../api/auth.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import DeleteModal from '../../../../utils/DeleteModal';
-import Loader from '../../../../common/Loader'; // ✅ Import Loader
+import Loader from '../../../../common/Loader';
 
-// ✅ Import PDF utils
+//  Import PDF utils
 import {
   exportProductionPDF,
   printProductionPDF,
@@ -22,8 +22,8 @@ const CustomerManagement = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectId, setSelectId] = useState(null);
 
-  const [loading, setLoading] = useState(false); // ✅ For API fetching
-  const [deleteLoading, setDeleteLoading] = useState(false); // ✅ For delete process
+  const [loading, setLoading] = useState(false); 
+  const [deleteLoading, setDeleteLoading] = useState(false); 
 
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -77,7 +77,7 @@ const CustomerManagement = () => {
 
   return (
     <div className="space-y-6">
-      {/* ✅ Show loader when fetching customers */}
+      {/*  Show loader when fetching customers */}
       {loading ? (
         <Loader />
       ) : (
@@ -200,7 +200,7 @@ const CustomerManagement = () => {
         isOpen={showDeleteModal}
         onConfirm={confirmDelete}
         onClose={() => setShowDeleteModal(false)}
-        loading={deleteLoading} // ✅ If you want to disable confirm button while deleting
+        loading={deleteLoading} 
       />
     </div>
   );

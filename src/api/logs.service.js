@@ -10,7 +10,7 @@ const getLogs = async (token,page,limit,searchQuery='') => {
 
     return res.data;
   } catch (error) {
-    throw new Error('Error while geting qr scan');
+    throw error
   }
 };
 

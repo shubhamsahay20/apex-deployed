@@ -1,9 +1,5 @@
 import API from './api';
 
-
-
-
-
 const addNotes = async (token, id, data) => {
   try {
     if (!token) {
@@ -18,10 +14,9 @@ const addNotes = async (token, id, data) => {
 
     return res.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message);
+    throw error;
   }
 };
-
 
 const updateDeliveryStatus = async (token, id, data) => {
   try {
@@ -41,7 +36,6 @@ const updateDeliveryStatus = async (token, id, data) => {
   }
 };
 
-
 const getStockInInventory = async (token, page, limit) => {
   try {
     if (!token) {
@@ -58,14 +52,13 @@ const getStockInInventory = async (token, page, limit) => {
 
     return res.data;
   } catch (error) {
-    throw new Error('Error while geting order');
+    throw error;
   }
 };
 
-
 const approval = async (token, id, data) => {
   try {
-    console.log("idd to backend",id);
+    console.log('idd to backend', id);
     if (!token) {
       throw new Error('Authorization token is no valid');
     }
@@ -86,5 +79,5 @@ export default {
   addNotes,
   approval,
   getStockInInventory,
-  updateDeliveryStatus
+  updateDeliveryStatus,
 };

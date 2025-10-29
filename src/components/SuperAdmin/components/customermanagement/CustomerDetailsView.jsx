@@ -4,7 +4,7 @@ import authService from '../../../../api/auth.service';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../../../Context/AuthContext';
 
-// ⬇️ Import PDF utils
+//  Import PDF utils
 import {
   exportProductionPDF,
   printProductionPDF,
@@ -38,11 +38,6 @@ const CustomerDetailsView = () => {
 
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
-
-  // const handleDeleteClick = (id) => {
-  //   setDeleteId(id);
-  //   setShowConfirm(true);
-  // };
 
   const confirmDelete = () => {
     setOrderHistory(orderHistory.filter((item) => item.id !== deleteId));

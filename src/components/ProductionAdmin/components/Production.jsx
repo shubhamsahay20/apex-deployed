@@ -17,7 +17,7 @@ const QRDropdownPage = () => {
   const [search, setSearch] = useState('');
   const [fetching, setFetching] = useState(false);
 
-  const [open, setOpen] = useState(false); // dropdown open/close
+  const [open, setOpen] = useState(false); 
   const wrapperRef = useRef(null);
   const debounceValue = useDebounce(search, 500);
 
@@ -52,7 +52,7 @@ const QRDropdownPage = () => {
 
   // 🔹 Initial + search change
   useEffect(() => {
-    if (!open) return; // Only fetch if dropdown is open
+    if (!open) return; 
 
     // Call API only if debounced value length is 0 or >= 2
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
@@ -106,8 +106,7 @@ const QRDropdownPage = () => {
 
   const handleSelect = (value) => {
     setSelectPN(value);
-    setOpen(false); // close after selection
-
+    setOpen(false); 
     try {
       const jsonData = JSON.parse(value);
       if (typeof jsonData === 'object') {

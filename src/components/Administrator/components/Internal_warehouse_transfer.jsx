@@ -27,15 +27,14 @@ const InternalWarehouseTransfer = () => {
   const dropdownRef = useRef(null);
 
   // Data lists
-  const [warehouseData, setWarehouseData] = useState([]); // all warehouses (for To Warehouse)
-  const [pnNumber, setPnNumber] = useState([]); // stock-driven PN list (from stockService)
-
+  const [warehouseData, setWarehouseData] = useState([]); 
+  const [pnNumber, setPnNumber] = useState([]); 
   // Form states
   const [productionNo, setProductionNo] = useState('');
   const [article, setArticle] = useState('');
   const [factory, setFactory] = useState({ id: '', name: '' });
-  const [fromWarehouse, setFromWarehouse] = useState(''); // warehouseId
-  const [toWarehouse, setToWarehouse] = useState(''); // warehouseId
+  const [fromWarehouse, setFromWarehouse] = useState(''); 
+  const [toWarehouse, setToWarehouse] = useState(''); 
   const [availableQty, setAvailableQty] = useState(0);
   const [quantity, setQuantity] = useState(0);
   const [category, setCategory] = useState({
@@ -50,10 +49,9 @@ const InternalWarehouseTransfer = () => {
 
   const printRef = useRef();
 
-  // -----------------------
+
   // Initial loads
-  // -----------------------
-  // 1) Load pn stock once (your original logic) so we can map PN -> warehouseData
+ 
   useEffect(() => {
     (async () => {
       try {
@@ -70,7 +68,7 @@ const InternalWarehouseTransfer = () => {
           color: item.color,
           quality: item.quality,
           factory: item.factory,
-          warehouseData: item.warehouseData || [], // important for From Warehouse
+          warehouseData: item.warehouseData || [],
         }));
 
         // make unique by productionNo (keep latest item)
@@ -105,9 +103,9 @@ const InternalWarehouseTransfer = () => {
     })();
   }, [user.accessToken]);
 
-  // -----------------------
+ 
   // Production searchable dropdown (productionService)
-  // -----------------------
+  
   const fetchProducts = async (pageNo = 1, searchTerm = '') => {
     if (fetching) return;
     setFetching(true);
@@ -128,7 +126,7 @@ const InternalWarehouseTransfer = () => {
       else setProductData((prev) => [...prev, ...products]);
 
       if (pagination) setHasMore(pageNo < (pagination.totalPages || 1));
-      else setHasMore(products.length === 20); // fallback guess
+      else setHasMore(products.length === 20); 
     } catch (err) {
       toast.error(
         err?.response?.data?.message || 'Failed to fetch productions',
@@ -168,9 +166,8 @@ const InternalWarehouseTransfer = () => {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  // -----------------------
   // When user selects a productionNo from dropdown
-  // -----------------------
+
   const selectProductionNo = async (pn) => {
     // pn could be a string or an object with productionNo
     const pnValue =
@@ -249,9 +246,9 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-  // -----------------------
+
   // When From Warehouse changes (dependent on selected PN's warehouseData)
-  // -----------------------
+
   const handleFromWarehouseChange = (value) => {
     setFromWarehouse(value);
     setQrData(null);
@@ -286,9 +283,8 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-  // -----------------------
   // Create QR (same as your original)
-  // -----------------------
+
   const handleCreateQr = async () => {
     if (
       !factory.id ||
@@ -447,9 +443,9 @@ const InternalWarehouseTransfer = () => {
     setQrData(null);
   };
 
-  // -----------------------
+
   // Render
-  // -----------------------
+
   return loading ? (
     <Loader />
   ) : (

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { FiEye, FiTrash2 } from 'react-icons/fi'
-// import { PiPencilSimpleLineBold } from "react-icons/pi";
 import { useNavigate } from 'react-router-dom'
 import authService from '../../../api/auth.service'
 import { useAuth } from '../../../Context/AuthContext'
 import { toast } from 'react-toastify'
-import Loader from '../../../common/Loader' // ✅ Import Loader
+import Loader from '../../../common/Loader' 
 import { useDebounce } from '../../../hooks/useDebounce'
 import { exportCustomersPDF, printCustomersPDF } from '../../../utils/PdfModel'
 
@@ -41,7 +40,7 @@ const CustomersList = () => {
             error.response?.data?.message || 'Error fetching customers'
           )
         } finally {
-          setLoading(false) // ✅ Hide loader after fetching
+          setLoading(false) 
         }
       })()
     }
@@ -54,7 +53,7 @@ const CustomersList = () => {
 
   const confirmDelete = () => {
     customers.splice(deleteIndex, 1)
-    setCustomers([...customers]) // ✅ Update state after deletion
+    setCustomers([...customers]) 
     setShowDeleteModal(false)
     setDeleteIndex(null)
   }
@@ -66,7 +65,7 @@ const CustomersList = () => {
   return (
     <div className='p-6 bg-white rounded-md shadow-md'>
       {loading ? (
-        <Loader /> // ✅ Show Loader instead of table while loading
+        <Loader /> 
       ) : (
         <>
           {/* Top Header */}
@@ -82,7 +81,7 @@ const CustomersList = () => {
                 placeholder='Search Article, order'
                 className='pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm'
               />
-              {/* <FaSearch className='absolute top-2.5 left-2.5 text-gray-400 text-sm' /> */}
+            
               <button
                 onClick={() => printCustomersPDF(customers)}
                 className='border px-3 py-1.5 rounded text-sm'

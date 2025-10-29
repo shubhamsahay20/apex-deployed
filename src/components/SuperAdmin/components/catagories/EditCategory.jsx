@@ -5,118 +5,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import authService from '../../../../api/auth.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
-import { ChevronDown, X } from 'lucide-react';
 
-// ✅ Multi-Select Dropdown
-function MultiSelectDropdown({
-  label,
-  options,
-  value,
-  onChange,
-  placeholder,
-  id,
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = React.useRef(null);
-
-  React.useEffect(() => {
-    function handleClickOutside(event) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const handleSelect = (option) => {
-    if (value.includes(option)) {
-      onChange(value.filter((v) => v !== option));
-    } else {
-      onChange([...value, option]);
-    }
-  };
-
-  const handleRemove = (option, e) => {
-    e.stopPropagation();
-    onChange(value.filter((v) => v !== option));
-  };
-
-  const clearAll = (e) => {
-    e.stopPropagation();
-    onChange([]);
-  };
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-gray-700 mb-2"
-      >
-        {label}
-      </label>
-      <div
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full min-h-[42px] px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white cursor-pointer flex items-center flex-wrap gap-2"
-      >
-        {value.length === 0 ? (
-          <span className="text-gray-400">{placeholder}</span>
-        ) : (
-          value.map((item) => (
-            <span
-              key={item}
-              className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm"
-            >
-              {item}
-              <button
-                type="button"
-                onClick={(e) => handleRemove(item, e)}
-                className="hover:bg-blue-200 rounded p-0.5"
-              >
-                <X size={14} />
-              </button>
-            </span>
-          ))
-        )}
-        <div className="ml-auto flex items-center gap-1">
-          {value.length > 0 && (
-            <button
-              type="button"
-              onClick={clearAll}
-              className="hover:bg-gray-100 rounded p-1"
-            >
-              <X size={16} className="text-gray-500" />
-            </button>
-          )}
-          <ChevronDown
-            size={20}
-            className={`text-gray-500 transition-transform ${
-              isOpen ? 'rotate-180' : ''
-            }`}
-          />
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-          {options.map((option) => (
-            <div
-              key={option}
-              onClick={() => handleSelect(option)}
-              className={`px-3 py-2 cursor-pointer transition-colors ${
-                value.includes(option)
-                  ? 'bg-blue-50 text-blue-800'
-                  : 'hover:bg-gray-50 text-gray-700'
-              }`}
-            >
-              {option}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 const EditCategory = () => {
   const { id } = useParams();
@@ -148,7 +37,7 @@ const EditCategory = () => {
 
   console.log('previously', preview);
 
-  // ✅ Fetch category by ID
+  // Fetch category by ID
   useEffect(() => {
     (async () => {
       try {
@@ -169,7 +58,7 @@ const EditCategory = () => {
         });
 
         if (data.category?.image?.[0]) {
-          setPreview(data.category.image[0]); // for remote URL
+          setPreview(data.category.image[0]);
           console.log('Preview URL:', data.category.image[0]);
         }
 
@@ -187,7 +76,7 @@ const EditCategory = () => {
     })();
   }, [id, user.accessToken]);
 
-  // ✅ Submit handler
+  //  Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -256,7 +145,7 @@ const EditCategory = () => {
               />
             </div>
 
-            {/* ✅ Modified Size input */}
+            {/*  Modified Size input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Size
@@ -267,15 +156,15 @@ const EditCategory = () => {
                 onChange={(e) => handleChange('size', e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    e.preventDefault(); // prevent form submission
-                    document.getElementById('colorInput')?.focus(); // move focus to next input
+                    e.preventDefault(); 
+                    document.getElementById('colorInput')?.focus(); 
                   }
                 }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
               />
             </div>
 
-            {/* ✅ Color input with ID for focus */}
+            {/* Color input with ID for focus */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Color

@@ -73,9 +73,7 @@ const Salespersondashboard = () => {
                       {item.description}
                     </p>
                   </div>
-                  {/* {item.isActive && (
-                    <TiPinOutline className="text-gray-400 mt-1" size={20} />
-                  )} */}
+                 
                 </div>
               </div>
             );

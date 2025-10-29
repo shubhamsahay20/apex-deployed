@@ -14,7 +14,7 @@ const addNotes = async (token, id, data) => {
 
     return res.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message);
+    throw error;
   }
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import Select from 'react-select'; // ✅ needed for warehouses dropdown
+import Select from 'react-select';
 import roleService from '../../../../api/role.service';
 import warehouseService from '../../../../api/warehouse.service';
 import { useAuth } from '../../../../Context/AuthContext';
@@ -11,8 +11,7 @@ const EditRole = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [warehouses, setWarehouses] = useState([]); // ✅ store warehouses
-
+  const [warehouses, setWarehouses] = useState([]); 
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -21,7 +20,7 @@ const EditRole = () => {
     role: '',
     location: '',
     profileImage: '',
-    warehouses: [], // ✅ store selected warehouses
+    warehouses: [], 
   });
 
   console.log('form data', formData);
@@ -42,12 +41,12 @@ const EditRole = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await roleService.getRoleByID(user.accessToken, id); // replace with correct API
+        const res = await roleService.getRoleByID(user.accessToken, id); 
         setFormData({
           name: res?.data?.name || '',
           phone: res?.data?.phone || '',
           email: res?.data?.email || '',
-          password: '', // leave blank so user can set new if needed
+          password: '', 
           role: res?.data?.role || '',
           location: res?.data?.location || '',
           //in future if profile image is needed, uncomment below
@@ -87,7 +86,7 @@ const EditRole = () => {
 
       Object.keys(formData).forEach((key) => {
         if (key === 'warehouses') {
-          formData.warehouses.forEach((id) => payload.append('warehouses', id)); // ✅ send warehouses array
+          formData.warehouses.forEach((id) => payload.append('warehouses', id)); 
         } else {
           payload.append(key, formData[key]);
         }
@@ -204,7 +203,7 @@ const EditRole = () => {
           />
         </div>
 
-        {/* ✅ Warehouse(s) field (only if role is Warehouse Manager) */}
+        {/*  Warehouse(s) field (only if role is Warehouse Manager) */}
         {formData.role === 'Warehouse Manager' && (
           <div className="col-span-1 md:col-span-2">
             <label className="block text-sm font-medium mb-1">

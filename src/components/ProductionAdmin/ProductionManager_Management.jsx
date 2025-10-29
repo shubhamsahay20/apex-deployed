@@ -93,11 +93,7 @@ const ProductionManager_Management = () => {
             />
           </div>
 
-          {/* <button className="flex items-center gap-1 border border-gray-300 px-3 py-2 rounded-md text-sm">
-            <FiCalendar />
-            Today
-          </button> */}
-
+         
           <button
             onClick={() =>
               navigate('/production-manager/management/add-production')

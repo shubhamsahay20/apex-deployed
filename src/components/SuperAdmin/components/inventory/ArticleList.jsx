@@ -36,7 +36,7 @@ const ArticleList = () => {
     if (user?.accessToken) fetchInventorySummary();
   }, [user]);
 
-  // ✅ Fetch Article List
+  //  Fetch Article List
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -60,7 +60,7 @@ const ArticleList = () => {
     }
   }, [user, currentPage, debounceValue]);
 
-  // ✅ Inventory Summary Cards
+  //  Inventory Summary Cards
   const cards = [
     {
       label: 'Available Stock',

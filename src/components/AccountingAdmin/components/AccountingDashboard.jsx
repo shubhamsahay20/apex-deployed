@@ -22,7 +22,6 @@ const AccountingDashboard = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [approveModalOpan, setApproveModalOpan] = useState(false)
   const [approveModalId, setApproveModalId] = useState(null)
-  // const [inventoryData, setInventoryData] = useState([]);
   const [accountData, setAccountData] = useState({})
   const [searchQuery, setSearchQuery] = useState('')
   const debounceValue = useDebounce(searchQuery, 500)
@@ -189,12 +188,10 @@ const AccountingDashboard = () => {
                 placeholder='Search Sales Order'
                 className='pl-9 pr-3 py-1.5 border border-gray-300 rounded-md text-sm'
               />
-              {/* <FaSearch className="absolute top-2.5 left-2.5 text-gray-400 text-sm" /> */}
+            
             </div>
 
-            {/* <button className='border border-gray-300 px-4 py-1.5 text-sm rounded hover:bg-gray-100'>
-              Filters
-            </button> */}
+            
             <button
               className='border border-gray-300 px-4 py-1.5 text-sm rounded hover:bg-gray-100'
               onClick={() => exportAccountDetailPDF(orderDetails)}
@@ -311,24 +308,11 @@ const AccountingDashboard = () => {
                           navigate('/account-section/view-order', {
                             state: item
                           })
-                          // your eye logic
+                          
                         }}
                         className='text-green-600 w-4 h-4 cursor-pointer hover:scale-110 transition'
                       />
-                      {/* <PiPencilSimpleLineBold
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // your eye logic
-                        }}
-                        className="text-blue-500 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      /> */}
-                      {/* <FiTrash2
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // your eye logic
-                        }}
-                        className="text-red-600 w-4 h-4 cursor-pointer hover:scale-110 transition"
-                      /> */}
+                     
                     </div>
                   </td>
                 </tr>

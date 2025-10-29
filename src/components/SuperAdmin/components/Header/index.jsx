@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import DropdownMessage from './DropdownMessage';
 import DropdownNotification from './DropdownNotification';
 import DropdownUser from './DropdownUser';
-// import LogoIcon from '../../images/logo/logo-icon.svg';
+
 import DarkModeSwitcher from './DarkModeSwitcher';
 import SearchBox from './SearchBox';
 
@@ -53,10 +53,6 @@ const Header = (props) => {
             </span>
           </button>
           {/* <!-- Hamburger Toggle BTN --> */}
-
-          {/* <Link className="block flex-shrink-0 lg:hidden" to="/">
-            <img src={LogoIcon} alt="Logo" />
-          </Link> */}
         </div>
 
         <div className="hidden sm:block"> </div>
@@ -70,12 +66,7 @@ const Header = (props) => {
           {/* Right side: Other items */}
           <div className="flex items-center gap-3 2xsm:gap-2">
             <ul className="flex items-center xsm:mr-4 xsm:gap-4 2xsm:gap-2">
-              {/* Dark Mode Toggler */}
-              {/* <DarkModeSwitcher /> */}
-
-              {/* like */}
-              {/* <DropdownMessage /> */}
-
+              
               {/* Notification */}
               <DropdownNotification />
             </ul>

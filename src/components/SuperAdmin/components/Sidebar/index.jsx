@@ -347,36 +347,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
-              {/* <!-- Menu Item Calendar --> */}
-
-              {/* <!-- Menu Item Profile --> */}
-              {/* <li>
-                <NavLink
-                  to="/profile"
-                  className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-[#606060]  duration-300 ease-in-out  hover:text-[#007CF0] dark:hover:bg-meta-4 ${pathname.includes('profile') && 'bg-white dark:bg-meta-4'
-                    }`}
-                >
-                  <svg
-                    className="fill-current"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 18 18"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M9.0002 7.79065C11.0814 7.79065 12.7689 6.1594 12.7689 4.1344C12.7689 2.1094 11.0814 0.478149 9.0002 0.478149C6.91895 0.478149 5.23145 2.1094 5.23145 4.1344C5.23145 6.1594 6.91895 7.79065 9.0002 7.79065ZM9.0002 1.7719C10.3783 1.7719 11.5033 2.84065 11.5033 4.16252C11.5033 5.4844 10.3783 6.55315 9.0002 6.55315C7.62207 6.55315 6.49707 5.4844 6.49707 4.16252C6.49707 2.84065 7.62207 1.7719 9.0002 1.7719Z"
-                      fill=""
-                    />
-                    <path
-                      d="M10.8283 9.05627H7.17207C4.16269 9.05627 1.71582 11.5313 1.71582 14.5406V16.875C1.71582 17.2125 1.99707 17.5219 2.3627 17.5219C2.72832 17.5219 3.00957 17.2407 3.00957 16.875V14.5406C3.00957 12.2344 4.89394 10.3219 7.22832 10.3219H10.8564C13.1627 10.3219 15.0752 12.2063 15.0752 14.5406V16.875C15.0752 17.2125 15.3564 17.5219 15.7221 17.5219C16.0877 17.5219 16.3689 17.2407 16.3689 16.875V14.5406C16.2846 11.5313 13.8377 9.05627 10.8283 9.05627Z"
-                      fill=""
-                    />
-                  </svg>
-                  Profile
-                </NavLink>
-              </li> */}
-              {/* <!-- Menu Item Profile --> */}
+              
 
               {user?.user?.role === 'Inventory Manager' && (
                 <li>
@@ -552,17 +523,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                                   Internal Transfers
                                 </NavLink>
                               </li>
-                              {/* <li>
-                                <NavLink
-                                  to='/inventory/production'
-                                  className={({ isActive }) =>
-                                    'group relative flex items-center gap-2.5 rounded-md mt-2 px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
-                                    (isActive && '!text-blue-500')
-                                  }
-                                >
-                                  Production
-                                </NavLink>
-                              </li> */}
+                             
                             </ul>
                           )}
                         </div>
@@ -725,18 +686,16 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       (isActive && '!text-blue-500')
                     }
                   >
-                    <svg
-                      className='fill-current'
-                      width='20'
-                      height='20'
-                      viewBox='0 0 20 20'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        d='M3.325 0h13.35C18.51 0 20 1.49 20 3.325v13.35C20 18.51 18.51 20 16.675 20H3.325C1.49 20 0 18.51 0 16.675V3.325C0 1.49 1.49 0 3.325 0Zm6.675 4L4 7v8.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V7l-6-3Zm0 2.18L14 8v7H6V8l4-1.82ZM10 9.5c.28 0 .5.22.5.5v1.5h1.5c.28 0 .5.22.5.5s-.22.5-.5.5H10.5V14c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-1.5H8c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1.5V10c0-.28.22-.5.5-.5Z'
-                        fill='currentColor'
-                      />
-                    </svg>
+                   <svg
+  className="fill-current"
+  width="20"
+  height="20"
+  viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path d="M2.5 2h15a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-.5.5h-15a.5.5 0 0 1-.5-.5v-15A.5.5 0 0 1 2.5 2Zm6.25 2.5H4v3.75h4.75V4.5Zm7.75 0h-4.75v3.75H16.5V4.5ZM4 9.75v5.75h4.75V9.75H4Zm7.75 0V15.5H16.5V9.75h-4.75Z" />
+</svg>
+
                     Stock
                   </NavLink>
                 </li>
@@ -750,18 +709,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       (isActive && '!text-blue-500')
                     }
                   >
-                    <svg
-                      className='fill-current'
-                      width='20'
-                      height='20'
-                      viewBox='0 0 20 20'
-                      xmlns='http://www.w3.org/2000/svg'
-                    >
-                      <path
-                        d='M3.325 0h13.35C18.51 0 20 1.49 20 3.325v13.35C20 18.51 18.51 20 16.675 20H3.325C1.49 20 0 18.51 0 16.675V3.325C0 1.49 1.49 0 3.325 0Zm6.675 4L4 7v8.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V7l-6-3Zm0 2.18L14 8v7H6V8l4-1.82ZM10 9.5c.28 0 .5.22.5.5v1.5h1.5c.28 0 .5.22.5.5s-.22.5-.5.5H10.5V14c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-1.5H8c-.28 0-.5-.22-.5-.5s.22-.5.5-.5h1.5V10c0-.28.22-.5.5-.5Z'
-                        fill='currentColor'
-                      />
-                    </svg>
+                   <svg className="fill-current" width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+  <path d="M11 15.25a4.25 4.25 0 110-8.5 4.25 4.25 0 010 8.5zM18.2 12.1l1.1-.9c.2-.15.2-.45.05-.66l-1-1.73a.43.43 0 00-.55-.17l-1.3.5a7.3 7.3 0 00-.8-.5l-.3-1.35a.43.43 0 00-.42-.34h-2.02a.43.43 0 00-.42.34l-.3 1.35c-.28.13-.56.28-.8.5l-1.3-.5a.43.43 0 00-.55.17l-1 1.73a.43.43 0 00.05.66l1.1.9c-.02.28-.02.56 0 .84l-1.1.9a.43.43 0 00-.05.66l1 1.73c.12.2.38.28.58.17l1.3-.5c.24.22.52.37.8.5l.3 1.35c.04.24.24.4.42.4h2.02c.18 0 .38-.16.42-.4l.3-1.35c.28-.13.56-.28.8-.5l1.3.5c.2.11.46.03.58-.17l1-1.73a.43.43 0 00-.05-.66l-1.1-.9c.02-.28.02-.56 0-.84z"/>
+</svg>
+
                     Stock Verify
                   </NavLink>
                 </li>
@@ -950,29 +901,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {/* {user?.user?.role === 'Admin' && (
-                <li>
-                  <NavLink
-                    to='/settings'
-                    className={({ isActive }) =>
-                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
-                      (isActive && '!text-blue-500')
-                    }
-                  >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      width='20'
-                      height='20'
-                      fill='currentColor'
-                      viewBox='0 0 24 24'
-                      className='fill-current'
-                    >
-                      <path d='M19.14 12.936c.04-.303.06-.615.06-.936s-.02-.633-.06-.936l2.036-1.58a.5.5 0 0 0 .121-.638l-1.928-3.338a.5.5 0 0 0-.607-.21l-2.397.96a7.07 7.07 0 0 0-1.62-.936l-.36-2.54a.5.5 0 0 0-.496-.428h-3.856a.5.5 0 0 0-.496.428l-.36 2.54a7.07 7.07 0 0 0-1.62.936l-2.397-.96a.5.5 0 0 0-.607.21L2.703 8.846a.5.5 0 0 0 .121.638l2.036 1.58c-.04.303-.06.615-.06.936s.02.633.06.936l-2.036 1.58a.5.5 0 0 0-.121.638l1.928 3.338a.5.5 0 0 0 .607.21l2.397-.96c.498.39 1.04.704 1.62.936l.36 2.54a.5.5 0 0 0 .496.428h3.856a.5.5 0 0 0 .496-.428l.36-2.54a7.07 7.07 0 0 0 1.62-.936l2.397.96a.5.5 0 0 0 .607-.21l1.928-3.338a.5.5 0 0 0-.121-.638l-2.036-1.58ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z' />
-                    </svg>
-                    Settings
-                  </NavLink>
-                </li>
-              )} */}
               {/* <!-- Menu Item Settings --> */}
 
               {user?.user?.role === 'Administrator' && (
@@ -1001,32 +929,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {/* {user?.user?.role === 'Administrator' && (
-                <li>
-                  <NavLink
-                    to="/Administrator/CreateRoleForm"
-                    className={({ isActive }) =>
-                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
-                      (isActive && '!text-blue-500')
-                    }
-                  >
-                    <svg
-                      className="fill-current"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 20 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M14.4445 18.8889V10.8039C14.4445 10.5008 14.7022 10.2551 15.0001 10.2551C15.3068 10.2551 15.5556 10.4946 15.5556 10.8039V18.8889H16.675C17.889 18.8889 18.889 17.8918 18.889 16.6749V3.32498C18.889 2.11098 17.8919 1.11099 16.675 1.11099H3.32512C2.11113 1.11099 1.11113 2.10806 1.11113 3.32498V16.6749C1.11113 17.8889 2.1082 18.8889 3.32512 18.8889H4.44454V13.5903C4.44454 13.2776 4.70221 13.0239 5.00007 13.0239C5.30685 13.0239 5.5556 13.2703 5.5556 13.5903V18.8889H7.77784V8.03787C7.77784 7.73333 8.03551 7.48652 8.33337 7.48652C8.64029 7.48652 8.88904 7.72424 8.88904 8.03787V18.8889H11.1111V3.88611C11.1111 3.58087 11.3689 3.33337 11.6668 3.33337C11.9736 3.33337 12.2223 3.58114 12.2223 3.88611V18.8889H14.4445ZM0 3.32505C0 1.4887 1.5032 0 3.32505 0H16.675C18.5113 0 20 1.5032 20 3.32505V16.675C20 18.5113 18.4968 20 16.675 20H3.32505C1.4887 20 0 18.4968 0 16.675V3.32505Z"
-                        fill="currentColor"
-                      />
-                    </svg>
-                    Create Role ID & Password
-                  </NavLink>
-                </li>
-              )} */}
+              
 
               {user?.user?.role === 'Sales Person' && (
                 <li>

@@ -24,7 +24,14 @@ const DropdownUser = () => {
   const name = user?.user?.name || 'User';
   const profileImage = user?.user?.profileImage;
   const initial = name.charAt(0).toUpperCase();
-  const colors = ['#E57373', '#64B5F6', '#81C784', '#FFD54F', '#BA68C8', '#4DB6AC'];
+  const colors = [
+    '#E57373',
+    '#64B5F6',
+    '#81C784',
+    '#FFD54F',
+    '#BA68C8',
+    '#4DB6AC',
+  ];
   const color = colors[name.charCodeAt(0) % colors.length];
 
   return (
@@ -41,7 +48,7 @@ const DropdownUser = () => {
           <span className="block text-xs">{user?.user?.role}</span>
         </span>
 
-        {/* ✅ Avatar (Image or Initial) */}
+        {/*  Avatar (Image or Initial) */}
         {profileImage ? (
           <span className="h-12 w-12 rounded-full overflow-hidden border">
             <img
@@ -98,24 +105,6 @@ const DropdownUser = () => {
                 My Profile
               </Link>
             </li>
-
-            <li>
-              <Link
-                to="/settings"
-                className="flex items-center gap-3.5 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-              >
-                <svg
-                  className="fill-current"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 22 22"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M20.8656 8.86874C20.5219 8.49062 20.0406 8.28437 19.525 8.28437..." />
-                </svg>
-                Account Settings
-              </Link>
-            </li>
           </ul>
 
           <button
@@ -123,13 +112,14 @@ const DropdownUser = () => {
             className="flex items-center gap-3.5 px-6 py-4 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
           >
             <svg
+              xmlns="http://www.w3.org/2000/svg"
               className="fill-current"
               width="22"
               height="22"
-              viewBox="0 0 22 22"
-              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
             >
-              <path d="M15.5375 0.618744H11.6531C10.7594 0.618744..." />
+              <path d="M16 13v-2H7V8l-5 4 5 4v-3h9z" />
+              <path d="M20 3h-8v2h8v14h-8v2h8a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z" />
             </svg>
             Log Out
           </button>
