@@ -94,8 +94,9 @@ const updateRoleByID = async (token, id, data) => {
 
     return res.data;
   } catch (error) {
-    toast.error(error?.response?.data?.message || 'Error Updating role');
-    throw error
+    console.log("errr of back",error);
+    
+    throw error;
   }
 };
 

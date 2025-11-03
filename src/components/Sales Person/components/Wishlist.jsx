@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from 'react'
-import { FiSearch, FiTrash2 } from 'react-icons/fi'
-import { toast } from 'react-toastify'
-import cartService from '../../../api/cart.service'
-import { useAuth } from '../../../Context/AuthContext'
-import { IoMdArrowRoundUp } from 'react-icons/io'
-import { IoMdArrowRoundDown } from 'react-icons/io'
-import DeleteModal from '../../../utils/DeleteModal'
-import salesService from '../../../api/sales.service'
-import { useDebounce } from '../../../hooks/useDebounce'
-import Loader from '../../../common/Loader' 
+import React, { useEffect, useState } from 'react';
+import { FiSearch, FiTrash2 } from 'react-icons/fi';
+import { toast } from 'react-toastify';
+import cartService from '../../../api/cart.service';
+import { useAuth } from '../../../Context/AuthContext';
+import { IoMdArrowRoundUp } from 'react-icons/io';
+import { IoMdArrowRoundDown } from 'react-icons/io';
+import DeleteModal from '../../../utils/DeleteModal';
+import salesService from '../../../api/sales.service';
+import { useDebounce } from '../../../hooks/useDebounce';
+import Loader from '../../../common/Loader';
 
 const Wishlist = () => {
   const [wishListOrder, setWishListOrder] = useState([]);
@@ -24,7 +24,7 @@ const Wishlist = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true); 
+      setLoading(true);
       try {
         const res = await cartService.getWishListOrderBySalesPerson(
           user.accessToken,
@@ -78,25 +78,22 @@ const Wishlist = () => {
     console.log('hii');
   };
 
-  if (loading) return <Loader />; 
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 bg-white border rounded shadow-sm min-h-screen">
       <div className="flex items-center justify-between mb-4">
-        <h2 className='text-base font-semibold text-gray-800'>
-          My Wishlist
-        </h2>
-        <div className='relative w-full max-w-xs'>
+        <h2 className="text-base font-semibold text-gray-800">My Wishlist</h2>
+        <div className="relative w-full max-w-xs">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             value={searchQuery}
-            onChange={e => (
-              setSearchQuery(e.target.value),
-              setCurrentPage(1)
+            onChange={(e) => (
+              setSearchQuery(e.target.value), setCurrentPage(1)
             )}
-            type='text'
-            placeholder='Search Article'
-            className='w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition'
+            type="text"
+            placeholder="Search Article"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition"
           />
         </div>
       </div>

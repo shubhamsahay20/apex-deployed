@@ -8,7 +8,6 @@ import { toast } from 'react-toastify';
 import { ChevronDown, X } from 'lucide-react';
 import { RxCross2 } from "react-icons/rx";
 
-// Multi-Select Dropdown Component
 function MultiSelectDropdown({
   label,
   options,
@@ -119,7 +118,6 @@ function MultiSelectDropdown({
   );
 }
 
-// Multi-Input Field Component
 function MultiInputField({ label, value, onChange, placeholder, id }) {
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef(null);
@@ -289,10 +287,7 @@ export default function AddCategory({ onSubmit, onCancel }) {
         payload
       );
 
-      
-
       console.log("response which i am geting ",res);
-      
       toast.success(res?.data?.message || 'Article Added Successfully');
       navigate('/categories');
     } catch (error) {

@@ -13,7 +13,9 @@ const SchemeList = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
 
-  const [loading, setLoading] = useState(false); 
+
+  const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     (async () => {

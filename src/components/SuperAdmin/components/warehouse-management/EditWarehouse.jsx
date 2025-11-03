@@ -44,6 +44,35 @@ const EditWarehouse = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!formData.name.trim()) {
+      return toast.error('Name is required');
+    }
+
+    if (!formData.country.trim()) {
+      return toast.error('Country is required');
+    }
+
+    if (!formData.city.trim()) {
+      return toast.error('City is required');
+    }
+
+    if (!formData.state.trim()) {
+      return toast.error('State is required');
+    }
+
+    if (!formData.address.trim()) {
+      return toast.error('Address is required');
+    }
+
+    if (!formData.type.trim()) {
+      return toast.error('Type is required');
+    }
+
+    if (formData.pincode && !/^\d{6}$/.test(formData.pincode)) {
+      return toast.error('Pincode must be 6 digits');
+    }
+
     const payload = {
       name: formData.name,
 
@@ -66,7 +95,7 @@ const EditWarehouse = () => {
       );
       console.log('its res', res);
 
-      toast.success(res.data?.message ||'Warehouse Edit successfully');
+      toast.success(res.data?.message || 'Warehouse Edit successfully');
       navigate('/warehouse-management');
     } catch (error) {
       toast.error(error?.response?.message || 'Error Edit warehouse');
@@ -139,10 +168,14 @@ const EditWarehouse = () => {
               Pincode
             </div>
             <input
-              type="number"
+              type="text"
               name="pincode"
+              maxLength={6}
               value={formData.pincode}
-              onChange={handleChange}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,6}$/.test(value)) handleChange(e);
+              }}
               placeholder="Enter Pincode"
               className="border px-4 py-2 rounded-md text-sm w-full"
               required

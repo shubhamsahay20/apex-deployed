@@ -651,6 +651,34 @@ export const exportStockVerifyPDF = (data) => {
 
   doc.save('Stock_Verify_Report.pdf');
 };
+export const printStockVerifyPDF = (data) => {
+  const doc = new jsPDF();
+  const headers = [
+    ["Article No", "Sale Order", "Warehouse", "Customer", "Quantity", "Status"],
+  ];
+
+  const rows = data.map((row) => [
+    row.article || "",
+    row.salesOrderNo || "",
+    row.warehouse?.name || "",
+    row.customer?.name || "",
+    row.quantity || "",
+    row.ScanByorder || "N/A",
+  ]);
+
+  doc.text("Stock Verification Report", 14, 15);
+  autoTable(doc, {
+    startY: 25,
+    head: headers,
+    body: rows,
+    styles: { fontSize: 10 },
+  });
+
+  // ✅ Generate Blob and open in a new tab AFTER rendering
+  const blob = doc.output("blob");
+  const blobURL = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+  window.open(blobURL);
+};
 export const exportCustomersPDF = (customers) => {
   if (!customers || customers.length === 0) {
     alert("No data to export");
@@ -705,4 +733,40 @@ export const printCustomersPDF = (customers) => {
   });
 
   window.open(doc.output("bloburl"), "_blank");
+};
+export const exportViewSalesPDF = (data) => {
+  const doc = new jsPDF();
+  const headers = [['Name', 'Phone', 'Email', 'Role', 'Location']];
+
+  const rows = data.map(item => [
+    item.name || '',
+    item.phone || '',
+    item.email || '',
+    item.role || '',
+    item.location || '',
+  ]);
+
+  doc.text('Role Details Report', 14, 15);
+  autoTable(doc, { startY: 25, head: headers, body: rows });
+  doc.save('RoleDetails.pdf');
+};
+
+export const printViewSalesPDF = (data) => {
+  const doc = new jsPDF();
+  const headers = [['Name', 'Phone', 'Email', 'Role', 'Location']];
+
+  const rows = data.map(item => [
+    item.name || '',
+    item.phone || '',
+    item.email || '',
+    item.role || '',
+    item.location || '',
+  ]);
+
+  doc.text('Role Details Report', 14, 15);
+  autoTable(doc, { startY: 25, head: headers, body: rows });
+  
+  // Opens print dialog instead of saving
+  const blob = doc.output('bloburl');
+  window.open(blob);
 };

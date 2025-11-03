@@ -5,7 +5,7 @@ import { FiEdit, FiX, FiEye, FiTrash2 } from 'react-icons/fi';
 
 import {
   exportStockVerifyPDF,
-  printProductionPDF,
+  printStockVerifyPDF,
 } from '../../../utils/PdfModel';
 import { toast } from 'react-toastify';
 
@@ -133,7 +133,7 @@ const StockVerify = () => {
 
             {/* Print Button */}
             <button
-              onClick={() => printProductionPDF(salesDetails)}
+              onClick={() => printStockVerifyPDF(salesDetails)}
               className="border px-4 py-1.5 rounded-md text-sm text-gray-700 border-gray-300"
             >
               Print

@@ -47,8 +47,8 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
   }, [scheme]);
 
   const handleSubmit = async (e) => {
+    
     e.preventDefault();
-
     if (!formData.date.trim()) {
       toast.error('Date is required');
       return;

@@ -196,9 +196,14 @@ const UploadStatus = () => {
               <thead className="bg-gray-100 text-gray-700">
                 <tr>
                   <th className="px-4 py-2 text-left">Article</th>
+                  <th className="px-4 py-2 text-left">Category</th>
+                  <th className="px-4 py-2 text-left">Color</th>
+                  <th className="px-4 py-2 text-left">Size</th>
+                  <th className="px-4 py-2 text-left">Quality</th>
+                  <th className="px-4 py-2 text-left">Type</th>
                   <th className="px-4 py-2 text-left">Factory Name</th>
-                  <th className="px-4 py-2 text-left">Warehouse Name</th>
                   <th className="px-4 py-2 text-left">Factory Quantity</th>
+                  <th className="px-4 py-2 text-left">Warehouse Name</th>
                   <th className="px-4 py-2 text-left">Warehouse Quantity</th>
                   <th className="px-4 py-2 text-left">Total Quantity</th>
                 </tr>
@@ -207,9 +212,14 @@ const UploadStatus = () => {
                 {stockReport.map((row, idx) => (
                   <tr key={idx} className="border-t hover:bg-gray-50">
                     <td className="px-4 py-2">{row.article}</td>
+                    <td className="px-4 py-2">{row.categoryCode}</td>
+                    <td className="px-4 py-2">{row.color}</td>
+                    <td className="px-4 py-2">{row.size}</td>
+                    <td className="px-4 py-2">{row.quality}</td>
+                    <td className="px-4 py-2">{row.type}</td>
                     <td className="px-4 py-2">{row.factory}</td>
-                    <td className="px-4 py-2">{row.warehouse}</td>
                     <td className="px-4 py-2">{row.stockAtFactory}</td>
+                    <td className="px-4 py-2">{row.warehouse}</td>
                     <td className="px-4 py-2">{row.stockAtWarehouse}</td>
                     <td className="px-4 py-2">{row.totalQuantity}</td>
                   </tr>

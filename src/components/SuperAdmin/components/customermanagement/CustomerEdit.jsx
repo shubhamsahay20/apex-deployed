@@ -23,24 +23,64 @@ const CustomerEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.customer_name.trim()) {
+      return toast.error('Customer name is required');
+    }
+
+    if (!formData.email.trim()) {
+      return toast.error('Email is required');
+    }
+
+    // ✅ Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return toast.error('Please enter a valid email address');
+    }
+
+    if (!formData.phone.trim()) {
+      return toast.error('Phone number is required');
+    }
+
+    // ✅ Phone number validation (only digits, 10 digits)
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      return toast.error('Phone number must be exactly 10 digits');
+    }
+
+    if (!formData.address.trim()) {
+      return toast.error('Address is required');
+    }
+
+    if (!formData.city.trim()) {
+      return toast.error('City is required');
+    }
+
+    if (!formData.state.trim()) {
+      return toast.error('State is required');
+    }
+
+    // ✅ Optional: Pincode validation (6 digits)
+    if (formData.pincode && !/^\d{6}$/.test(formData.pincode)) {
+      return toast.error('Pincode must be 6 digits');
+    }
     const data = {
       name: formData.customer_name,
       email: formData.email,
-      phone: formData.phone,
+      phone:  Number(formData.phone),
       location: [
         {
           address: formData.address,
           country: formData.country,
           city: formData.city,
           state: formData.state,
-          pincode: formData.pincode,
+          pincode: Number(formData.pincode),
         },
       ],
       salesPersonId: formData.salesPerson,
     };
 
     try {
-      setLoading(true)
+      setLoading(true);
       const res = await authService.EditCustomer(user.accessToken, id, data);
       console.log(res, 'tred');
       toast.success(res.data?.message || 'Updated ');
@@ -49,8 +89,8 @@ const CustomerEdit = () => {
       navigate('/customer-management');
     } catch (error) {
       toast.error(error.response?.data?.message);
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,7 +106,7 @@ const CustomerEdit = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const { data } = await authService.getUsers(user.accessToken);
         console.log('customer', data);
@@ -74,8 +114,8 @@ const CustomerEdit = () => {
         setCustomer(data.data);
       } catch (error) {
         toast.error(error.response?.data?.message);
-      } finally{
-        setLoading(false)
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -83,7 +123,7 @@ const CustomerEdit = () => {
 
   useEffect(() => {
     (async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const res = await authService.getCustomerById(user.accessToken, id);
         console.log(' details', res.data);
@@ -101,15 +141,14 @@ const CustomerEdit = () => {
           address: location.address || '',
         });
       } catch (error) {
-        toast.error(error.response?.data?.message)
-      } finally{
-        setLoading(false)
+        toast.error(error.response?.data?.message);
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
 
-    if(loading) return <Loader/>
-
+  if (loading) return <Loader />;
 
   return (
     <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
@@ -148,10 +187,15 @@ const CustomerEdit = () => {
             <label className="text-sm font-medium">Phone</label>
             <input
               type="text"
-              onChange={handleChange}
               name="phone"
               placeholder="Enter Phone Number"
               value={formData.phone}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,10}$/.test(value)) handleChange(e); // only digits up to 10
+              }}
+              maxLength={10}
+              required
               className="border px-4 py-2 rounded-md text-sm w-full"
             />
           </div>
@@ -212,8 +256,12 @@ const CustomerEdit = () => {
             <input
               type="text"
               name="pincode"
-              onChange={handleChange}
               value={formData.pincode}
+              maxLength={6}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,6}$/.test(value)) handleChange(e);
+              }}
               placeholder="Enter Pincode"
               className="border px-4 py-2 rounded-md text-sm w-full"
               required

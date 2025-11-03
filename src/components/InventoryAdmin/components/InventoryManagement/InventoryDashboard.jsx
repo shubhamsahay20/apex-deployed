@@ -77,6 +77,7 @@ function InventoryDashboard() {
             article: item.article,
             categoryCode: item.categoryCode,
             color: item.color,
+            size: item.size, 
             quality: item.quality,
             type: item.type,
             totalQuantity: item.totalQuantity,
@@ -99,9 +100,9 @@ function InventoryDashboard() {
             type: item.type,
             size: item.size,
             availableQty: item.availableQty,
-            OrderedQuantity: item.OrderedQuantity, // ✅ fix key name
-            WishListQuantity: item.WishListQuantity, // ✅ include missing field
-            requiredQuantity: item.requiredQuantity, // ✅ include missing field
+            OrderedQuantity: item.OrderedQuantity, 
+            WishListQuantity: item.WishListQuantity, 
+            requiredQuantity: item.requiredQuantity, 
           })),
         );
         setLowStockTotalPages(lowRes.pagination.pages);

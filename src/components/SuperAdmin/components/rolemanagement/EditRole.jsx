@@ -11,7 +11,7 @@ const EditRole = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [warehouses, setWarehouses] = useState([]); 
+  const [warehouses, setWarehouses] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -20,7 +20,7 @@ const EditRole = () => {
     role: '',
     location: '',
     profileImage: '',
-    warehouses: [], 
+    warehouses: [],
   });
 
   console.log('form data', formData);
@@ -41,12 +41,12 @@ const EditRole = () => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await roleService.getRoleByID(user.accessToken, id); 
+        const res = await roleService.getRoleByID(user.accessToken, id);
         setFormData({
           name: res?.data?.name || '',
           phone: res?.data?.phone || '',
           email: res?.data?.email || '',
-          password: '', 
+          password: '',
           role: res?.data?.role || '',
           location: res?.data?.location || '',
           //in future if profile image is needed, uncomment below
@@ -79,6 +79,15 @@ const EditRole = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.name.trim()) {
+      toast.error('Name is required');
+      return;
+    }
+
+    if (!formData.location.trim()) {
+      toast.error('Location is required');
+      return;
+    }
 
     try {
       const payload = new FormData();
@@ -86,7 +95,7 @@ const EditRole = () => {
 
       Object.keys(formData).forEach((key) => {
         if (key === 'warehouses') {
-          formData.warehouses.forEach((id) => payload.append('warehouses', id)); 
+          formData.warehouses.forEach((id) => payload.append('warehouses', id));
         } else {
           payload.append(key, formData[key]);
         }
@@ -112,6 +121,8 @@ const EditRole = () => {
 
       navigate('/role-management');
     } catch (error) {
+      console.log('error to get', error);
+
       toast.error(error.response?.data?.message || 'Failed to update');
     }
   };
@@ -141,9 +152,13 @@ const EditRole = () => {
           <input
             type="text"
             name="phone"
-            className="border border-gray-300 p-2 rounded w-full"
             value={formData.phone}
-            onChange={handleChange}
+            maxLength={10}
+            onChange={(e) => {
+              const value = e.target.value;
+              if (/^\d{0,10}$/.test(value)) handleChange(e);
+            }}
+            className="border border-gray-300 p-2 rounded w-full"
           />
         </div>
 

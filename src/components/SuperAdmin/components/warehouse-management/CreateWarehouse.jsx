@@ -185,10 +185,14 @@ const CreateWarehouse = () => {
               Pincode
             </label>
             <input
-              type="number"
+              type="text"
               name="pincode"
               value={formData.pincode}
-              onChange={handleChange}
+              maxLength={6}
+              onChange={(e) => {
+                const value = e.target.value;
+                if (/^\d{0,6}$/.test(value)) handleChange(e);
+              }}
               placeholder="Enter Pincode"
               className="border px-4 py-2 rounded-md text-sm w-full"
             />

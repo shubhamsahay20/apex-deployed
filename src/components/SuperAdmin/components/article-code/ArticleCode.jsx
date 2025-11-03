@@ -33,7 +33,7 @@ const ArticleCode = () => {
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       (async () => {
-        setLoading(true); 
+        setLoading(true);
         try {
           const res = await authService.getCategories(
             user.accessToken,
@@ -54,7 +54,7 @@ const ArticleCode = () => {
             error?.response?.data.message || 'Failed to fetch categories',
           );
         }
-        setLoading(false); 
+        setLoading(false);
       })();
     }
   }, [user.accessToken, debounceValue, currentPage]);
@@ -77,7 +77,7 @@ const ArticleCode = () => {
       toast.error('No category selected to delete');
       return;
     }
-    setLoading(true); 
+    setLoading(true);
     try {
       const res = await authService.DeleteArticleCode(
         selectId,
@@ -92,7 +92,7 @@ const ArticleCode = () => {
     } catch (error) {
       toast.error(error?.response?.data?.message, 'Error deleting Category');
     }
-    setLoading(false); 
+    setLoading(false);
   };
 
   const handleView = (item) => {
@@ -164,8 +164,10 @@ const ArticleCode = () => {
 
                   <td className="px-6 py-4">
                     <div className="flex justify-center gap-4 text-lg">
-                      <button title="View" onClick={() => handleView(row)}>
-                      </button>
+                      <button
+                        title="View"
+                        onClick={() => handleView(row)}
+                      ></button>
                       <button
                         title="Edit"
                         onClick={() => {
@@ -192,7 +194,6 @@ const ArticleCode = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50">
           <button
             onClick={() => setCurrentPage((prev) => prev - 1)}

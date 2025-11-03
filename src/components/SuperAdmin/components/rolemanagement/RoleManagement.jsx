@@ -150,9 +150,6 @@ const RoleManagement = () => {
   const roleUsers = usersByRole[activeRole] || [];
   const headings = columnHeadings[activeRole];
 
-  // -------------------------------
-  // AddSalesPerson Form Component
-  // -------------------------------
   const AddSalesPerson = ({ onSubmit }) => {
     const [form, setForm] = useState({
       name: '',
@@ -282,44 +279,54 @@ const RoleManagement = () => {
               </label>
 
               <div className="relative w-40 h-40 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
-                <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
-                  <svg
-                    className="w-12 h-12 text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M12 5v14m7-7H5"
+                {/* If image is uploaded, show preview */}
+                {form.image ? (
+                  <img
+                    src={URL.createObjectURL(form.image)}
+                    alt="Preview"
+                    className="object-cover w-full h-full"
+                  />
+                ) : (
+                  // Default upload area
+                  <label className="cursor-pointer flex flex-col items-center justify-center w-full h-full">
+                    <svg
+                      className="w-12 h-12 text-gray-400"
+                      fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M12 5v14m7-7H5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+
+                    <span className="text-gray-500 text-sm mt-2">
+                      Choose Image
+                    </span>
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setForm({ ...form, image: file });
+                        }
+                      }}
                     />
-                  </svg>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setForm({ ...form, image: file });
-                      }
-                    }}
-                  />
-
-                  <span className="text-gray-500 text-sm mt-2">
-                    {form.image ? form.image.name : 'Choose Image'}
-                  </span>
-                </label>
+                  </label>
+                )}
 
                 {/* Remove button */}
                 {form.image && (
                   <button
                     type="button"
                     onClick={() => setForm({ ...form, image: null })}
-                    className="absolute top-1  bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
                   >
                     &times;
                   </button>
@@ -363,10 +370,17 @@ const RoleManagement = () => {
                     name="phone"
                     className="border px-4 py-2 rounded w-full [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-moz-appearance:textfield]"
                     placeholder="Enter Phone no."
-                    type="number"
+                    type="text"
                     value={form.phone}
-                    onChange={handleChange}
+                    maxLength={10}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (/^\d{0,10}$/.test(value)) {
+                        handleChange(e);
+                      }
+                    }}
                     disabled={submitLoading}
+                    required
                   />
                   {errors.phone && (
                     <div className="text-xs text-red-500 mt-1">

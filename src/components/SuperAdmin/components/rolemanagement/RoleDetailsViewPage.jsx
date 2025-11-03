@@ -10,7 +10,7 @@ import {
   FaTimes,
   FaUsersCog
 } from 'react-icons/fa';
-import { exportSalesPDF, printSalesPDF } from '../../../../utils/PdfModel';
+import { exportViewSalesPDF, printViewSalesPDF } from '../../../../utils/PdfModel';
 import { useAuth } from '../../../../Context/AuthContext';
 import roleService from '../../../../api/role.service';
 
@@ -157,13 +157,13 @@ const RoleDetailsViewPage = () => {
           {/* Buttons */}
           <div className="mt-4 sm:mt-6 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
             <button
-              onClick={() => printSalesPDF([userDetail])}
+              onClick={() => printViewSalesPDF([userDetail])}
               className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-100 transition shadow-sm w-full sm:w-auto"
             >
               Print
             </button>
             <button
-              onClick={() => exportSalesPDF([userDetail])}
+              onClick={() => exportViewSalesPDF([userDetail])}
               className="px-6 py-3 rounded-lg bg-red-500 text-white text-sm font-medium flex items-center justify-center gap-2 shadow-md hover:bg-red-600 transition w-full sm:w-auto"
             >
               <FaFilePdf /> Export PDF
