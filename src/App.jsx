@@ -730,7 +730,7 @@ function App () {
                 path='/edit-role/:id'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin']}>
+                    <ProtectedRoutes role={['Admin','Administrator']}>
                       <EditRole />
                     </ProtectedRoutes>
                   </>

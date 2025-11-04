@@ -16,12 +16,11 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
     quantity: '',
   });
 
-    const[loading,setLoading] = useState(false)
-
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         console.log('scheme', scheme);
 
@@ -40,14 +39,13 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
         });
       } catch (error) {
         toast.error(error.response?.message);
-      } finally{
-        setLoading(false)
+      } finally {
+        setLoading(false);
       }
     })();
   }, [scheme]);
 
   const handleSubmit = async (e) => {
-    
     e.preventDefault();
     if (!formData.date.trim()) {
       toast.error('Date is required');
@@ -66,7 +64,7 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
       toast.error('Description is required');
       return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
       const payload = {
         schemesName: formData.name,
@@ -95,9 +93,9 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
         });
       }
     } catch (error) {
-      toast.error(error?.response?.data?.message)
-    } finally{
-      setLoading(false)
+      toast.error(error?.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -108,8 +106,7 @@ export default function EditScheme({ scheme, onSubmit, onCancel }) {
     }));
   };
 
-    if(loading) return <Loader/>
-
+  if (loading) return <Loader />;
 
   return (
     <div className=" bg-gray-50 min-h-screen">
