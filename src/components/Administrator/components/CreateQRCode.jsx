@@ -405,7 +405,7 @@ const CreateQRCode = () => {
                 : 'bg-green-600 text-white hover:bg-green-700'
             }`}
           >
-            {isPrinting ? 'Printing...' : 'Print QR Codes'}
+            {isPrinting ? 'Printing...' : 'Export QR Codes'}
           </button>
         </div>
       </div>
