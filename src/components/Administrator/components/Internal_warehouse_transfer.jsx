@@ -12,11 +12,9 @@ import { useDebounce } from '../../../hooks/useDebounce';
 const InternalWarehouseTransfer = () => {
   const { user } = useAuth();
 
-  // UI / loading
   const [loading, setLoading] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
 
-  // PN dropdown (search + infinite scroll)
   const [openPN, setOpenPN] = useState(false);
   const [productData, setProductData] = useState([]);
   const [page, setPage] = useState(1);
@@ -26,15 +24,14 @@ const InternalWarehouseTransfer = () => {
   const debounceSearch = useDebounce(search, 500);
   const dropdownRef = useRef(null);
 
-  // Data lists
-  const [warehouseData, setWarehouseData] = useState([]); 
-  const [pnNumber, setPnNumber] = useState([]); 
-  // Form states
+  const [warehouseData, setWarehouseData] = useState([]);
+  const [pnNumber, setPnNumber] = useState([]);
+
   const [productionNo, setProductionNo] = useState('');
   const [article, setArticle] = useState('');
   const [factory, setFactory] = useState({ id: '', name: '' });
-  const [fromWarehouse, setFromWarehouse] = useState(''); 
-  const [toWarehouse, setToWarehouse] = useState(''); 
+  const [fromWarehouse, setFromWarehouse] = useState('');
+  const [toWarehouse, setToWarehouse] = useState('');
   const [availableQty, setAvailableQty] = useState(0);
   const [quantity, setQuantity] = useState(0);
   const [category, setCategory] = useState({
@@ -45,19 +42,52 @@ const InternalWarehouseTransfer = () => {
     quality: '',
   });
 
+  // Normalized QR response object:
+  // { qrCodes: [], createdInDestination: [], deletedFromSource: [], stockCreated: [], message: '' }
   const [qrData, setQrData] = useState(null);
-
   const printRef = useRef();
 
+  // ---------- helper: normalize API response ----------
+  const normalizeQrResponse = (res) => {
+    // Accept many shapes: res, res.data, res.data.data
+    const top = res ?? {};
+    const d1 = top.data ?? top; // if res.data exists, use that, else top
+    const d2 = d1.data ?? d1; // sometimes data is nested inside data.data
+    // Now d2 should be the object holding arrays like qrCodes, createdInDestination, etc.
+    const qrCodes =
+      d2.qrCodes ||
+      d2.createdInDestination || // sometimes createdInDestination holds actual QRs
+      d2.data?.qrCodes ||
+      top.qrCodes ||
+      [];
+    const createdInDestination = Array.isArray(d2.createdInDestination)
+      ? d2.createdInDestination
+      : [];
+    const deletedFromSource = Array.isArray(d2.deletedFromSource)
+      ? d2.deletedFromSource
+      : [];
+    const stockCreated = Array.isArray(d2.stockCreated) ? d2.stockCreated : [];
+    const message = d2.message || d1.message || top.message || '';
 
-  // Initial loads
- 
+    // Ensure qrCodes is an array
+    const qrCodesArr = Array.isArray(qrCodes) ? qrCodes : [];
+
+    return {
+      qrCodes: qrCodesArr,
+      createdInDestination,
+      deletedFromSource,
+      stockCreated,
+      message,
+      raw: top,
+    };
+  };
+
+  // ---------- initial: fetch PN list (stock) ----------
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
         const prores = await stockService.getStockByPn(user.accessToken);
-        // Your original mapping: prores.items
         const items = prores?.items || prores?.data?.items || [];
         const allStockData = items.map((item) => ({
           productionNo: item.productionNo,
@@ -71,7 +101,6 @@ const InternalWarehouseTransfer = () => {
           warehouseData: item.warehouseData || [],
         }));
 
-        // make unique by productionNo (keep latest item)
         const uniquePn = Array.from(
           new Map(allStockData.map((it) => [it.productionNo, it])).values(),
         );
@@ -86,7 +115,7 @@ const InternalWarehouseTransfer = () => {
     })();
   }, [user.accessToken]);
 
-  // 2) Load all warehouses for To Warehouse dropdown
+  // ---------- load warehouses ----------
   useEffect(() => {
     (async () => {
       try {
@@ -103,9 +132,7 @@ const InternalWarehouseTransfer = () => {
     })();
   }, [user.accessToken]);
 
- 
-  // Production searchable dropdown (productionService)
-  
+  // ---------- productions dropdown (search + infinite) ----------
   const fetchProducts = async (pageNo = 1, searchTerm = '') => {
     if (fetching) return;
     setFetching(true);
@@ -116,9 +143,7 @@ const InternalWarehouseTransfer = () => {
         20,
         searchTerm,
       );
-
-      console.log('response', res);
-
+      console.log('fetchProducts res:', res);
       const products = res?.items || res?.data || [];
       const pagination = res?.data?.pagination || null;
 
@@ -126,7 +151,7 @@ const InternalWarehouseTransfer = () => {
       else setProductData((prev) => [...prev, ...products]);
 
       if (pagination) setHasMore(pageNo < (pagination.totalPages || 1));
-      else setHasMore(products.length === 20); 
+      else setHasMore(products.length === 20);
     } catch (err) {
       toast.error(
         err?.response?.data?.message || 'Failed to fetch productions',
@@ -155,7 +180,7 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-  // close dropdown on outside click
+  // close dropdown when clicking outside
   useEffect(() => {
     const onClick = (ev) => {
       if (dropdownRef.current && !dropdownRef.current.contains(ev.target)) {
@@ -166,26 +191,19 @@ const InternalWarehouseTransfer = () => {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  // When user selects a productionNo from dropdown
-
+  // ---------- selecting a PN ----------
   const selectProductionNo = async (pn) => {
-    // pn could be a string or an object with productionNo
     const pnValue =
       typeof pn === 'string' ? pn : pn.productionNo || pn.id || '';
     setProductionNo(pnValue);
     setOpenPN(false);
-
-    // Reset dependent fields immediately (like your original)
     setFromWarehouse('');
     setToWarehouse('');
     setQuantity(0);
     setAvailableQty(0);
     setQrData(null);
 
-    // Try to find the stock item in pnNumber (pre-fetched)
     let selectedPN = pnNumber.find((p) => p.productionNo === pnValue);
-
-    // If not found, fetch stock list again and try to find (covers case where pnNumber didn't include this PN)
     if (!selectedPN) {
       try {
         setLoading(true);
@@ -216,7 +234,6 @@ const InternalWarehouseTransfer = () => {
       }
     }
 
-    // If we have selectedPN, populate fields exactly like your original code
     if (selectedPN) {
       setArticle(selectedPN.article || '');
       setCategory({
@@ -230,10 +247,7 @@ const InternalWarehouseTransfer = () => {
         id: selectedPN.factory?._id || selectedPN.factory?.id || '',
         name: selectedPN.factory?.name || selectedPN.factory?.factoryName || '',
       });
-
-      // Note: keep pnNumber as-is; From Warehouse options will read from selectedPN.warehouseData
     } else {
-      // fallback: clear fields
       setArticle('');
       setCategory({
         categoryCode: '',
@@ -246,14 +260,11 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-
-  // When From Warehouse changes (dependent on selected PN's warehouseData)
-
+  // ---------- handle from warehouse change ----------
   const handleFromWarehouseChange = (value) => {
     setFromWarehouse(value);
     setQrData(null);
 
-    // find selected PN stock entry
     const selectedPNEntry = pnNumber.find(
       (p) => p.productionNo === productionNo,
     );
@@ -265,8 +276,6 @@ const InternalWarehouseTransfer = () => {
       const avail = wh.availableQuantity ?? wh.availableQty ?? 0;
       setAvailableQty(avail);
       setQuantity(avail > 0 ? 1 : 0);
-
-      // override category with warehouse-level fields if present
       setCategory((prev) => ({
         categoryCode: wh.categoryCode || prev.categoryCode || '',
         color: wh.color || prev.color || '',
@@ -274,8 +283,6 @@ const InternalWarehouseTransfer = () => {
         type: wh.type || prev.type || '',
         quality: wh.quality || prev.quality || '',
       }));
-
-      // prefer article at warehouse-level if provided
       if (wh.article) setArticle(wh.article);
     } else {
       setAvailableQty(0);
@@ -283,8 +290,7 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-  // Create QR (same as your original)
-
+  // ---------- create QR / internal transfer ----------
   const handleCreateQr = async () => {
     if (
       !factory.id ||
@@ -330,9 +336,16 @@ const InternalWarehouseTransfer = () => {
         user.accessToken,
         payload,
       );
-      toast.success(res?.data?.message || 'QR generated successfully!');
-      setQrData(res.data || res);
+      console.log('internalStockTransfer response:', res);
 
+      // normalize the response (handles several shapes)
+      const normalized = normalizeQrResponse(res);
+      console.log('normalized QR response:', normalized);
+
+      toast.success(normalized.message || 'QR generated successfully!');
+      setQrData(normalized);
+
+      // Reset the form fields (keeping qrData so preview/print works)
       setProductionNo('');
       setArticle('');
       setFactory({ id: '', name: '' });
@@ -348,7 +361,7 @@ const InternalWarehouseTransfer = () => {
         quality: '',
       });
 
-      // ✅ Refresh PN list
+      // refresh PN list
       const prores = await stockService.getStockByPn(user.accessToken);
       const items = prores?.items || prores?.data?.items || [];
       const allStockData = items.map((item) => ({
@@ -366,8 +379,6 @@ const InternalWarehouseTransfer = () => {
         new Map(allStockData.map((it) => [it.productionNo, it])).values(),
       );
       setPnNumber(uniquePn);
-
-      // keep form values for printing if user wants
     } catch (err) {
       toast.error(err?.response?.data?.message || 'Error generating QR');
     } finally {
@@ -375,11 +386,15 @@ const InternalWarehouseTransfer = () => {
     }
   };
 
-  // -----------------------
-  // Print QR same as original
-  // -----------------------
+  // ---------- print QR PDF ----------
   const handlePrint = async () => {
-    if (!qrData?.qrCodes || qrData.qrCodes.length === 0) {
+    // Accept both normalized.qrCodes and normalized.createdInDestination
+    const codes =
+      qrData?.qrCodes && qrData.qrCodes.length > 0
+        ? qrData.qrCodes
+        : qrData?.createdInDestination || [];
+
+    if (!codes || codes.length === 0) {
       toast.error('No QR data available to print.');
       return;
     }
@@ -392,10 +407,20 @@ const InternalWarehouseTransfer = () => {
       const qrSize = 40,
         gap = 10;
 
-      qrData.qrCodes.forEach((qr, index) => {
-        if (qr.qrData) doc.addImage(qr.qrData, 'PNG', x, y, qrSize, qrSize);
+      codes.forEach((qr, index) => {
+        if (qr.qrData) {
+          try {
+            doc.addImage(qr.qrData, 'PNG', x, y, qrSize, qrSize);
+          } catch (e) {
+            console.warn('addImage failed for a QR (skipping):', e);
+          }
+        }
         doc.setFontSize(10);
-        doc.text(`Article: ${qr.article || 'N/A'}`, x, y + qrSize + 5);
+        doc.text(
+          `Article: ${qr.article || qr.product?.article || 'N/A'}`,
+          x,
+          y + qrSize + 5,
+        );
         doc.text(`Size: ${qr.size || 'N/A'}`, x, y + qrSize + 10);
         doc.text(`Color: ${qr.color || 'N/A'}`, x, y + qrSize + 15);
         doc.text(`Type: ${qr.type || 'N/A'}`, x, y + qrSize + 20);
@@ -416,15 +441,13 @@ const InternalWarehouseTransfer = () => {
       doc.save('transfer-qr-codes.pdf');
       toast.success('QR codes downloaded');
     } catch (err) {
+      console.error('print error:', err);
       toast.error('Error printing QR');
     } finally {
       setIsPrinting(false);
     }
   };
 
-  // -----------------------
-  // Reset
-  // -----------------------
   const handleReset = () => {
     setProductionNo('');
     setArticle('');
@@ -443,12 +466,16 @@ const InternalWarehouseTransfer = () => {
     setQrData(null);
   };
 
+  // ---------- UI ----------
+  if (loading) return <Loader />;
 
-  // Render
+  // Determine whether we have QR data
+  const hasQrData = !!(
+    (qrData?.qrCodes && qrData.qrCodes.length > 0) ||
+    (qrData?.createdInDestination && qrData.createdInDestination.length > 0)
+  );
 
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <div className="max-w-6xl mx-auto py-5 px-4 bg-gray-50 min-h-screen">
       <h2 className="text-lg font-semibold mb-4">
         Internal Warehouse Transfer
@@ -606,7 +633,7 @@ const InternalWarehouseTransfer = () => {
             className="w-full p-2 rounded border border-gray-300"
             value={category.categoryCode}
             readOnly
-            type='text'
+            type="text"
           />
         </div>
         <div>
@@ -659,11 +686,9 @@ const InternalWarehouseTransfer = () => {
         </button>
         <button
           onClick={handlePrint}
-          disabled={
-            !qrData?.qrCodes || qrData.qrCodes.length === 0 || isPrinting
-          }
+          disabled={!hasQrData || isPrinting}
           className={`rounded px-4 py-2 ${
-            !qrData?.qrCodes || qrData.qrCodes.length === 0 || isPrinting
+            !hasQrData || isPrinting
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-green-600 text-white hover:bg-green-700'
           }`}
@@ -672,8 +697,18 @@ const InternalWarehouseTransfer = () => {
         </button>
       </div>
 
-      {/* Preview */}
-      {qrData?.createdInDestination?.length > 0 && (
+      {/* Notification */}
+      {hasQrData && (
+        <div className="mt-4 p-3 bg-green-100 border border-green-300 rounded">
+          <p className="text-green-700 text-sm">
+            ✅ QR codes generated and ready to print
+          </p>
+        </div>
+      )}
+
+      {/* Preview area */}
+      {(qrData?.createdInDestination?.length > 0 ||
+        qrData?.qrCodes?.length > 0) && (
         <div
           ref={printRef}
           className="grid gap-4 mt-6"
@@ -681,18 +716,20 @@ const InternalWarehouseTransfer = () => {
             gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
           }}
         >
-          {qrData.createdInDestination.map((qr, i) => {
-            const stockItem = qrData.stockCreated?.find(
-              (s) => s.qrId === qr.qrId,
-            );
+          {(qrData?.createdInDestination?.length > 0
+            ? qrData.createdInDestination
+            : qrData.qrCodes
+          ).map((qr, i) => {
+            const stockItem =
+              qrData?.stockCreated?.find((s) => s.qrId === qr.qrId) || {};
             return (
               <div
-                key={`${qr.qrId}-${i}`}
+                key={`${qr.qrId || i}`}
                 className="qr-label border rounded p-2 flex flex-col items-center text-center text-xs break-inside-avoid"
               >
                 {stockItem?.article && (
                   <div className="font-semibold mb-1">
-                    Article: {stockItem?.article}
+                    Article: {stockItem.article}
                   </div>
                 )}
                 {qr.qrData && (
