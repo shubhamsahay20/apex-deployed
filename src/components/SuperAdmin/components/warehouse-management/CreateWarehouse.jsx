@@ -80,7 +80,7 @@ const CreateWarehouse = () => {
     });
 
     if (!isValid) {
-      toast.error('Please fix the validation errors before submitting.');
+      toast.error('Please fill all fields correctly before submitting.');
       return;
     }
 
