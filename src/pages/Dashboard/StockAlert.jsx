@@ -126,7 +126,7 @@ export function StockAlert({
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between mt-4 text-sm">
+      <div className="flex items-center justify-between mt-4 p-4 text-sm">
         <button
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prev) => prev - 1)}

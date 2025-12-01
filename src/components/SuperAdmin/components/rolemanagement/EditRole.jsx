@@ -5,6 +5,7 @@ import Select from 'react-select';
 import roleService from '../../../../api/role.service';
 import warehouseService from '../../../../api/warehouse.service';
 import { useAuth } from '../../../../Context/AuthContext';
+import { ImCross } from 'react-icons/im';
 
 const EditRole = () => {
   const { id } = useParams();
@@ -49,8 +50,6 @@ const EditRole = () => {
           password: '',
           role: res?.data?.role || '',
           location: res?.data?.location || '',
-          //in future if profile image is needed, uncomment below
-
           profileImage: res?.data?.profileImage || '',
           warehouses: res?.data?.warehouses || [],
         });
@@ -91,7 +90,6 @@ const EditRole = () => {
 
     try {
       const payload = new FormData();
-      console.log('payload 1', payload);
 
       Object.keys(formData).forEach((key) => {
         if (key === 'warehouses') {
@@ -100,36 +98,35 @@ const EditRole = () => {
           payload.append(key, formData[key]);
         }
       });
-      const payloadObject = {};
-      for (let [key, value] of payload.entries()) {
-        // For files, just show the file name
-        payloadObject[key] = value instanceof File ? value.name : value;
-      }
-
-      console.log('Payload to send:', payloadObject);
 
       const res = await roleService.updateRoleByID(
         user.accessToken,
         id,
-        payload,
+        payload
       );
-      console.log('response after role update', res);
-      console.log('response user access token', user.accessToken);
-      console.log('response user id', id);
 
       toast.success(res.message || 'User details updated successfully');
-
       navigate('/role-management');
     } catch (error) {
       console.log('error to get', error);
-
       toast.error(error.response?.data?.message || 'Failed to update');
     }
   };
 
   return (
-    <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-8">
-      <h2 className="text-2xl font-semibold mb-6"> {formData.role}</h2>
+    <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-8 relative">
+
+      {/* CLOSE (CROSS) BUTTON ADDED HERE */}
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        className="absolute top-4 right-4 text-gray-600 hover:text-red-600 text-xl"
+      >
+        <ImCross />
+      </button>
+
+      <h2 className="text-2xl font-semibold mb-6">{formData.role}</h2>
+
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 md:grid-cols-2 gap-4"
@@ -218,7 +215,7 @@ const EditRole = () => {
           />
         </div>
 
-        {/*  Warehouse(s) field (only if role is Warehouse Manager) */}
+        {/* Warehouse(s) only for Warehouse Manager */}
         {formData.role === 'Warehouse Manager' && (
           <div className="col-span-1 md:col-span-2">
             <label className="block text-sm font-medium mb-1">
@@ -241,13 +238,9 @@ const EditRole = () => {
           </div>
         )}
 
-        {/* in future if profile image is needed, uncomment below */}
-
         {/* Profile Image */}
         <div>
-          <label className="block text-sm font-medium mb-1">
-            Profile Image
-          </label>
+          <label className="block text-sm font-medium mb-1">Profile Image</label>
           <input
             type="file"
             name="profileImage"
@@ -255,6 +248,7 @@ const EditRole = () => {
             onChange={handleChange}
             className="border border-gray-300 p-2 rounded w-full"
           />
+
           {formData.profileImage &&
             typeof formData.profileImage === 'string' && (
               <img

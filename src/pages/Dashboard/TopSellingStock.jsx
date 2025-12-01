@@ -95,7 +95,7 @@ export function TopSellingStock({
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between mt-4 text-sm">
+      <div className="flex items-center justify-between mt-4 p-4 text-sm">
         <button
           disabled={topcurrentPage === 1}
           onClick={() => setTopCurrentPage((prev) => prev - 1)}

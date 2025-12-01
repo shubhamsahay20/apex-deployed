@@ -8,6 +8,7 @@ import warehouseService from '../../../../api/warehouse.service';
 import { useAuth } from '../../../../Context/AuthContext';
 import { toast } from 'react-toastify';
 import Loader from '../../../../common/Loader';
+import { ImCross } from "react-icons/im";
 
 const roles = [
   'Sales Person',
@@ -250,11 +251,11 @@ const RoleManagement = () => {
     return (
       <div className="p-6 bg-white rounded-lg shadow max-w-5xl h-auto mx-auto mt-6 relative">
         <button
-          className="absolute top-3 right-4 text-gray-500 text-2xl hover:text-gray-700"
+          className="absolute top-3 right-4 text-gray-500 text-xl hover:text-gray-700"
           onClick={() => setShowAddModal(false)}
           disabled={submitLoading}
         >
-          &times;
+          <ImCross />
         </button>
 
         <div className="mb-10 border-b pb-3">

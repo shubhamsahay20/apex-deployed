@@ -65,8 +65,10 @@ const ViewArticle = () => {
           {/* Big Image */}
           <div className="w-full h-80 bg-gray-50 flex items-center justify-center overflow-hidden">
             <img
-              src={articleData.image?.[0]}
-              crossOrigin="anonymous"
+              src={
+                articleData.image?.[0] 
+                
+              }
               alt={articleData.categoryCode}
               className="object-cover w-full h-full hover:scale-105 transition-transform duration-500"
             />

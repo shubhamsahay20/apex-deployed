@@ -1,5 +1,5 @@
 import React from "react";
-
+import { ImCross } from "react-icons/im";
 const ImageModal = ({ imageUrl, onClose }) => {
   if (!imageUrl) return null;
 
@@ -21,7 +21,7 @@ const ImageModal = ({ imageUrl, onClose }) => {
           className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-gray-100"
           onClick={onClose}
         >
-          ✕
+          <ImCross />
         </button>
       </div>
     </div>

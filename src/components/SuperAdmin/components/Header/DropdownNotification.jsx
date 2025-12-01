@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import ClickOutside from '../ClickOutside';
 import { IoIosNotificationsOutline } from 'react-icons/io';
 import { useAuth } from '../../../../Context/AuthContext';
+import { ImCross } from "react-icons/im";
 
 const DropdownNotification = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -96,7 +97,7 @@ const DropdownNotification = () => {
                       className="flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white"
                       onClick={() => removeNotification(item.id)}
                     >
-                      ✕
+                      <ImCross />
                     </button>
                   </div>
                 ))}
