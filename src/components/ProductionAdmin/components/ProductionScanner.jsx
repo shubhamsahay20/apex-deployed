@@ -12,6 +12,9 @@ const QRScannerPage = () => {
   const [apiResponse, setApiResponse] = useState(null)
   const { user } = useAuth()
 
+  // ⭐ Added: Camera Mode State
+  const [cameraMode, setCameraMode] = useState("environment")
+
   const handleScan = result => {
     if (result) {
       const scannedValue = result.text || result
@@ -45,7 +48,6 @@ const QRScannerPage = () => {
       }
 
       const response = await productionService.qrScan(user.accessToken, payload)
-
       console.log('after qr scan', response)
       setApiResponse(response.data)
     } catch (error) {
@@ -66,7 +68,7 @@ const QRScannerPage = () => {
 
         {qrResult ? (
           <div className='p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in'>
-            {/* If API response exists, replace scanned result */}
+
             {apiResponse ? (
               <div className='mt-2 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in'>
                 <h4 className='text-base font-semibold text-gray-800 mb-3 flex items-center gap-2'>
@@ -139,7 +141,6 @@ const QRScannerPage = () => {
               </div>
             ) : (
               <>
-                {/* Show scanned result only before submission */}
                 <h3 className='text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2'>
                   ✅ Scanned QR Result
                 </h3>
@@ -169,7 +170,6 @@ const QRScannerPage = () => {
                   </div>
                 )}
 
-                {/* Buttons */}
                 <div className='mt-5 flex flex-col sm:flex-row gap-3 justify-center'>
                   <button
                     onClick={() => {
@@ -209,13 +209,31 @@ const QRScannerPage = () => {
             ) : (
               <div className='space-y-4 animate-fade-in'>
                 <div className='rounded-xl overflow-hidden border shadow-md'>
+
+                  {/* ⭐ Updated: Added camera constraints */}
                   <QrReader
                     delay={300}
                     onError={handleError}
                     onScan={handleScan}
                     style={{ width: '100%' }}
+                    constraints={{
+                      video: { facingMode: cameraMode }
+                    }}
                   />
                 </div>
+
+                {/* ⭐ Added Camera Switch Button */}
+                <button
+                  onClick={() =>
+                    setCameraMode(prev =>
+                      prev === 'environment' ? 'user' : 'environment'
+                    )
+                  }
+                  className='w-full py-2 bg-indigo-600 text-white rounded-lg font-medium'
+                >
+                  Switch to {cameraMode === 'environment' ? 'Front' : 'Back'} Camera
+                </button>
+
                 <button
                   onClick={() => setScanning(false)}
                   className='flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition'
