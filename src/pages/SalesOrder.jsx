@@ -123,16 +123,16 @@ const SalesOrder = () => {
                     {row.salesOrderNo}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {row.createdBy.name}
+                    {row?.createdBy?.name}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {row.createdBy.phone}
+                    {row?.createdBy?.phone}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {row.customer.name}
+                    {row?.customer?.name}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
-                    {row.customer.phone}
+                    {row?.customer?.phone}
                   </td>
                   <td className="px-3 py-2 whitespace-nowrap">
                     {row.items?.reduce(
