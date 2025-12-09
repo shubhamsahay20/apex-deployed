@@ -12,6 +12,9 @@ const DispatchScanner = () => {
   const [apiResponse, setApiResponse] = useState(null);
   const { user } = useAuth();
 
+  // ⭐ Added: Camera Mode State (Front / Back)
+  const [cameraMode, setCameraMode] = useState("environment");
+
   const handleScan = (result) => {
     if (result) {
       const scannedValue = result.text || result;
@@ -69,7 +72,6 @@ const DispatchScanner = () => {
 
         {qrResult ? (
           <div className="p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in">
-            {/* If API response exists, replace scanned result */}
             {apiResponse ? (
               <div className="mt-2 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in">
                 <h4 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
@@ -89,7 +91,6 @@ const DispatchScanner = () => {
 
                     {apiResponse?.data && (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {/* Factory */}
                         <div className="bg-white rounded-lg p-3 border">
                           <p className="text-xs text-gray-500 uppercase">
                             Factory
@@ -99,7 +100,6 @@ const DispatchScanner = () => {
                           </p>
                         </div>
 
-                        {/* Warehouse */}
                         <div className="bg-white rounded-lg p-3 border">
                           <p className="text-xs text-gray-500 uppercase">
                             Warehouse
@@ -109,7 +109,6 @@ const DispatchScanner = () => {
                           </p>
                         </div>
 
-                        {/* Total Quantity */}
                         <div className="bg-white rounded-lg p-3 border">
                           <p className="text-xs text-gray-500 uppercase">
                             Quantity
@@ -119,7 +118,6 @@ const DispatchScanner = () => {
                           </p>
                         </div>
 
-                        {/* Dispatch Stock */}
                         <div className="bg-white rounded-lg p-3 border">
                           <p className="text-xs text-gray-500 uppercase">
                             Dispatch Stock
@@ -128,8 +126,6 @@ const DispatchScanner = () => {
                             {apiResponse.data.dispatched}
                           </p>
                         </div>
-
-                       
                       </div>
                     )}
                   </div>
@@ -150,7 +146,6 @@ const DispatchScanner = () => {
               </div>
             ) : (
               <>
-                {/* Show scanned result only before submission */}
                 <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2">
                   ✅ Scanned QR Result
                 </h3>
@@ -182,7 +177,6 @@ const DispatchScanner = () => {
                   </div>
                 )}
 
-                {/* Buttons */}
                 <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={() => {
@@ -222,13 +216,31 @@ const DispatchScanner = () => {
             ) : (
               <div className="space-y-4 animate-fade-in">
                 <div className="rounded-xl overflow-hidden border shadow-md">
+
+                  {/* ⭐ Added: Camera Facing Mode Support */}
                   <QrReader
                     delay={300}
                     onError={handleError}
                     onScan={handleScan}
                     style={{ width: '100%' }}
+                    constraints={{
+                      video: { facingMode: cameraMode }
+                    }}
                   />
                 </div>
+
+                {/* ⭐ Added: Switch Camera Button */}
+                <button
+                  onClick={() =>
+                    setCameraMode(prev =>
+                      prev === 'environment' ? 'user' : 'environment'
+                    )
+                  }
+                  className="w-full py-2 bg-indigo-600 text-white rounded-lg font-medium"
+                >
+                  Switch to {cameraMode === 'environment' ? 'Front' : 'Back'} Camera
+                </button>
+
                 <button
                   onClick={() => setScanning(false)}
                   className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition"

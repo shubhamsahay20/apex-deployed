@@ -5,7 +5,6 @@ import { useAuth } from '../../../Context/AuthContext'
 import stockService from '../../../api/stock.service'
 import { useNavigate } from 'react-router-dom'
 
-
 const QRScanner = () => {
   const [scanning, setScanning] = useState(false)
   const [qrResult, setQrResult] = useState('')
@@ -15,6 +14,9 @@ const QRScanner = () => {
   const navigate = useNavigate()
 
   const { user } = useAuth()
+
+  // ⭐ Added: Camera Mode State
+  const [cameraMode, setCameraMode] = useState("environment")
 
   const handleScan = result => {
     if (result) {
@@ -44,27 +46,21 @@ const QRScanner = () => {
       setLoading(true)
       setApiResponse(null)
       const qrid = parsedData?.qrId || qrResult
-      const payload = {
-        qrImage: qrid
-      }
+      const payload = { qrImage: qrid }
 
       const response = await stockService.addStockQrScan(
         user.accessToken,
         payload
       )
 
-      
-      
-      
       console.log('after qr scan', response.data)
       setApiResponse(response.data)
+
       const warehouseId = response.data?.stock?.warehouse?._id
-      console.log("warehouseId",warehouseId);
-      
       setTimeout(() => {
-        navigate(`/warehouse-management/Stock`,{state:{warehouseId}})
-        
-      }, 3000);
+        navigate(`/warehouse-management/Stock`, { state: { warehouseId } })
+      }, 3000)
+
     } catch (error) {
       console.error('API Error:', error)
       setApiResponse({ error: 'Failed to send data' })
@@ -83,7 +79,6 @@ const QRScanner = () => {
 
         {qrResult ? (
           <div className='p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in'>
-            {/* If API response exists, replace scanned result */}
             {apiResponse ? (
               <div className='mt-2 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in'>
                 <h4 className='text-base font-semibold text-gray-800 mb-3 flex items-center gap-2'>
@@ -103,7 +98,6 @@ const QRScanner = () => {
 
                     {apiResponse?.stock && (
                       <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                        {/* Factory */}
                         <div className='bg-white rounded-lg p-3 border'>
                           <p className='text-xs text-gray-500 uppercase'>
                             Factory
@@ -113,7 +107,6 @@ const QRScanner = () => {
                           </p>
                         </div>
 
-                        {/* Warehouse */}
                         <div className='bg-white rounded-lg p-3 border'>
                           <p className='text-xs text-gray-500 uppercase'>
                             Warehouse
@@ -123,7 +116,6 @@ const QRScanner = () => {
                           </p>
                         </div>
 
-                        {/* Total Quantity */}
                         <div className='bg-white rounded-lg p-3 border'>
                           <p className='text-xs text-gray-500 uppercase'>
                             Total Quantity
@@ -133,7 +125,6 @@ const QRScanner = () => {
                           </p>
                         </div>
 
-                        {/* Dispatch Stock */}
                         <div className='bg-white rounded-lg p-3 border'>
                           <p className='text-xs text-gray-500 uppercase'>
                             Dispatch Stock
@@ -143,7 +134,6 @@ const QRScanner = () => {
                           </p>
                         </div>
 
-                        {/* Stock Data List */}
                         {apiResponse.stock.stockdata?.map((item, index) => (
                           <div
                             key={index}
@@ -231,9 +221,7 @@ const QRScanner = () => {
                                 </p>
                                 <p
                                   className={`font-medium ${
-                                    item.dispatched
-                                      ? 'text-green-600'
-                                      : 'text-red-600'
+                                    item.dispatched ? 'text-green-600' : 'text-red-600'
                                   }`}
                                 >
                                   {item.dispatched ? 'Yes' : 'No'}
@@ -262,7 +250,6 @@ const QRScanner = () => {
               </div>
             ) : (
               <>
-                {/* Show scanned result only before submission */}
                 <h3 className='text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2'>
                   ✅ Scanned QR Result
                 </h3>
@@ -285,16 +272,13 @@ const QRScanner = () => {
                   </div>
                 ) : (
                   <div className='bg-white rounded-xl p-4 shadow-sm border text-left'>
-                    <p className='text-xs text-gray-500 uppercase mb-1'>
-                      QR Value
-                    </p>
+                    <p className='text-xs text-gray-500 uppercase mb-1'>QR Value</p>
                     <p className='text-green-700 font-semibold break-words'>
                       {qrResult}
                     </p>
                   </div>
                 )}
 
-                {/* Buttons */}
                 <div className='mt-5 flex flex-col sm:flex-row gap-3 justify-center'>
                   <button
                     onClick={() => {
@@ -334,13 +318,31 @@ const QRScanner = () => {
             ) : (
               <div className='space-y-4 animate-fade-in'>
                 <div className='rounded-xl overflow-hidden border shadow-md'>
+                  
+                  {/* ⭐ Updated: Added Camera Switching */}
                   <QrReader
                     delay={300}
                     onError={handleError}
                     onScan={handleScan}
                     style={{ width: '100%' }}
+                    constraints={{
+                      video: { facingMode: cameraMode }
+                    }}
                   />
                 </div>
+
+                {/* ⭐ Camera Switch Button */}
+                <button
+                  onClick={() =>
+                    setCameraMode(prev =>
+                      prev === 'environment' ? 'user' : 'environment'
+                    )
+                  }
+                  className='w-full py-2 bg-indigo-600 text-white rounded-lg font-medium'
+                >
+                  Switch to {cameraMode === 'environment' ? 'Front' : 'Back'} Camera
+                </button>
+
                 <button
                   onClick={() => setScanning(false)}
                   className='flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition'
