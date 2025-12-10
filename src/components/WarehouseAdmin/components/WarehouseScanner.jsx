@@ -4,6 +4,7 @@ import { FiCamera, FiX, FiRefreshCcw } from 'react-icons/fi'
 import { useAuth } from '../../../Context/AuthContext'
 import stockService from '../../../api/stock.service'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 const QRScanner = () => {
   const [scanning, setScanning] = useState(false)
@@ -15,8 +16,7 @@ const QRScanner = () => {
 
   const { user } = useAuth()
 
-  // ⭐ Added: Camera Mode State
-  const [cameraMode, setCameraMode] = useState("environment")
+  const [cameraMode, setCameraMode] = useState('environment')
 
   const handleScan = result => {
     if (result) {
@@ -45,18 +45,18 @@ const QRScanner = () => {
     try {
       setLoading(true)
       setApiResponse(null)
+
       const qrid = parsedData?.qrId || qrResult
       const payload = { qrImage: qrid }
 
-      const response = await stockService.addStockQrScan(
-        user.accessToken,
-        payload
-      )
+      const response = await stockService.addStockQrScan(user.accessToken, payload)
 
       console.log('after qr scan', response.data)
+      toast.success( 'Data submitted successfully')
       setApiResponse(response.data)
 
       const warehouseId = response.data?.stock?.warehouse?._id
+
       setTimeout(() => {
         navigate(`/warehouse-management/Stock`, { state: { warehouseId } })
       }, 3000)
@@ -70,66 +70,65 @@ const QRScanner = () => {
   }
 
   return (
-    <div className='flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6'>
-      <div className='w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300'>
-        <h2 className='text-2xl font-bold text-gray-800 mb-4'>QR Scanner</h2>
-        <p className='text-sm text-gray-500 mb-6'>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3 sm:p-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4 sm:p-6 text-center">
+
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+          QR Scanner
+        </h2>
+
+        <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">
           Scan any QR code easily with your camera
         </p>
 
         {qrResult ? (
-          <div className='p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in'>
+          <div className="p-4 sm:p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md">
+
+            {/* ---------- API RESPONSE VIEW ---------- */}
             {apiResponse ? (
-              <div className='mt-2 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in'>
-                <h4 className='text-base font-semibold text-gray-800 mb-3 flex items-center gap-2'>
+              <div className="mt-2 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left">
+                <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   {apiResponse.error ? '❌ Error' : '📦 QR Scan Result'}
                 </h4>
 
                 {apiResponse.error ? (
-                  <p className='text-red-600 text-sm'>{apiResponse.error}</p>
+                  <p className="text-red-600 text-xs sm:text-sm">{apiResponse.error}</p>
                 ) : (
-                  <div className='space-y-3'>
+                  <div className="space-y-3 text-sm">
                     <div>
-                      <p className='text-xs text-gray-500 uppercase'>Message</p>
-                      <p className='text-gray-800 font-medium'>
+                      <p className="text-xs text-gray-500 uppercase">Message</p>
+                      <p className="text-gray-800 font-medium">
                         {apiResponse.message || '—'}
                       </p>
                     </div>
 
                     {apiResponse?.stock && (
-                      <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
-                        <div className='bg-white rounded-lg p-3 border'>
-                          <p className='text-xs text-gray-500 uppercase'>
-                            Factory
-                          </p>
-                          <p className='font-semibold text-gray-800'>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
+                        <div className="bg-white rounded-lg p-3 border">
+                          <p className="text-[11px] text-gray-500 uppercase">Factory</p>
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.stock.factory?.name}
                           </p>
                         </div>
 
-                        <div className='bg-white rounded-lg p-3 border'>
-                          <p className='text-xs text-gray-500 uppercase'>
-                            Warehouse
-                          </p>
-                          <p className='font-semibold text-gray-800'>
+                        <div className="bg-white rounded-lg p-3 border">
+                          <p className="text-[11px] text-gray-500 uppercase">Warehouse</p>
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.stock.warehouse?.name}
                           </p>
                         </div>
 
-                        <div className='bg-white rounded-lg p-3 border'>
-                          <p className='text-xs text-gray-500 uppercase'>
-                            Total Quantity
-                          </p>
-                          <p className='font-semibold text-gray-800'>
+                        <div className="bg-white rounded-lg p-3 border">
+                          <p className="text-[11px] text-gray-500 uppercase">Total Quantity</p>
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.stock.toatalQuantity}
                           </p>
                         </div>
 
-                        <div className='bg-white rounded-lg p-3 border'>
-                          <p className='text-xs text-gray-500 uppercase'>
-                            Dispatch Stock
-                          </p>
-                          <p className='font-semibold text-gray-800'>
+                        <div className="bg-white rounded-lg p-3 border">
+                          <p className="text-[11px] text-gray-500 uppercase">Dispatch Stock</p>
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.stock.dispatchStock}
                           </p>
                         </div>
@@ -137,88 +136,33 @@ const QRScanner = () => {
                         {apiResponse.stock.stockdata?.map((item, index) => (
                           <div
                             key={index}
-                            className='bg-gray-50 rounded-lg p-4 border col-span-1 sm:col-span-2'
+                            className="bg-gray-50 rounded-lg p-3 sm:p-4 border col-span-1 sm:col-span-2"
                           >
-                            <p className='text-sm font-semibold text-blue-700 mb-2'>
+                            <p className="text-sm font-semibold text-blue-700 mb-2">
                               Stock Item {index + 1}
                             </p>
-                            <div className='grid grid-cols-2 gap-4 text-sm'>
+
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs sm:text-sm">
+
+                              {[
+                                ['Production No', item.productionNo],
+                                ['Article', item.article],
+                                ['Category Code', item.categoryCode],
+                                ['Color', item.color],
+                                ['Size', item.size],
+                                ['Type', item.type],
+                                ['Quality', item.quality],
+                                ['Quantity', item.quantity],
+                                ['QR Data', item.qrData],
+                              ].map(([label, value], i) => (
+                                <div key={i}>
+                                  <p className="text-[11px] text-gray-500 uppercase">{label}</p>
+                                  <p className="font-medium text-gray-800 break-all">{value}</p>
+                                </div>
+                              ))}
+
                               <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Production No
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.productionNo}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Article
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.article}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Category Code
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.categoryCode}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Color
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.color}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Size
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.size}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Type
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.type}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Quality
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.quality}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Quantity
-                                </p>
-                                <p className='font-medium text-gray-800'>
-                                  {item.quantity}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  QR Data
-                                </p>
-                                <p className='font-medium text-gray-800 break-words'>
-                                  {item.qrData}
-                                </p>
-                              </div>
-                              <div>
-                                <p className='text-xs text-gray-500 uppercase'>
-                                  Dispatched
-                                </p>
+                                <p className="text-[11px] text-gray-500 uppercase">Dispatched</p>
                                 <p
                                   className={`font-medium ${
                                     item.dispatched ? 'text-green-600' : 'text-red-600'
@@ -227,6 +171,7 @@ const QRScanner = () => {
                                   {item.dispatched ? 'Yes' : 'No'}
                                 </p>
                               </div>
+
                             </div>
                           </div>
                         ))}
@@ -235,14 +180,14 @@ const QRScanner = () => {
                   </div>
                 )}
 
-                <div className='mt-5'>
+                <div className="mt-4">
                   <button
                     onClick={() => {
                       setQrResult('')
                       setParsedData(null)
                       setApiResponse(null)
                     }}
-                    className='flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto'
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm w-full"
                   >
                     <FiRefreshCcw /> Scan Again
                   </button>
@@ -250,43 +195,38 @@ const QRScanner = () => {
               </div>
             ) : (
               <>
-                <h3 className='text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2'>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3">
                   ✅ Scanned QR Result
                 </h3>
 
                 {parsedData ? (
-                  <div className='bg-white rounded-xl p-4 shadow-sm border text-left space-y-3'>
+                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border text-left space-y-2 text-sm">
                     {Object.entries(parsedData).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className='flex justify-between items-center border-b pb-2 last:border-none'
-                      >
-                        <span className='text-sm font-medium text-gray-600 capitalize'>
-                          {key}
-                        </span>
-                        <span className='text-sm font-semibold text-gray-800'>
+                      <div key={key} className="flex justify-between border-b pb-1">
+                        <span className="text-gray-600 capitalize">{key}</span>
+                        <span className="font-semibold text-gray-800 break-all">
                           {value.toString()}
                         </span>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className='bg-white rounded-xl p-4 shadow-sm border text-left'>
-                    <p className='text-xs text-gray-500 uppercase mb-1'>QR Value</p>
-                    <p className='text-green-700 font-semibold break-words'>
+                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border text-left">
+                    <p className="text-[11px] text-gray-500 uppercase mb-1">QR Value</p>
+                    <p className="text-green-700 font-semibold break-all text-sm">
                       {qrResult}
                     </p>
                   </div>
                 )}
 
-                <div className='mt-5 flex flex-col sm:flex-row gap-3 justify-center'>
+                <div className="mt-5 flex flex-col gap-3">
                   <button
                     onClick={() => {
                       setQrResult('')
                       setParsedData(null)
                       setApiResponse(null)
                     }}
-                    className='flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto'
+                    className="flex items-center justify-center gap-2 w-full py-2 bg-gray-200 text-gray-700 rounded-lg text-sm"
                   >
                     <FiRefreshCcw /> Scan Again
                   </button>
@@ -294,10 +234,8 @@ const QRScanner = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium w-full sm:w-auto transition ${
-                      loading
-                        ? 'bg-blue-400 text-white cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    className={`w-full py-2 rounded-lg text-sm text-white ${
+                      loading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
                     }`}
                   >
                     {loading ? 'Submitting...' : 'Submit'}
@@ -311,15 +249,14 @@ const QRScanner = () => {
             {!scanning ? (
               <button
                 onClick={() => setScanning(true)}
-                className='flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition shadow-md'
+                className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 shadow-md"
               >
-                <FiCamera className='text-lg' /> Start Scanning
+                <FiCamera className="text-lg" /> Start Scanning
               </button>
             ) : (
-              <div className='space-y-4 animate-fade-in'>
-                <div className='rounded-xl overflow-hidden border shadow-md'>
-                  
-                  {/* ⭐ Updated: Added Camera Switching */}
+              <div className="space-y-3 sm:space-y-4">
+
+                <div className="rounded-xl overflow-hidden border shadow-md w-full">
                   <QrReader
                     delay={300}
                     onError={handleError}
@@ -331,21 +268,18 @@ const QRScanner = () => {
                   />
                 </div>
 
-                {/* ⭐ Camera Switch Button */}
                 <button
                   onClick={() =>
-                    setCameraMode(prev =>
-                      prev === 'environment' ? 'user' : 'environment'
-                    )
+                    setCameraMode(prev => (prev === 'environment' ? 'user' : 'environment'))
                   }
-                  className='w-full py-2 bg-indigo-600 text-white rounded-lg font-medium'
+                  className="w-full py-2 bg-indigo-600 text-white rounded-lg text-sm"
                 >
                   Switch to {cameraMode === 'environment' ? 'Front' : 'Back'} Camera
                 </button>
 
                 <button
                   onClick={() => setScanning(false)}
-                  className='flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition'
+                  className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-100"
                 >
                   <FiX /> Cancel
                 </button>

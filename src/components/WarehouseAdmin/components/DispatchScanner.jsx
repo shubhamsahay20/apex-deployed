@@ -12,7 +12,6 @@ const DispatchScanner = () => {
   const [apiResponse, setApiResponse] = useState(null);
   const { user } = useAuth();
 
-  // ⭐ Added: Camera Mode State (Front / Back)
   const [cameraMode, setCameraMode] = useState("environment");
 
   const handleScan = (result) => {
@@ -43,9 +42,7 @@ const DispatchScanner = () => {
       setLoading(true);
       setApiResponse(null);
       const qrid = parsedData?.qrId || qrResult;
-      const payload = {
-        qrData: qrid,
-      };
+      const payload = { qrData: qrid };
 
       const response = await stockService.dispatchStockQrScan(
         user.accessToken,
@@ -63,71 +60,81 @@ const DispatchScanner = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6 text-center transition-all duration-300">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">QR Scanner For Dispatch</h2>
-        <p className="text-sm text-gray-500 mb-6">
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3 sm:p-6">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-4 sm:p-6 text-center transition-all duration-300">
+        
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-3 sm:mb-4">
+          QR Scanner For Dispatch
+        </h2>
+
+        <p className="text-xs sm:text-sm text-gray-500 mb-4 sm:mb-6">
           Scan any QR code For Dispatch easily with your camera
         </p>
 
         {qrResult ? (
-          <div className="p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in">
+          <div className="p-4 sm:p-6 border rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md animate-fade-in">
+
             {apiResponse ? (
-              <div className="mt-2 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in">
-                <h4 className="text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
+              <div className="mt-2 p-3 sm:p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border shadow-sm text-left animate-fade-in">
+
+                <h4 className="text-sm sm:text-base font-semibold text-gray-800 mb-3 flex items-center gap-2">
                   {apiResponse.error ? '❌ Error' : '📦 QR Scan Result'}
                 </h4>
 
                 {apiResponse.error ? (
-                  <p className="text-red-600 text-sm">{apiResponse.error}</p>
+                  <p className="text-red-600 text-xs sm:text-sm">{apiResponse.error}</p>
                 ) : (
                   <div className="space-y-3">
+
                     <div>
-                      <p className="text-xs text-gray-500 uppercase">Message</p>
-                      <p className="text-gray-800 font-medium">
+                      <p className="text-[11px] sm:text-xs text-gray-500 uppercase">Message</p>
+                      <p className="text-gray-800 font-medium break-words break-all">
                         {apiResponse.message || '—'}
                       </p>
                     </div>
 
                     {apiResponse?.data && (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+
                         <div className="bg-white rounded-lg p-3 border">
-                          <p className="text-xs text-gray-500 uppercase">
+                          <p className="text-[11px] sm:text-xs text-gray-500 uppercase">
                             Factory
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.data?.factory}
                           </p>
                         </div>
 
                         <div className="bg-white rounded-lg p-3 border">
-                          <p className="text-xs text-gray-500 uppercase">
+                          <p className="text-[11px] sm:text-xs text-gray-500 uppercase">
                             Warehouse
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.data.warehouse}
                           </p>
                         </div>
 
                         <div className="bg-white rounded-lg p-3 border">
-                          <p className="text-xs text-gray-500 uppercase">
+                          <p className="text-[11px] sm:text-xs text-gray-500 uppercase">
                             Quantity
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.data.quantity}
                           </p>
                         </div>
 
                         <div className="bg-white rounded-lg p-3 border">
-                          <p className="text-xs text-gray-500 uppercase">
+                          <p className="text-[11px] sm:text-xs text-gray-500 uppercase">
                             Dispatch Stock
                           </p>
-                          <p className="font-semibold text-gray-800">
+                          <p className="font-semibold text-gray-800 text-sm">
                             {apiResponse.data.dispatched}
                           </p>
                         </div>
+
                       </div>
                     )}
+
                   </div>
                 )}
 
@@ -138,53 +145,55 @@ const DispatchScanner = () => {
                       setParsedData(null);
                       setApiResponse(null);
                     }}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto"
                   >
                     <FiRefreshCcw /> Scan Again
                   </button>
                 </div>
+
               </div>
             ) : (
               <>
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 flex items-center justify-center gap-2">
                   ✅ Scanned QR Result
                 </h3>
 
                 {parsedData ? (
-                  <div className="bg-white rounded-xl p-4 shadow-sm border text-left space-y-3">
+                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border text-left space-y-2 sm:space-y-3">
+
                     {Object.entries(parsedData).map(([key, value]) => (
                       <div
                         key={key}
-                        className="flex justify-between items-center border-b pb-2 last:border-none"
+                        className="flex justify-between items-center border-b pb-1 sm:pb-2 last:border-none"
                       >
-                        <span className="text-sm font-medium text-gray-600 capitalize">
+                        <span className="text-xs sm:text-sm font-medium text-gray-600 capitalize">
                           {key}
                         </span>
-                        <span className="text-sm font-semibold text-gray-800">
+                        <span className="text-xs sm:text-sm font-semibold text-gray-800 break-words break-all">
                           {value.toString()}
                         </span>
                       </div>
                     ))}
+
                   </div>
                 ) : (
-                  <div className="bg-white rounded-xl p-4 shadow-sm border text-left">
-                    <p className="text-xs text-gray-500 uppercase mb-1">
-                      QR Value
-                    </p>
-                    <p className="text-green-700 font-semibold break-words">
+                  <div className="bg-white rounded-xl p-3 sm:p-4 shadow-sm border text-left">
+                    <p className="text-[11px] sm:text-xs text-gray-500 uppercase mb-1">QR Value</p>
+                    <p className="text-green-700 font-semibold break-words break-all text-xs sm:text-sm">
                       {qrResult}
                     </p>
                   </div>
                 )}
 
                 <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+
                   <button
                     onClick={() => {
                       setQrResult('');
                       setParsedData(null);
                       setApiResponse(null);
                     }}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg text-xs sm:text-sm font-medium hover:bg-gray-300 transition w-full sm:w-auto"
                   >
                     <FiRefreshCcw /> Scan Again
                   </button>
@@ -192,7 +201,7 @@ const DispatchScanner = () => {
                   <button
                     onClick={handleSubmit}
                     disabled={loading}
-                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium w-full sm:w-auto transition ${
+                    className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs sm:text-sm font-medium w-full sm:w-auto transition ${
                       loading
                         ? 'bg-blue-400 text-white cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
@@ -200,24 +209,26 @@ const DispatchScanner = () => {
                   >
                     {loading ? 'Submitting...' : 'Submit'}
                   </button>
+
                 </div>
               </>
             )}
+
           </div>
         ) : (
           <>
+
             {!scanning ? (
               <button
                 onClick={() => setScanning(true)}
-                className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-lg font-medium text-sm hover:bg-blue-700 transition shadow-md"
+                className="flex items-center justify-center gap-2 w-full py-3 bg-blue-600 text-white rounded-lg font-medium text-xs sm:text-sm hover:bg-blue-700 transition shadow-md"
               >
                 <FiCamera className="text-lg" /> Start Scanning
               </button>
             ) : (
-              <div className="space-y-4 animate-fade-in">
-                <div className="rounded-xl overflow-hidden border shadow-md">
+              <div className="space-y-3 sm:space-y-4 animate-fade-in">
 
-                  {/* ⭐ Added: Camera Facing Mode Support */}
+                <div className="rounded-xl overflow-hidden border shadow-md w-full">
                   <QrReader
                     delay={300}
                     onError={handleError}
@@ -229,28 +240,30 @@ const DispatchScanner = () => {
                   />
                 </div>
 
-                {/* ⭐ Added: Switch Camera Button */}
                 <button
                   onClick={() =>
                     setCameraMode(prev =>
                       prev === 'environment' ? 'user' : 'environment'
                     )
                   }
-                  className="w-full py-2 bg-indigo-600 text-white rounded-lg font-medium"
+                  className="w-full py-2 bg-indigo-600 text-white rounded-lg font-medium text-xs sm:text-sm"
                 >
                   Switch to {cameraMode === 'environment' ? 'Front' : 'Back'} Camera
                 </button>
 
                 <button
                   onClick={() => setScanning(false)}
-                  className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
+                  className="flex items-center justify-center gap-2 w-full py-2 border border-gray-300 rounded-lg text-xs sm:text-sm font-medium text-gray-600 hover:bg-gray-100 transition"
                 >
                   <FiX /> Cancel
                 </button>
+
               </div>
             )}
+
           </>
         )}
+
       </div>
     </div>
   );

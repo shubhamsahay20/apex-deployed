@@ -62,7 +62,7 @@ const qrScan = async (token, data) => {
 
     return res;
   } catch (error) {
-    throw new Error('Error while geting qr scan');
+    throw error
   }
 };
 
