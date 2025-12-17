@@ -128,12 +128,12 @@ export default function CreateAnnouncement({ onSubmit, onCancel }) {
               >
                 <option value="">Select Role</option>
                
-                <option value="Production Manager">Production Manager</option>
-                <option value="Inventory Manager">Inventory Manager</option>
-                <option value="Accounting Manager">Accounting Manager</option>
                 <option value="Sales Person">Sales Person</option>
-                <option value="Warehouse Manager">Warehouse Manager</option>
-                <option value="All">All</option>
+                {/* <option value="Production Manager">Production Manager</option> */}
+                {/* <option value="Inventory Manager">Inventory Manager</option> */}
+                {/* <option value="Accounting Manager">Accounting Manager</option> */}
+                {/* <option value="Warehouse Manager">Warehouse Manager</option> */}
+                {/* <option value="All">All</option> */}
               </select>
             </div>
           </div>

@@ -108,6 +108,7 @@ import ViewProduction from './components/ProductionAdmin/components/ViewProducti
 import AccountSectionViewOrder from './components/AccountingAdmin/components/AccountSectionViewOrder'
 import ViewWarehouseStock from './components/WarehouseAdmin/components/ViewWarehouseStock'
 import ViewArticle from './components/SuperAdmin/components/catagories/ViewArtical'
+import Adminreset from './pages/Authentication/Adminreset'
 
 function App () {
   const [loading, setLoading] = useState(true)
@@ -155,6 +156,15 @@ function App () {
           <>
             <PageTitle title='Signup ' />
             <SignUp />
+          </>
+        }
+      />
+      <Route
+        path='/Adminreset'
+        element={
+          <>
+            <PageTitle title='Admin Reset ' />
+            <Adminreset />
           </>
         }
       />

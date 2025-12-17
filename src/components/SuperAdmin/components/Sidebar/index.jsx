@@ -64,7 +64,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         <NavLink to="/">
           <div className="w-46 h-15">
             <img
-              src={'/images/Logo.svg'}
+              src={'/images/Logo.jpg'}
               alt="Logo"
               className="w-full h-full object-contain"
             />

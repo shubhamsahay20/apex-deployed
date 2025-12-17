@@ -177,6 +177,9 @@ const SignIn = () => {
               required
             />
           </div>
+          <Link to="/forgotpassword" className="text-blue-600 hover:underline">
+              Forgot Password?
+            </Link>
 
           {/* Two-Factor Auth Checkbox */}
           <div className="flex items-center space-x-2">
@@ -225,9 +228,9 @@ const SignIn = () => {
           >
             Login
           </button>
-           <Link to="/forgotpassword" className="text-blue-600 hover:underline">
+           {/* <Link to="/forgotpassword" className="text-blue-600 hover:underline">
               Forgot Password?
-            </Link>
+            </Link> */}
 
           {/* Sign Up Link */}
           <p className="text-center text-sm text-gray-600">

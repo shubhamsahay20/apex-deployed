@@ -1,42 +1,181 @@
+// import React, { useState } from 'react';
+// import { useNavigate } from 'react-router-dom';
+
+// const Signup = () => {
+//   const navigate = useNavigate();
+
+//   const [formData, setFormData] = useState({
+//     email: '',
+//     phone: '',
+//     token: '',
+//   });
+
+//   const [errors, setErrors] = useState({});
+
+//   const handleChange = (e) => {
+//     const { id, value } = e.target;
+//     setFormData((prev) => ({
+//       ...prev,
+//       [id]: value,
+//     }));
+//   };
+
+//   const validate = () => {
+//     const newErrors = {};
+
+//     if (!formData.email.trim()) {
+//       newErrors.email = 'Email is required';
+//     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+//       newErrors.email = 'Invalid email format';
+//     }
+
+//     if (!formData.phone.trim()) {
+//       newErrors.phone = 'Phone number is required';
+//     } else if (!/^\d{10}$/.test(formData.phone)) {
+//       newErrors.phone = 'Phone must be 10 digits';
+//     }
+
+//     if (!formData.token.trim()) {
+//       newErrors.token = 'Token is required';
+//     }
+
+//     setErrors(newErrors);
+//     return Object.keys(newErrors).length === 0;
+//   };
+
+//   const handleSubmit = (e) => {
+//     e.preventDefault();
+//     if (!validate()) return;
+
+//     navigate('/Adminreset', {
+//       state: {
+//         email: formData.email,
+//         phone: formData.phone,
+//       },
+//     });
+//   };
+
+//   return (
+//     <div className="flex items-center justify-center min-h-screen bg-white px-4">
+//       <div className="w-full max-w-sm space-y-6">
+//         <h2 className="text-2xl font-semibold text-center text-blue-600">
+//           Verify Details
+//         </h2>
+
+//         <form className="space-y-4" onSubmit={handleSubmit}>
+//           {/* Email */}
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700">
+//               Email
+//             </label>
+//             <input
+//               id="email"
+//               type="email"
+//               value={formData.email}
+//               onChange={handleChange}
+//               className={`mt-1 w-full px-4 py-2 border ${
+//                 errors.email ? 'border-red-500' : 'border-gray-300'
+//               } rounded-md`}
+//             />
+//             {errors.email && (
+//               <p className="text-red-500 text-sm">{errors.email}</p>
+//             )}
+//           </div>
+
+//           {/* Phone */}
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700">
+//               Phone
+//             </label>
+//             <input
+//               id="phone"
+//               type="text"
+//               value={formData.phone}
+//               onChange={handleChange}
+//               className={`mt-1 w-full px-4 py-2 border ${
+//                 errors.phone ? 'border-red-500' : 'border-gray-300'
+//               } rounded-md`}
+//             />
+//             {errors.phone && (
+//               <p className="text-red-500 text-sm">{errors.phone}</p>
+//             )}
+//           </div>
+
+//           {/* Token */}
+//           <div>
+//             <label className="block text-sm font-medium text-gray-700">
+//               Token
+//             </label>
+//             <input
+//               id="token"
+//               type="text"
+//               value={formData.token}
+//               onChange={handleChange}
+//               className={`mt-1 w-full px-4 py-2 border ${
+//                 errors.token ? 'border-red-500' : 'border-gray-300'
+//               } rounded-md`}
+//             />
+//             {errors.token && (
+//               <p className="text-red-500 text-sm">{errors.token}</p>
+//             )}
+//           </div>
+
+//           <button
+//             type="submit"
+//             className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+//           >
+//             Submit
+//           </button>
+//         </form>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Signup;
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import authService from '../../api/auth.service'; // Adjust path if needed
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Signup = () => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
-    password: '',
     phone: '',
-    role: '',
-    // twoFA: true,
+    token: '',
   });
 
   const [errors, setErrors] = useState({});
-  const [submitError, setSubmitError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   const handleChange = (e) => {
-    const { id, value, type, checked } = e.target;
+    const { id, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [id]: type === 'checkbox' ? checked : value,
+      [id]: value,
     }));
   };
 
   const validate = () => {
     const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.email.trim()) newErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(formData.email))
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Invalid email format';
+    }
 
-    if (!formData.password.trim()) newErrors.password = 'Password is required';
-    else if (formData.password.length < 6)
-      newErrors.password = 'Password must be at least 6 characters';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^\d{10}$/.test(formData.phone)) {
+      newErrors.phone = 'Phone must be 10 digits';
+    }
 
-    if (!formData.role) newErrors.role = 'Please select a role';
+    if (!formData.token.trim()) {
+      newErrors.token = 'Token is required';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -44,42 +183,39 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitError('');
+    setApiError('');
 
     if (!validate()) return;
 
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.password ||
-      !formData.phone ||
-      !formData.role
-    ) {
-      console.error('Missing required fields');
-      return;
-    }
-
-    console.log('Sending to backend:', {
-      name: formData.name.trim(),
-      email: formData.email.trim(),
-      password: formData.password.trim(),
-      phone: formData.phone.trim(),
-      role: formData.role,
-    });
-
-    // console.log('sending payload', formData);
-
     try {
-      // console.log('formData', formData);
-      await authService.register(formData); // Assuming backend accepts this structure
-      navigate('/login'); // Go to login after successful signup
-    } catch (err) {
-      console.error('SignUp Error', err);
-      if (err.response && err.response.data && err.response.data.message) {
-        setSubmitError(err.response.data.message);
+      setLoading(true);
+
+      const response = await axios.post(
+        'http://localhost:9000/api/admin-auth/token',
+        {
+          email: formData.email,
+          phone: formData.phone,
+          token: formData.token,
+        }
+      );
+
+      if (response.data?.success) {
+        navigate('/Adminreset', {
+          state: {
+            email: response.data.data.email,
+              userId: response.data.data.userId,
+            phone: response.data.data.phone,
+          },
+        });
       } else {
-        setSubmitError('Signup failed. Please try again.');
+        setApiError(response.data?.message || 'Something went wrong');
       }
+    } catch (error) {
+      setApiError(
+        error.response?.data?.message || 'Failed to verify token'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -87,43 +223,17 @@ const Signup = () => {
     <div className="flex items-center justify-center min-h-screen bg-white px-4">
       <div className="w-full max-w-sm space-y-6">
         <h2 className="text-2xl font-semibold text-center text-blue-600">
-          Signup to Apex
+          Verify Details
         </h2>
 
-        {submitError && (
-          <p className="text-red-500 text-sm text-center">{submitError}</p>
+        {apiError && (
+          <p className="text-red-600 text-center text-sm">{apiError}</p>
         )}
 
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Name */}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="John Mathew"
-              className={`mt-1 w-full px-4 py-2 border ${
-                errors.name ? 'border-red-500' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name}</p>
-            )}
-          </div>
-
           {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -131,21 +241,18 @@ const Signup = () => {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="johnmathew@gmail.com"
               className={`mt-1 w-full px-4 py-2 border ${
                 errors.email ? 'border-red-500' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+              } rounded-md`}
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email}</p>
             )}
           </div>
 
+          {/* Phone */}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label className="block text-sm font-medium text-gray-700">
               Phone
             </label>
             <input
@@ -153,107 +260,45 @@ const Signup = () => {
               type="text"
               value={formData.phone}
               onChange={handleChange}
-              placeholder="1234567890"
               className={`mt-1 w-full px-4 py-2 border ${
                 errors.phone ? 'border-red-500' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+              } rounded-md`}
             />
             {errors.phone && (
               <p className="text-red-500 text-sm">{errors.phone}</p>
             )}
           </div>
 
-          {/* Password */}
+          {/* Token */}
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
+            <label className="block text-sm font-medium text-gray-700">
+              Token
             </label>
             <input
-              id="password"
-              type="password"
-              value={formData.password}
+              id="token"
+              type="text"
+              value={formData.token}
               onChange={handleChange}
-              placeholder="********"
               className={`mt-1 w-full px-4 py-2 border ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              } rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500`}
+                errors.token ? 'border-red-500' : 'border-gray-300'
+              } rounded-md`}
             />
-            {errors.password && (
-              <p className="text-red-500 text-sm">{errors.password}</p>
+            {errors.token && (
+              <p className="text-red-500 text-sm">{errors.token}</p>
             )}
           </div>
 
-          {/* Role */}
-          <div>
-            <label
-              htmlFor="role"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Select Role
-            </label>
-            <select
-              id="role"
-              value={formData.role}
-              onChange={handleChange}
-              className={`mt-1 w-full px-4 py-2 border ${
-                errors.role ? 'border-red-500' : 'border-gray-300'
-              } rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-            >
-              {/* <option value="">Select a role</option>
-              <option value="superadmin">Super Admin</option>
-              <option value="Administrator">Administrator</option>
-              <option value="production">Production</option>
-              <option value="inventory">Inventory Manager</option>
-              <option value="accounting">Accounting</option>
-              <option value="Warehouse Manager">Warehouse Manager</option>
-              <option value="sales">Sales</option> */}
-
-              <option value="">Select a role</option>
-              <option value="Admin">Admin</option>
-              <option value="Administrator">Administrator</option>
-              <option value="Production Manager">Production Manager</option>
-              <option value="Warehouse Manager">Warehouse Manager</option>
-              <option value="Inventory Manager">Inventory Manager</option>
-              <option value="Sales Person">Sales Person</option>
-              <option value="Account Section">Account Section</option>
-            </select>
-            {errors.role && (
-              <p className="text-red-500 text-sm">{errors.role}</p>
-            )}
-          </div>
-
-          {/* Two-Factor Auth Checkbox */}
-          <div className="flex items-center space-x-2">
-            <input
-              id="twoFA"
-              type="checkbox"
-              checked={formData.twoFA}
-              onChange={handleChange}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-            />
-            <label htmlFor="twoFA" className="text-sm text-gray-700">
-              Two-factor Authentication
-            </label>
-          </div>
-
-          {/* Signup Button */}
           <button
             type="submit"
-            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            disabled={loading}
+            className={`w-full py-2 text-white rounded-md ${
+              loading
+                ? 'bg-blue-400 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
-            Signup
+            {loading ? 'Verifying...' : 'Submit'}
           </button>
-
-          {/* Link to Login */}
-          <p className="text-center text-sm text-gray-600 mt-2">
-            Already have an account?{' '}
-            <Link to="/" className="text-blue-600 hover:underline">
-              Log In
-            </Link>
-          </p>
         </form>
       </div>
     </div>

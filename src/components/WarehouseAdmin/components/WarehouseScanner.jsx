@@ -52,14 +52,15 @@ const QRScanner = () => {
       const response = await stockService.addStockQrScan(user.accessToken, payload)
 
       console.log('after qr scan', response.data)
+      
       toast.success( 'Data submitted successfully')
       setApiResponse(response.data)
 
       const warehouseId = response.data?.stock?.warehouse?._id
 
-      setTimeout(() => {
-        navigate(`/warehouse-management/Stock`, { state: { warehouseId } })
-      }, 3000)
+      // setTimeout(() => {
+      //   navigate(`/warehouse-management/Stock`, { state: { warehouseId } })
+      // }, 3000)
 
     } catch (error) {
       console.error('API Error:', error)

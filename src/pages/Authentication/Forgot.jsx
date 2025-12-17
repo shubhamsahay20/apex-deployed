@@ -151,7 +151,7 @@ const ForgotPassword = () => {
               onClick={handleVerifyOTP}
               className="w-full bg-gradient-to-r from-blue-600 to-pink-500 text-white py-3 rounded-lg font-semibold shadow-md hover:opacity-90 transition"
             >
-              Verify OTP
+              Verify OTP 
             </button>
 
             <button
