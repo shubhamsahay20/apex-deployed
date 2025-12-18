@@ -154,6 +154,7 @@ function App () {
         path='/signup'
         element={
           <>
+          
             <PageTitle title='Signup ' />
             <SignUp />
           </>

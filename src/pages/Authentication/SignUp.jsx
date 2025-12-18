@@ -1,138 +1,3 @@
-// import React, { useState } from 'react';
-// import { useNavigate } from 'react-router-dom';
-
-// const Signup = () => {
-//   const navigate = useNavigate();
-
-//   const [formData, setFormData] = useState({
-//     email: '',
-//     phone: '',
-//     token: '',
-//   });
-
-//   const [errors, setErrors] = useState({});
-
-//   const handleChange = (e) => {
-//     const { id, value } = e.target;
-//     setFormData((prev) => ({
-//       ...prev,
-//       [id]: value,
-//     }));
-//   };
-
-//   const validate = () => {
-//     const newErrors = {};
-
-//     if (!formData.email.trim()) {
-//       newErrors.email = 'Email is required';
-//     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-//       newErrors.email = 'Invalid email format';
-//     }
-
-//     if (!formData.phone.trim()) {
-//       newErrors.phone = 'Phone number is required';
-//     } else if (!/^\d{10}$/.test(formData.phone)) {
-//       newErrors.phone = 'Phone must be 10 digits';
-//     }
-
-//     if (!formData.token.trim()) {
-//       newErrors.token = 'Token is required';
-//     }
-
-//     setErrors(newErrors);
-//     return Object.keys(newErrors).length === 0;
-//   };
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     if (!validate()) return;
-
-//     navigate('/Adminreset', {
-//       state: {
-//         email: formData.email,
-//         phone: formData.phone,
-//       },
-//     });
-//   };
-
-//   return (
-//     <div className="flex items-center justify-center min-h-screen bg-white px-4">
-//       <div className="w-full max-w-sm space-y-6">
-//         <h2 className="text-2xl font-semibold text-center text-blue-600">
-//           Verify Details
-//         </h2>
-
-//         <form className="space-y-4" onSubmit={handleSubmit}>
-//           {/* Email */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700">
-//               Email
-//             </label>
-//             <input
-//               id="email"
-//               type="email"
-//               value={formData.email}
-//               onChange={handleChange}
-//               className={`mt-1 w-full px-4 py-2 border ${
-//                 errors.email ? 'border-red-500' : 'border-gray-300'
-//               } rounded-md`}
-//             />
-//             {errors.email && (
-//               <p className="text-red-500 text-sm">{errors.email}</p>
-//             )}
-//           </div>
-
-//           {/* Phone */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700">
-//               Phone
-//             </label>
-//             <input
-//               id="phone"
-//               type="text"
-//               value={formData.phone}
-//               onChange={handleChange}
-//               className={`mt-1 w-full px-4 py-2 border ${
-//                 errors.phone ? 'border-red-500' : 'border-gray-300'
-//               } rounded-md`}
-//             />
-//             {errors.phone && (
-//               <p className="text-red-500 text-sm">{errors.phone}</p>
-//             )}
-//           </div>
-
-//           {/* Token */}
-//           <div>
-//             <label className="block text-sm font-medium text-gray-700">
-//               Token
-//             </label>
-//             <input
-//               id="token"
-//               type="text"
-//               value={formData.token}
-//               onChange={handleChange}
-//               className={`mt-1 w-full px-4 py-2 border ${
-//                 errors.token ? 'border-red-500' : 'border-gray-300'
-//               } rounded-md`}
-//             />
-//             {errors.token && (
-//               <p className="text-red-500 text-sm">{errors.token}</p>
-//             )}
-//           </div>
-
-//           <button
-//             type="submit"
-//             className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-//           >
-//             Submit
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default Signup;
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -161,17 +26,17 @@ const Signup = () => {
   const validate = () => {
     const newErrors = {};
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
-    }
+    // if (!formData.email.trim()) {
+    //   newErrors.email = 'Email is required';
+    // } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    //   newErrors.email = 'Invalid email format';
+    // }
 
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Phone number is required';
-    } else if (!/^\d{10}$/.test(formData.phone)) {
-      newErrors.phone = 'Phone must be 10 digits';
-    }
+      // if (!formData.phone.trim()) {
+      //   newErrors.phone = 'Phone number is required';
+      // } else if (!/^\d{10}$/.test(formData.phone)) {
+      //   newErrors.phone = 'Phone must be 10 digits';
+      // }
 
     if (!formData.token.trim()) {
       newErrors.token = 'Token is required';

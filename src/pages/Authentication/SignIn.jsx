@@ -10,13 +10,17 @@ const SignIn = () => {
   const [showOtp, setShowOtp] = useState(false);
   const [loginPayload, setLoginPayload] = useState(null);
   const [error, setError] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState(null);
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     // role: '',
+    // phone: '',
     twoFA: false,
   });
+
+ 
 
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
@@ -45,7 +49,8 @@ const SignIn = () => {
 
       if (formData.twoFA) {
         setLoginPayload(res);
-        console.log('payload', res);
+        console.log('payload', res.phone);
+        setPhoneNumber(res?.phone);
         setShowOtp(true); // Open OTP modal
       } else {
         login(res); // Set user in context
@@ -245,6 +250,7 @@ const SignIn = () => {
         isOpen={showOtp}
         onClose={() => setShowOtp(false)}
         onVerify={handleOtpVerify}
+        phone={phoneNumber}
       />
     </div>
   );
