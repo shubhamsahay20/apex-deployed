@@ -109,6 +109,8 @@ import AccountSectionViewOrder from './components/AccountingAdmin/components/Acc
 import ViewWarehouseStock from './components/WarehouseAdmin/components/ViewWarehouseStock'
 import ViewArticle from './components/SuperAdmin/components/catagories/ViewArtical'
 import Adminreset from './pages/Authentication/Adminreset'
+import TotalCart from './components/Administrator/components/TotalCart'
+import ProductionDetail from './components/ProductionAdmin/components/ProductionDetail'
 
 function App () {
   const [loading, setLoading] = useState(true)
@@ -202,10 +204,23 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager', 'Admin', 'Administrator']}
+                      role={[ 'Admin', 'Administrator']}
                     >
                       <PageTitle title='Production Manager Management ' />
                       <ProductionManager_Management />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path='/production-manager/ProductionDetail'
+                element={
+                  <>
+                    <ProtectedRoutes
+                      role={['Production Manager']}
+                    >
+                      <PageTitle title='Production Detail ' />
+                      <ProductionDetail />
                     </ProtectedRoutes>
                   </>
                 }
@@ -291,6 +306,17 @@ function App () {
                     <ProtectedRoutes role={['Sales Person', 'Admin']}>
                       <PageTitle title='Sales Details  ' />
                       <Cart />
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              <Route
+                path='/TotalCart'
+                element={
+                  <>
+                    <ProtectedRoutes role={['Administrator']}>
+                      <PageTitle title='All Sales Details  ' />
+                      <TotalCart />
                     </ProtectedRoutes>
                   </>
                 }

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import API from './api';
 
 const getAllOrder = async (token) => {
@@ -192,6 +193,24 @@ const getSalesOrderById = async (token, id) => {
     throw new Error('Error while geting order');
   }
 };
+const getTotalCart = async (token) => {
+  try {
+    if (!token) {
+      throw new Error('Authorization Token Required');
+    }
+
+    const res = await API.get('/sale-order/totalCart', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return res.data;
+  } catch (error) {
+    throw new Error('Error while getting total cart');
+  }
+};
+
 
 export default {
   createOrder,
@@ -204,4 +223,5 @@ export default {
   getOrderBySalesPerson,
   getWishListOrderBySalesPerson,
   salesPersonOrderList,
+  getTotalCart,
 };

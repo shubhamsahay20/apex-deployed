@@ -238,12 +238,12 @@ const SignIn = () => {
             </Link> */}
 
           {/* Sign Up Link */}
-          <p className="text-center text-sm text-gray-600">
+          {/* <p className="text-center text-sm text-gray-600">
             You don't have an account?{' '}
             <Link to="/signup" className="text-blue-600 hover:underline">
               Sign Up
             </Link>
-          </p>
+          </p> */}
         </form>
       </div>
       <OtpModal

@@ -90,6 +90,8 @@ const ArticalData = () => {
                 <th className="p-3 font-medium">Quality</th>
                 <th className="p-3 font-medium">Production Qty</th>
                 <th className="p-3 font-medium">Warehouse Qty</th>
+                <th className="p-3 font-medium">Order Qty</th>
+                <th className="p-3 font-medium">Cart Qty</th>
                 <th className="p-3 font-medium">Total Qty</th>
               </tr>
             </thead>
@@ -129,6 +131,12 @@ const ArticalData = () => {
                       </td>
                       <td className="p-3 text-blue-600 font-semibold">
                         {row.Warehouse_Qty}
+                      </td>
+                      <td className="p-3 text-blue-600 font-semibold">
+                        {row.Order_Qty}
+                      </td>
+                      <td className="p-3 text-blue-600 font-semibold">
+                        {row.Cart_Qty}
                       </td>
                       <td className="p-3 text-blue-600 font-semibold">
                         {row.Total_Available}

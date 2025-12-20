@@ -385,7 +385,7 @@ const CategoryDashboard = () => {
             <div className="flex justify-between items-center mb-2">
               <div className="flex items-center">
                 <Package className="w-5 h-5 text-purple-600 mr-2" />
-                <span className="font-semibold">Cartons</span>
+                <span className="font-semibold">Order</span>
               </div>
               <button
                 type="button"
@@ -402,7 +402,7 @@ const CategoryDashboard = () => {
                 className="bg-white p-4 rounded-lg border border-purple-200 mb-3"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <span>Carton {idx + 1}</span>
+                  <span className='font-bold'>Order Item {idx + 1}</span>
                   {formData.items.length > 1 && (
                     <button
                       type="button"

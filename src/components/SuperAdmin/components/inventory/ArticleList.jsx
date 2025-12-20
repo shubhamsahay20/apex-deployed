@@ -140,6 +140,8 @@ const ArticleList = () => {
                 <th className="p-3 text-left font-medium">Quality</th>
                 <th className="p-3 text-center font-medium">Production Qty</th>
                 <th className="p-3 text-center font-medium">Warehouse Qty</th>
+                <th className="p-3 text-center font-medium">Order Qty</th>
+                <th className="p-3 text-center font-medium">Cart Qty</th>
                 <th className="p-3 text-center font-medium">Total Qty</th>
               </tr>
             </thead>
@@ -174,6 +176,12 @@ const ArticleList = () => {
                     </td>
                     <td className="p-3 text-center text-blue-600 font-medium">
                       {row.Warehouse_Qty}
+                    </td>
+                    <td className="p-3 text-center text-blue-600 font-medium">
+                      {row.Order_Qty}
+                    </td>
+                    <td className="p-3 text-center text-blue-600 font-medium">
+                      {row.Cart_Qty}
                     </td>
                     <td className="p-3 text-center text-green-600 font-semibold">
                       {row.Total_Available}

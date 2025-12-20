@@ -646,8 +646,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {(user?.user?.role === 'Admin' ||
-                user?.user?.role === 'Production Manager' ||
+              {(user?.user?.role === 'Admin' ||   
                 user?.user?.role === 'Administrator') && (
                 <li>
                   <NavLink
@@ -671,6 +670,32 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       />
                     </svg>
                     Production Management
+                  </NavLink>
+                </li>
+              )}
+               {user?.user?.role === 'Production Manager' && (
+                <li>
+                  <NavLink
+                    to="/production-manager/ProductionDetail"
+                    className={({ isActive }) =>
+                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
+                      (isActive && '!text-blue-500')
+                    }
+                  >
+                    <svg
+                      className="fill-current"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3.325 0h13.35C18.51 0 20 1.49 20 3.325v13.35C20 18.51 18.51 20 16.675 20H3.325C1.49 20 0 18.51 0 16.675V3.325C0 1.49 1.49 0 3.325 0ZM10 6.5c1.93 0 3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5-3.5-1.57-3.5-3.5 1.57-3.5 3.5-3.5Zm0-2c-.28 0-.55.03-.81.09l-.38-1.16c-.1-.31-.43-.48-.74-.38l-1.18.39c-.31.1-.48.43-.38.74l.38 1.15c-.48.34-.88.77-1.2 1.26l-1.17-.39c-.31-.1-.64.07-.74.38l-.39 1.18c-.1.31.07.64.38.74l1.17.38c-.06.27-.09.54-.09.82 0 .28.03.55.09.81l-1.17.38c-.31.1-.48.43-.38.74l.39 1.18c.1.31.43.48.74.38l1.17-.39c.32.49.73.92 1.21 1.26l-.38 1.15c-.1.31.07.64.38.74l1.18.39c.31.1.64-.07.74-.38l.38-1.16c.26.06.53.09.81.09.28 0 .55-.03.81-.09l.38 1.16c.1.31.43.48.74.38l1.18-.39c.31-.1.48-.43.38-.74l-.38-1.15c.48-.34.88-.77 1.2-1.26l1.17.39c.31.1.64-.07.74-.38l.39-1.18c.1-.31-.07-.64-.38-.74l-1.17-.38c.06-.27.09-.54.09-.81 0-.28-.03-.55-.09-.82l1.17-.38c.31-.1.48-.43.38-.74l-.39-1.18c-.1-.31-.43-.48-.74-.38l-1.17.39c-.32-.49-.73-.92-1.21-1.26l.38-1.15c.1-.31-.07-.64-.38-.74l-1.18-.39c-.31-.1-.64.07-.74.38l-.38 1.16c-.26-.06-.53-.09-.81-.09Z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                    Production Details
                   </NavLink>
                 </li>
               )}
@@ -1188,6 +1213,35 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                       />
                     </svg>
                     Manual Dispatch
+                  </NavLink>
+                </li>
+              )}
+              {user?.user?.role === 'Administrator' && (
+                <li>
+                  <NavLink
+                    to="/TotalCart"
+                    className={({ isActive }) =>
+                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
+                      (isActive && '!text-blue-500')
+                    }
+                  >
+                    <svg
+                      className="fill-none stroke-current"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M3 3h2l2.6 9.1a2 2 0 001.9 1.4h7.6a1 1 0 00.95-.69L21 7H6"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+                      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
+                    </svg>
+                    Total Cart
                   </NavLink>
                 </li>
               )}
