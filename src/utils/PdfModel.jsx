@@ -549,25 +549,21 @@ export const printSalesOrdersPDF = orders => {
   window.open(doc.output('bloburl'), '_blank').print()
 }
 
-export const exportAccountDetailPDF = orders => {
-  if (!orders || orders.length === 0) return
+export const exportAccountDetailCSV = (orders = []) => {
+  if (!orders.length) return
 
-  const doc = new jsPDF()
-
-  // Table headers
+  // CSV headers
   const headers = [
-    [
-      'Date',
-      'Sale Order No.',
-      'Sales Person',
-      'Sales Phone',
-      'Customer Name',
-      'Total Quantity',
-      'Status'
-    ]
+    'Date',
+    'Sale Order No.',
+    'Sales Person',
+    'Sales Phone',
+    'Customer Name',
+    'Total Quantity',
+    'Status'
   ]
 
-  // Map data to rows
+  // Map rows
   const rows = orders.map(o => [
     new Date(o.createdAt).toLocaleDateString('en-GB'),
     o.salesOrderNo,
@@ -578,14 +574,26 @@ export const exportAccountDetailPDF = orders => {
     o.accountSectionApproval || 'PENDING'
   ])
 
-  autoTable(doc, {
-    head: headers,
-    body: rows,
-    startY: 20
-  })
+  // Convert to CSV string
+  const csvContent = [
+    headers.join(','),                // Header row
+    ...rows.map(row =>
+      row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(',')
+    )
+  ].join('\n')
 
-  doc.save('SalesOrders.pdf')
+  // Create downloadable file
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'SalesOrders.csv'
+  link.click()
+
+  URL.revokeObjectURL(url)
 }
+
 export const exportWarehousePDF = articles => {
   if (!articles || articles.length === 0) return
 

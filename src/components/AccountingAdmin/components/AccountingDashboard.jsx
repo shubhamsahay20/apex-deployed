@@ -9,7 +9,7 @@ import ApproveModal from '../../../utils/ApproveModal'
 import reportService from '../../../api/report.service'
 import { useDebounce } from '../../../hooks/useDebounce'
 import { useNavigate } from 'react-router-dom'
-import { exportAccountDetailPDF } from '../../../utils/PdfModel'
+import { exportAccountDetailCSV } from '../../../utils/PdfModel'
 
 const AccountingDashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -192,7 +192,7 @@ const AccountingDashboard = () => {
 
             <button
               className='border border-gray-300 px-4 py-1.5 text-sm rounded hover:bg-gray-100'
-              onClick={() => exportAccountDetailPDF(orderDetails)}
+              onClick={() => exportAccountDetailCSV(orderDetails)}
               disabled={orderDetails.length === 0}
             >
               Export
