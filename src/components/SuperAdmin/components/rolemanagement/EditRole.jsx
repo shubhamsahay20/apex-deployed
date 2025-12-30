@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import Select from 'react-select';
-import roleService from '../../../../api/role.service';
-import warehouseService from '../../../../api/warehouse.service';
-import { useAuth } from '../../../../Context/AuthContext';
-import { ImCross } from 'react-icons/im';
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import Select from 'react-select'
+import roleService from '../../../../api/role.service'
+import warehouseService from '../../../../api/warehouse.service'
+import { useAuth } from '../../../../Context/AuthContext'
+import { ImCross } from 'react-icons/im'
+import factoryService from '../../../../api/factory.service'
 
 const EditRole = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const [factories, setFactories] = useState([])
+  const [warehouses, setWarehouses] = useState([])
 
-  const [warehouses, setWarehouses] = useState([]);
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -22,27 +24,44 @@ const EditRole = () => {
     location: '',
     profileImage: '',
     warehouses: [],
-  });
-
-  console.log('form data', formData);
+    factories: []
+  })
 
   // Fetch warehouses list
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const res = await warehouseService.getAllWarehouse(user.accessToken);
-        setWarehouses(res.data.data || []);
+        const res = await warehouseService.getAllWarehouse(user.accessToken)
+        setWarehouses(res.data?.data || [])
       } catch (error) {
-        console.error('Failed to load warehouses', error);
+        console.error('Failed to load warehouses', error)
       }
-    })();
-  }, [user.accessToken]);
+    })()
+  }, [user.accessToken])
+
+  // Fetch factories list
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await factoryService.getAllFactories(
+          user.accessToken,
+          1,
+          100,
+          ''
+        )
+        setFactories(res.data?.data?.factories || [])
+      } catch (error) {
+        console.error('Failed to load factories', error)
+      }
+    })()
+  }, [user.accessToken])
 
   // Fetch user details
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const res = await roleService.getRoleByID(user.accessToken, id);
+        const res = await roleService.getRoleByID(user.accessToken, id)
+
         setFormData({
           name: res?.data?.name || '',
           phone: res?.data?.phone || '',
@@ -52,234 +71,257 @@ const EditRole = () => {
           location: res?.data?.location || '',
           profileImage: res?.data?.profileImage || '',
           warehouses: res?.data?.warehouses || [],
-        });
+          factories: res?.data?.factories || []
+        })
       } catch (error) {
-        toast.error('Failed to load user details');
+        toast.error('Failed to load user details')
       }
-    })();
-  }, [id, user.accessToken]);
+    })()
+  }, [id, user.accessToken])
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const handleChange = e => {
+    const { name, value, files } = e.target
     setFormData({
       ...formData,
-      [name]: name === 'profileImage' ? files[0] : value,
-    });
-  };
+      [name]: name === 'profileImage' ? files[0] : value
+    })
+  }
 
-  const handleWarehouseChange = (selectedOptions) => {
+  const handleWarehouseChange = selectedOptions => {
     setFormData({
       ...formData,
-      warehouses: selectedOptions
-        ? selectedOptions.map((opt) => opt.value)
-        : [],
-    });
-  };
+      warehouses: selectedOptions ? selectedOptions.map(opt => opt.value) : []
+    })
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFactoryChange = selectedOptions => {
+    setFormData({
+      ...formData,
+      factories: selectedOptions ? selectedOptions.map(opt => opt.value) : []
+    })
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+
     if (!formData.name.trim()) {
-      toast.error('Name is required');
-      return;
+      toast.error('Name is required')
+      return
     }
 
     if (!formData.location.trim()) {
-      toast.error('Location is required');
-      return;
+      toast.error('Location is required')
+      return
     }
 
     try {
-      const payload = new FormData();
+      const payload = new FormData()
 
-      Object.keys(formData).forEach((key) => {
+      Object.keys(formData).forEach(key => {
         if (key === 'warehouses') {
-          formData.warehouses.forEach((id) => payload.append('warehouses', id));
+          formData.warehouses.forEach(id =>
+            payload.append('warehouses', id)
+          )
+        } else if (key === 'factories') {
+          formData.factories.forEach(id =>
+            payload.append('factories', id)
+          )
         } else {
-          payload.append(key, formData[key]);
+          payload.append(key, formData[key])
         }
-      });
+      })
 
       const res = await roleService.updateRoleByID(
         user.accessToken,
         id,
         payload
-      );
+      )
 
-      toast.success(res.message || 'User details updated successfully');
-      navigate('/role-management');
+      toast.success(res.message || 'User details updated successfully')
+      navigate('/role-management')
     } catch (error) {
-      console.log('error to get', error);
-      toast.error(error.response?.data?.message || 'Failed to update');
+      toast.error(error.response?.data?.message || 'Failed to update')
     }
-  };
+  }
 
   return (
-    <div className="p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-8 relative">
-
-      {/* CLOSE (CROSS) BUTTON ADDED HERE */}
+    <div className='p-6 bg-white rounded shadow-md max-w-2xl mx-auto mt-8 relative'>
       <button
-        type="button"
+        type='button'
         onClick={() => navigate(-1)}
-        className="absolute top-4 right-4 text-gray-600 hover:text-red-600 text-xl"
+        className='absolute top-4 right-4 text-gray-600 hover:text-red-600 text-xl'
       >
         <ImCross />
       </button>
 
-      <h2 className="text-2xl font-semibold mb-6">{formData.role}</h2>
+      <h2 className='text-2xl font-semibold mb-6'>{formData.role}</h2>
 
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        className='grid grid-cols-1 md:grid-cols-2 gap-4'
       >
-        {/* Name */}
         <div>
-          <label className="block text-sm font-medium mb-1">Name</label>
+          <label className='block text-sm font-medium mb-1'>Name</label>
           <input
-            type="text"
-            name="name"
-            className="border border-gray-300 p-2 rounded w-full"
+            type='text'
+            name='name'
+            className='border border-gray-300 p-2 rounded w-full'
             value={formData.name}
             onChange={handleChange}
           />
         </div>
 
-        {/* Phone */}
         <div>
-          <label className="block text-sm font-medium mb-1">Phone</label>
+          <label className='block text-sm font-medium mb-1'>Phone</label>
           <input
-            type="text"
-            name="phone"
+            type='text'
+            name='phone'
             value={formData.phone}
             maxLength={10}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^\d{0,10}$/.test(value)) handleChange(e);
+            onChange={e => {
+              const value = e.target.value
+              if (/^\d{0,10}$/.test(value)) handleChange(e)
             }}
-            className="border border-gray-300 p-2 rounded w-full"
+            className='border border-gray-300 p-2 rounded w-full'
           />
         </div>
 
-        {/* Email */}
         <div>
-          <label className="block text-sm font-medium mb-1">Email</label>
+          <label className='block text-sm font-medium mb-1'>Email</label>
           <input
-            type="email"
-            name="email"
-            className="border border-gray-300 p-2 rounded w-full"
+            type='email'
+            name='email'
+            className='border border-gray-300 p-2 rounded w-full'
             value={formData.email}
             onChange={handleChange}
           />
         </div>
 
-        {/* Password */}
         <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
+          <label className='block text-sm font-medium mb-1'>Password</label>
           <input
-            type="password"
-            name="password"
-            className="border border-gray-300 p-2 rounded w-full"
+            type='password'
+            name='password'
+            className='border border-gray-300 p-2 rounded w-full'
             value={formData.password}
             onChange={handleChange}
-            placeholder="Leave blank to keep current"
+            placeholder='Leave blank to keep current'
           />
         </div>
 
-        {/* Role */}
         <div>
-          <label className="block text-sm font-medium mb-1">Role</label>
+          <label className='block text-sm font-medium mb-1'>Role</label>
           <select
-            name="role"
-            className="border border-gray-300 p-2 rounded w-full"
+            name='role'
+            className='border border-gray-300 p-2 rounded w-full'
             value={formData.role}
             onChange={handleChange}
           >
-            <option value="">Select Role</option>
-            <option value="Super Admin">Super Admin</option>
-            <option value="Production Manager">Production Manager</option>
-            <option value="Inventory Manager">Inventory Manager</option>
-            <option value="Accounting Manager">Accounting Manager</option>
-            <option value="Sales Person">Sales Person</option>
-            <option value="Warehouse Manager">Warehouse Manager</option>
+            <option value=''>Select Role</option>
+            <option value='Super Admin'>Super Admin</option>
+            <option value='Production Manager'>Production Manager</option>
+            <option value='Inventory Manager'>Inventory Manager</option>
+            <option value='Accounting Manager'>Accounting Manager</option>
+            <option value='Sales Person'>Sales Person</option>
+            <option value='Warehouse Manager'>Warehouse Manager</option>
           </select>
         </div>
 
-        {/* Location */}
         <div>
-          <label className="block text-sm font-medium mb-1">Location</label>
+          <label className='block text-sm font-medium mb-1'>Location</label>
           <input
-            type="text"
-            name="location"
-            className="border border-gray-300 p-2 rounded w-full"
+            type='text'
+            name='location'
+            className='border border-gray-300 p-2 rounded w-full'
             value={formData.location}
             onChange={handleChange}
           />
         </div>
 
-        {/* Warehouse(s) only for Warehouse Manager */}
         {formData.role === 'Warehouse Manager' && (
-          <div className="col-span-1 md:col-span-2">
-            <label className="block text-sm font-medium mb-1">
+          <div className='col-span-1 md:col-span-2'>
+            <label className='block text-sm font-medium mb-1'>
               Warehouse(s)
             </label>
             <Select
               isMulti
-              name="warehouses"
-              options={warehouses.map((val) => ({
+              name='warehouses'
+              options={warehouses.map(val => ({
                 value: val._id,
-                label: val.name,
+                label: val.name
               }))}
               value={warehouses
-                .filter((w) => formData.warehouses.includes(w._id))
-                .map((w) => ({ value: w._id, label: w.name }))}
+                .filter(w => formData.warehouses.includes(w._id))
+                .map(w => ({ value: w._id, label: w.name }))}
               onChange={handleWarehouseChange}
-              classNamePrefix="react-select"
-              placeholder="Select warehouse(s)"
+              classNamePrefix='react-select'
+              placeholder='Select warehouse(s)'
             />
           </div>
         )}
-        
-        
 
-        {/* Profile Image */}
+        {formData.role === 'Production Manager' && (
+          <div className='col-span-1 md:col-span-2'>
+            <label className='block text-sm font-medium mb-1'>
+              Factory(s)
+            </label>
+            <Select
+              isMulti
+              name='factories'
+              options={factories.map(val => ({
+                value: val._id,
+                label: val.name
+              }))}
+              value={factories
+                .filter(f => formData.factories.includes(f._id))
+                .map(f => ({ value: f._id, label: f.name }))}
+              onChange={handleFactoryChange}
+              classNamePrefix='react-select'
+              placeholder='Select factory(s)'
+            />
+          </div>
+        )}
+
         <div>
-          <label className="block text-sm font-medium mb-1">Profile Image</label>
+          <label className='block text-sm font-medium mb-1'>
+            Profile Image
+          </label>
           <input
-            type="file"
-            name="profileImage"
-            accept="image/*"
+            type='file'
+            name='profileImage'
+            accept='image/*'
             onChange={handleChange}
-            className="border border-gray-300 p-2 rounded w-full"
+            className='border border-gray-300 p-2 rounded w-full'
           />
 
           {formData.profileImage &&
             typeof formData.profileImage === 'string' && (
               <img
                 src={formData.profileImage}
-                alt="Profile"
-                className="mt-2 w-20 h-20 object-cover rounded"
+                alt='Profile'
+                className='mt-2 w-20 h-20 object-cover rounded'
               />
             )}
         </div>
 
-        {/* Actions */}
-        <div className="col-span-1 md:col-span-2 flex gap-3 mt-4">
+        <div className='col-span-1 md:col-span-2 flex gap-3 mt-4'>
           <button
-            type="submit"
-            className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700"
+            type='submit'
+            className='bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700'
           >
             Update
           </button>
           <button
-            type="button"
+            type='button'
             onClick={() => navigate(-1)}
-            className="bg-gray-300 px-5 py-2 rounded hover:bg-gray-400"
+            className='bg-gray-300 px-5 py-2 rounded hover:bg-gray-400'
           >
             Cancel
           </button>
         </div>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default EditRole;
+export default EditRole

@@ -483,7 +483,6 @@ const RoleManagement = () => {
                     <label className='block text-sm font-medium mb-1 text-gray-700'>
                       Factory(s)
                     </label>
-
                     <Select
                       isMulti
                       name='factories'
