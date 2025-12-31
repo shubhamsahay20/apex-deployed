@@ -7,7 +7,7 @@ const Breadcrumb = ({ pageName }) => {
     Admin: '/dashboard',
     Administrator: '/administrator/AdministratorDashboard',
     'Account Section': '/accounting-manager/dashboard',
-    'Production Manager': '/production-manager/dashboard',
+    'Packing Reporter': '/production-manager/dashboard',
     'Warehouse Manager': '/warehouse-manager/dashboard',
     'Inventory Manager': '/inventory-management/dashboard',
     'Sales Person': '/salesPerson/dashboard',

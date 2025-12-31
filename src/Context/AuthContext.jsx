@@ -12,7 +12,7 @@ export const AuthContextProvider = ({ children }) => {
   const [notificationCount, setNotificationCount] = useState(0); // 🔹 NEW: Notification count
 
   const roleBasedEvents = {
-    productionSuccess: ['Admin', 'Administrator', 'Production Manager'],
+    productionSuccess: ['Admin', 'Administrator', 'Packing Reporter'],
     AccountSectionApproval: ['Admin', 'Administrator', 'Account Section'],
     AccountSectionRejection: ['Admin', 'Administrator', 'Account Section'],
     SalesPersonGenearated: [

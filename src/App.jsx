@@ -192,8 +192,8 @@ function App () {
                 path='/production-manager/dashboard'
                 element={
                   <>
-                    <ProtectedRoutes role={['Production Manager', 'Admin']}>
-                      <PageTitle title='Production Manager Dashboard ' />
+                    <ProtectedRoutes role={['Packing Reporter', 'Admin']}>
+                      <PageTitle title='Packing Reporter Dashboard ' />
                       <ProductionManager_Dashboard />
                     </ProtectedRoutes>
                   </>
@@ -206,7 +206,7 @@ function App () {
                     <ProtectedRoutes
                       role={[ 'Admin', 'Administrator']}
                     >
-                      <PageTitle title='Production Manager Management ' />
+                      <PageTitle title='Packing Reporter Management ' />
                       <ProductionManager_Management />
                     </ProtectedRoutes>
                   </>
@@ -217,7 +217,7 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager']}
+                      role={['Packing Reporter']}
                     >
                       <PageTitle title='Production Detail ' />
                       <ProductionDetail />
@@ -230,9 +230,9 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager', 'Administrator', 'Admin']}
+                      role={['Packing Reporter', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title='Production Manager Management ' />
+                      <PageTitle title='Packing Reporter Management ' />
                       <Add_Production />
                     </ProtectedRoutes>
                   </>
@@ -243,9 +243,9 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager', 'Administrator', 'Admin']}
+                      role={['Packing Reporter', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title='Production Manager Management ' />
+                      <PageTitle title='Packing Reporter Management ' />
                       <Create_lable />
                     </ProtectedRoutes>
                   </>
@@ -256,9 +256,9 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager', 'Administrator', 'Admin']}
+                      role={['Packing Reporter', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title='Production Manager/Warehouse Management ' />
+                      <PageTitle title='Packing Reporter/Warehouse Management ' />
                       <Warehouse_Management />
                     </ProtectedRoutes>
                   </>
@@ -269,9 +269,9 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Production Manager', 'Administrator', 'Admin']}
+                      role={['Packing Reporter', 'Administrator', 'Admin']}
                     >
-                      <PageTitle title='Production Manager/Warehouse Details ' />
+                      <PageTitle title='Packing Reporter/Warehouse Details ' />
                       <Warehouse_details />
                     </ProtectedRoutes>
                   </>
@@ -533,7 +533,7 @@ function App () {
                       role={[
                         'Admin',
                         'Sales Person',
-                        'Production Manager',
+                        'Packing Reporter',
                         'Administrator',
                         'Inventory Manager',
                         'Warehouse Manager'
@@ -944,7 +944,7 @@ function App () {
                 path='/prodction-manager/Productprofile'
                 element={
                   <>
-                    <ProtectedRoutes role={['Admin', 'Production Manager']}>
+                    <ProtectedRoutes role={['Admin', 'Packing Reporter']}>
                       <PageTitle title='Productprofile' />
                       <Productprofile />
                     </ProtectedRoutes>
@@ -1027,7 +1027,7 @@ function App () {
                       role={[
                         'Admin',
                         'Sales Person',
-                        'Production Manager',
+                        'Packing Reporter',
                         'Administrator',
                         'Warehouse Manager'
                       ]}
@@ -1066,7 +1066,7 @@ function App () {
                 path='/QRScannerPage'
                 element={
                   <>
-                    <ProtectedRoutes role={['Production Manager']}>
+                    <ProtectedRoutes role={['Packing Reporter']}>
                       <PageTitle title='QRScannerPage' />
                       <QRScannerPage />
                     </ProtectedRoutes>
@@ -1171,7 +1171,7 @@ function App () {
                 path='/manualProcess'
                 element={
                   <>
-                    <ProtectedRoutes role={['Production Manager']}>
+                    <ProtectedRoutes role={['Packing Reporter']}>
                       <PageTitle title='QRDropdownPage' />
                       <QRDropdownPage />
                     </ProtectedRoutes>
@@ -1209,7 +1209,7 @@ function App () {
                 element={
                   <>
                     <ProtectedRoutes
-                      role={['Admin', 'Administrator', 'Production Manager']}
+                      role={['Admin', 'Administrator', 'Packing Reporter']}
                     >
                       <PageTitle title="View Production" />
                       <ViewProduction />

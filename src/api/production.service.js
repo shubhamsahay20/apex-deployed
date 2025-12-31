@@ -27,7 +27,7 @@ const getAllProduction = (token, page, limit, searchQuery = '') => {
   );
 };
 
-/* ===================== 🔹 PRODUCTION MANAGER API (NEW) ===================== */
+/* ===================== 🔹 Packing Reporter API (NEW) ===================== */
 const getProductionManager = (token, page, limit, searchQuery = '') => {
   return API.get(
     `/production/productionmanager?page=${page}&limit=${limit}&search=${searchQuery}`,

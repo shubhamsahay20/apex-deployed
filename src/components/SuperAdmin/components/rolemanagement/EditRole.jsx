@@ -219,7 +219,7 @@ const EditRole = () => {
           >
             <option value=''>Select Role</option>
             <option value='Super Admin'>Super Admin</option>
-            <option value='Production Manager'>Production Manager</option>
+            <option value='Packing Reporter'>Packing Reporter</option>
             <option value='Inventory Manager'>Inventory Manager</option>
             <option value='Accounting Manager'>Accounting Manager</option>
             <option value='Sales Person'>Sales Person</option>
@@ -260,7 +260,7 @@ const EditRole = () => {
           </div>
         )}
 
-        {formData.role === 'Production Manager' && (
+        {formData.role === 'Packing Reporter' && (
           <div className='col-span-1 md:col-span-2'>
             <label className='block text-sm font-medium mb-1'>
               Factory(s)

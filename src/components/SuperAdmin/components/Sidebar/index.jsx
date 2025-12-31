@@ -209,7 +209,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {user?.user?.role === 'Production Manager' && (
+              {user?.user?.role === 'Packing Reporter' && (
                 <li>
                   <NavLink
                     to="/production-manager/dashboard"
@@ -673,7 +673,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
-               {user?.user?.role === 'Production Manager' && (
+               {user?.user?.role === 'Packing Reporter' && (
                 <li>
                   <NavLink
                     to="/production-manager/ProductionDetail"
@@ -1034,7 +1034,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                 </li>
               )}
 
-              {(user?.user?.role === 'Production Manager' ||
+              {(user?.user?.role === 'Packing Reporter' ||
                 user?.user?.role === '') && (
                 <li>
                   <NavLink
@@ -1060,7 +1060,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
-              {(user?.user?.role === 'Production Manager' ||
+              {(user?.user?.role === 'Packing Reporter' ||
                 user?.user?.role === '') && (
                 <li>
                   <NavLink

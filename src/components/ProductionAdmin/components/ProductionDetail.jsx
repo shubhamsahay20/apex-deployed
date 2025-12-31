@@ -26,7 +26,7 @@ const ProductionDetail = () => {
   const debounceValue = useDebounce(searchQuery, 500)
   const [loading, setLoading] = useState(false)
 
-  /* ================= FETCH PRODUCTION MANAGER DATA ================= */
+  /* ================= FETCH Packing Reporter DATA ================= */
   useEffect(() => {
     if (debounceValue.length === 0 || debounceValue.length >= 2) {
       ;(async () => {

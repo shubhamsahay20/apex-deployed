@@ -90,7 +90,7 @@ const CreateRoleForm = () => {
                 <option value="">Choose your role</option>
                 <option value="Sales Person">Sales Person</option>
                 <option value="Inventory Manager">Inventory Manager</option>
-                <option value="Production Manager">Production Manager</option>
+                <option value="Packing Reporter">Packing Reporter</option>
                 <option value="Administrator">Administrator</option>
               </select>
             </div>

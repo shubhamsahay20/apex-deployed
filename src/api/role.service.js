@@ -49,7 +49,7 @@ const getAccountSection = (token) => {
 };
 
 const getProductionManager = (token) => {
-  return API.get(`/auth/Production Manager`, {
+  return API.get(`/auth/Packing Reporter`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -99,7 +99,7 @@ const SignIn = () => {
 
         if (role === 'Sales Person') return navigate('/salesPerson/dashboard');
 
-        if (role === 'Production Manager')
+        if (role === 'Packing Reporter')
           return navigate('/production-manager/dashboard');
 
         if (role === 'Inventory Manager')
@@ -218,7 +218,7 @@ const SignIn = () => {
               <option value="">Select a role</option>
               <option value="Admin">Admin</option>
               <option value="Administrator">Administrator</option>
-              <option value="Production Manager">Production Manager</option>
+              <option value="Packing Reporter">Packing Reporter</option>
               <option value="Warehouse Manager">Warehouse Manager</option>
               <option value="Inventory Manager">Inventory Manager</option>
               <option value="Sales Person">Sales Person</option>

@@ -15,7 +15,7 @@ const roles = [
   'Sales Person',
   'Inventory Manager',
   'Account Section',
-  'Production Manager',
+  'Packing Reporter',
   'Warehouse Manager',
   'Administrator'
 ]
@@ -39,8 +39,8 @@ const columnHeadings = {
     email: 'Accounting Email',
     location: 'Accounting Location'
   },
-  'Production Manager': {
-    name: 'Production Manager',
+  'Packing Reporter': {
+    name: 'Packing Reporter',
     phone: 'Production Phone',
     email: 'Production Email',
     location: 'Production Location'
@@ -81,7 +81,7 @@ const RoleManagement = () => {
     'Inventory Manager': roleService.getInventoryManager,
     'Account Section': roleService.getAccountSection,
     'Warehouse Manager': roleService.getWarehouseManager,
-    'Production Manager': roleService.getProductionManager,
+    'Packing Reporter': roleService.getProductionManager,
     Administrator: roleService.getAdministrator
   }
 
@@ -101,7 +101,7 @@ const RoleManagement = () => {
   }, [user.accessToken])
 
   useEffect(() => {
-    if (activeRole !== 'Production Manager') return
+    if (activeRole !== 'Packing Reporter') return
 
     ;(async () => {
       setFactoryLoading(true)
@@ -478,7 +478,7 @@ const RoleManagement = () => {
                     />
                   </div>
                 )}
-                {activeRole === 'Production Manager' && (
+                {activeRole === 'Packing Reporter' && (
                   <div className='sm:col-span-2'>
                     <label className='block text-sm font-medium mb-1 text-gray-700'>
                       Factory(s)
