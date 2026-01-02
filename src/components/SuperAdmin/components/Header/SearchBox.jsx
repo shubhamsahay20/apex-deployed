@@ -24,7 +24,7 @@ const SearchBox = () => {
         <div>
           <h1 className="text-sm md:text-2xl  font-bold text-[#333333] dark:text-[#c7c5c5]">
             Welcome Back,{' '}
-            <span className="text-blue-600">{user.user.name}</span>
+            <span className="text-blue-600">{user?.user?.name}</span>
           </h1>
           <p className="text-[10px] truncate sm:text-sm text-gray-500">
             Here are your daily updates.
