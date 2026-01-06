@@ -3,8 +3,8 @@ import API from './api';
 const register = ({ name, email, password, role, phone }) =>
   API.post('/auth/register', { name, email, password, role, phone });
 
-const login = async ({ email, password, isdoubleVerifiedchecked }) =>
-  API.post('/auth/login', { email, password, isdoubleVerifiedchecked }).then(
+const login = async (data) =>
+  API.post('/auth/login', data).then(
     (res) => {
       if (res.data.accessToken) {
         localStorage.setItem('user', JSON.stringify(res.data));
@@ -13,8 +13,8 @@ const login = async ({ email, password, isdoubleVerifiedchecked }) =>
     },
   );
 
-const verifyOtp = ({ phone, otp }) =>
-  API.post('/auth/login-with-otp', { phone, otp }).then((res) => {
+const verifyOtp = (data) =>
+  API.post('/auth/login-with-otp', data).then((res) => {
     console.log('user', res.data.user);
     if (res.data.accessToken) {
       localStorage.setItem(

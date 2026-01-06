@@ -69,7 +69,7 @@ export const AuthContextProvider = ({ children }) => {
     });
 
     newSocket.on('connect_error', (err) => {
-      console.error('❌ Socket connection error:', err.message);
+      // console.error('❌ Socket connection error:', err.message);
     });
 
     console.log('User role:', user?.user.role);
@@ -182,6 +182,8 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   const login = (userData) => {
+    console.log("userdarraratr|||||,",userData);
+    
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     console.log('userData ||', user);

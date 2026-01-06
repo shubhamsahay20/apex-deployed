@@ -1,165 +1,201 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import authService from '../../api/auth.service';
-import { useAuth } from '../../Context/AuthContext';
-import OtpModal from '../../utils/OtpModal';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import authService from '../../api/auth.service'
+import { useAuth } from '../../Context/AuthContext'
+import OtpModal from '../../utils/OtpModal'
 
 const SignIn = () => {
-  const navigate = useNavigate();
-  const { login, user } = useAuth();
-  const [showOtp, setShowOtp] = useState(false);
-  const [loginPayload, setLoginPayload] = useState(null);
-  const [error, setError] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState(null);
+  const navigate = useNavigate()
+  const { login, user } = useAuth()
+  const [showOtp, setShowOtp] = useState(false)
+  const [loginPayload, setLoginPayload] = useState(null)
+  const [error, setError] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState(null)
+
+  const [latitude, setLatitude] = useState(null)
+  const [longitude, setLongitude] = useState(null)
 
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     // role: '',
     // phone: '',
-    twoFA: false,
-  });
+    twoFA: false
+  })
 
- 
-
-  const handleChange = (e) => {
-    const { id, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [id]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    if (!formData.email || !formData.password) {
-      setError('Please fill all required fields.');
-      return;
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      console.log('Not in browser')
+      return
     }
 
-    console.log('Sending to ... backend:', formData);
+    if (!window.navigator.geolocation) {
+      console.log('Geolocation NOT supported')
+      return
+    }
+
+    console.log('Requesting location permission...')
+
+    window.navigator.geolocation.getCurrentPosition(
+      position => {
+        console.log('✅ Location success')
+        console.log('Latitude:', position.coords.latitude)
+        console.log('Longitude:', position.coords.longitude)
+        setLatitude(position.coords.latitude)
+        setLongitude(position.coords.longitude)
+      },
+      error => {
+        console.error('❌ Location failed')
+        console.error('Code:', error.code)
+        console.error('Message:', error.message)
+      },
+      {
+        enableHighAccuracy: false,
+        timeout: 30000,
+        maximumAge: 60000
+      }
+    )
+  }, [])
+
+  const handleChange = e => {
+    const { id, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [id]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleSubmit = async e => {
+    e.preventDefault()
+    setError('')
+    if (!formData.email || !formData.password) {
+      setError('Please fill all required fields.')
+      return
+    }
+
+    console.log('Sending to ... backend:', formData, latitude, longitude)
+
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      isdoubleVerifiedchecked: formData.twoFA,
+      latitude: latitude,
+      longitude: longitude
+    }
+
+    console.log("pauyyuu|||",payload);
+    
 
     try {
-      const res = await authService.login({
-        email: formData.email,
-        password: formData.password,
-        isdoubleVerifiedchecked: formData.twoFA,
-      });
+      const res = await authService.login(payload)
 
       if (formData.twoFA) {
-        setLoginPayload(res);
-        console.log('payload', res.phone);
-        setPhoneNumber(res?.phone);
-        setShowOtp(true); // Open OTP modal
+        setLoginPayload(res)
+        console.log('payload', res.phone)
+        setPhoneNumber(res?.phone)
+        setShowOtp(true) // Open OTP modal
       } else {
-        login(res); // Set user in context
-        navigate('/dashboard');
+        login(res) // Set user in context
+        navigate('/dashboard')
       }
 
       // login(res); // Set user in context
       // navigate('/dashboard');
     } catch (err) {
-      console.error(err);
-      setError('Login failed. Please check credentials.');
+      console.error(err)
+      setError('Login failed. Please check credentials.')
     }
-  };
+  }
 
-  const handleOtpVerify = async (otp) => {
+  const handleOtpVerify = async otp => {
     try {
       if (!loginPayload?.phone) {
-        console.error('Phone number missing for OTP verification.');
-        setError('Phone number is missing. Please log in again.');
-        return;
+        // console.error('Phone number missing for OTP verification.')
+        setError('Phone number is missing. Please log in again.')
+        return
       }
 
-      console.log('Sending OTP verification request with:', {
-        phone: loginPayload.phone,
-        otp,
-      });
+      // console.log('Sending OTP verification request with:', {
+      //   phone: loginPayload.phone,
+      //   otp
+      // })
 
       const res = await authService.verifyOtp({
         phone: loginPayload.phone,
         otp,
-      });
+        latitude,
+        longitude
+      })
 
       if (res?.accessToken) {
-        login(res); // Save to context/localStorage
-        setShowOtp(false);
+        login(res)
+        setShowOtp(false)
 
-        const role = res?.user?.role;
+        const role = res?.user?.role
 
-        if (role === 'Admin') return navigate('/dashboard');
+        if (role === 'Admin') return navigate('/dashboard')
 
         if (role === 'Account Section')
-          return navigate('/accounting-manager/dashboard');
+          return navigate('/accounting-manager/dashboard')
 
         if (role === 'Administrator')
-          return navigate('/administrator/AdministratorDashboard');
+          return navigate('/administrator/AdministratorDashboard')
 
-        if (role === 'Sales Person') return navigate('/salesPerson/dashboard');
+        if (role === 'Sales Person') return navigate('/salesPerson/dashboard')
 
         if (role === 'Packing Reporter')
-          return navigate('/production-manager/dashboard');
+          return navigate('/production-manager/dashboard')
 
         if (role === 'Inventory Manager')
-          return navigate('/inventory-management/dashboard');
+          return navigate('/inventory-management/dashboard')
 
         if (role === 'Warehouse Manager')
-          return navigate('/warehouse-management/dashboard');
-        
-        navigate('/unauthorized'); // Redirect
+          return navigate('/warehouse-management/dashboard')
+
+        navigate('/unauthorized') // Redirect
 
         // /production-manager/
       } else {
-        setError('OTP verification failed. Please try again.');
-        console.error('Missing accessToken in OTP response:', res);
+        setError('OTP verification failed. Please try again.')
+        console.error('Missing accessToken in OTP response:', res)
       }
       // login(res);
       // setShowOtp(false);
       // navigate('/dashboard');
     } catch (err) {
-      console.error('OTP verification failed', err);
+      console.error('OTP verification failed', err)
 
       const serverMessage =
-        err?.response?.data?.message || 'Invalid OTP. Try again.';
-      setError(serverMessage);
+        err?.response?.data?.message || 'Invalid OTP. Try again.'
+      setError(serverMessage)
     }
-  };
-
-  console.log(
-  "%c WORKING ",
-  "background: #ff0000; color: #fff; font-size: 20px; font-weight: bold; padding: 6px 12px; border-radius: 4px;"
-);
-
+  }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-white px-4">
-      <div className="w-full max-w-sm space-y-6">
-        <h2 className="text-2xl font-semibold text-center text-blue-600">
+    <div className='flex items-center justify-center min-h-screen bg-white px-4'>
+      <div className='w-full max-w-sm space-y-6'>
+        <h2 className='text-2xl font-semibold text-center text-blue-600'>
           Welcome to Apex
         </h2>
-        
-        
 
-        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+        {error && <p className='text-red-500 text-sm text-center'>{error}</p>}
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className='space-y-4' onSubmit={handleSubmit}>
           {/* Email */}
           <div>
             <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              htmlFor='email'
+              className='block text-sm font-medium text-gray-700'
             >
               Email
             </label>
             <input
-              id="email"
-              type="email"
+              id='email'
+              type='email'
               value={formData.email}
               onChange={handleChange}
-              placeholder="johnmathew@gmail.com"
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder='johnmathew@gmail.com'
+              className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
               required
             />
           </div>
@@ -167,35 +203,35 @@ const SignIn = () => {
           {/* Password */}
           <div>
             <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
+              htmlFor='password'
+              className='block text-sm font-medium text-gray-700'
             >
               Password
             </label>
             <input
-              id="password"
-              type="password"
+              id='password'
+              type='password'
               value={formData.password}
               onChange={handleChange}
-              placeholder="********"
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              placeholder='********'
+              className='mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'
               required
             />
           </div>
-          <Link to="/forgotpassword" className="text-blue-600 hover:underline">
-              Forgot Password?
-            </Link>
+          <Link to='/forgotpassword' className='text-blue-600 hover:underline'>
+            Forgot Password?
+          </Link>
 
           {/* Two-Factor Auth Checkbox */}
-          <div className="flex items-center space-x-2">
+          <div className='flex items-center space-x-2'>
             <input
-              id="twoFA"
-              type="checkbox"
+              id='twoFA'
+              type='checkbox'
               checked={formData.twoFA}
               onChange={handleChange}
-              className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              className='w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500'
             />
-            <label htmlFor="twoFA" className="text-sm text-gray-700">
+            <label htmlFor='twoFA' className='text-sm text-gray-700'>
               Two-factor Authentication
             </label>
           </div>
@@ -228,12 +264,12 @@ const SignIn = () => {
 
           {/* Login Button */}
           <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
+            type='submit'
+            className='w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition'
           >
             Login
           </button>
-           {/* <Link to="/forgotpassword" className="text-blue-600 hover:underline">
+          {/* <Link to="/forgotpassword" className="text-blue-600 hover:underline">
               Forgot Password?
             </Link> */}
 
@@ -253,7 +289,7 @@ const SignIn = () => {
         phone={phoneNumber}
       />
     </div>
-  );
-};
+  )
+}
 
-export default SignIn;
+export default SignIn

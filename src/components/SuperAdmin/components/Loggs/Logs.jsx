@@ -91,6 +91,7 @@ const Logs = () => {
         <table className='w-full text-sm text-left border-collapse'>
           <thead className='bg-gray-100 text-gray-700'>
             <tr>
+              <th className='p-3 border-b'>S/No.</th>
               <th className='p-3 border-b'>Date & Time</th>
               <th className='p-3 border-b'>Type</th>
               <th className='p-3 border-b'>Name</th>
@@ -106,6 +107,8 @@ const Logs = () => {
                     index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                   } hover:bg-blue-50 transition`}
                 >
+                  
+                  <td className='p-3 border-b text-gray-700'>{index+1}</td>
                   <td className='p-3 border-b text-gray-700'>
                     {log.updatedAt}
                   </td>

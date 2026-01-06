@@ -81,6 +81,7 @@ const ArticalData = () => {
           <table className="w-full text-sm text-left border-collapse">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr className="text-gray-700">
+                <th className="p-3 font-medium">S/No.</th>
                 <th className="p-3 font-medium">Image</th>
                 <th className="p-3 font-medium">Article</th>
                 <th className="p-3 font-medium">Category Code</th>
@@ -110,6 +111,7 @@ const ArticalData = () => {
                         isLowStock ? 'bg-red-50' : idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
                       }`}
                     >
+                      <td className="p-3 font-medium">{idx + 1}</td>
                       <td className="p-3">
                         <img
                           src={row.image}

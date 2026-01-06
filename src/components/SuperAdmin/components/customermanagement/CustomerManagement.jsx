@@ -128,6 +128,7 @@ const CustomerManagement = () => {
             <table className="w-full text-sm text-left border">
               <thead className="bg-gray-50 text-gray-600 font-medium">
                 <tr>
+                  <th className="px-3 py-2">S/No.</th>
                   <th className="px-3 py-2">Name</th>
                   <th className="px-3 py-2">Phone</th>
                   <th className="px-3 py-2">Sales Person</th>
@@ -139,6 +140,7 @@ const CustomerManagement = () => {
               <tbody>
                 {customers.map((row, index) => (
                   <tr key={index} className="border-t hover:bg-gray-50">
+                    <td className="px-3 py-2 whitespace-nowrap">{index+1}</td>
                     <td className="px-3 py-2 whitespace-nowrap">{row.name}</td>
                     <td className="px-3 py-2 whitespace-nowrap">{row.phone}</td>
                     <td className="px-3 py-2 whitespace-nowrap">

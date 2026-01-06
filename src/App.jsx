@@ -111,6 +111,7 @@ import ViewArticle from './components/SuperAdmin/components/catagories/ViewArtic
 import Adminreset from './pages/Authentication/Adminreset'
 import TotalCart from './components/Administrator/components/TotalCart'
 import ProductionDetail from './components/ProductionAdmin/components/ProductionDetail'
+import WishlistData from './components/Sales Person/components/WishlistData'
 
 function App () {
   const [loading, setLoading] = useState(true)
@@ -1198,6 +1199,21 @@ function App () {
                     >
                       <PageTitle title='ArticalData' />
                       <ArticalData />
+                     
+                    </ProtectedRoutes>
+                  </>
+                }
+              />
+              
+              <Route
+                path='/WishlistData'
+                element={
+                  <>
+                    <ProtectedRoutes
+                      role={['Inventory Manager', 'Sales Person']}
+                    >
+                      <PageTitle title='WishlistData' />
+                      <WishlistData />
                      
                     </ProtectedRoutes>
                   </>

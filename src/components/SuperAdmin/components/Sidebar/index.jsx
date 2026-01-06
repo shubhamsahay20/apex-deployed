@@ -1162,6 +1162,33 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
+
+              {user?.user?.role === 'Sales Person' && (
+                <li>
+                  <NavLink
+                    to="/WishlistData"
+                    className={({ isActive }) =>
+                      'group relative flex items-center gap-2.5   mt-2  rounded-md px-4 font-medium text-[#606060] hover:text-[#007CF0] duration-300 ease-in-out  ' +
+                      (isActive && '!text-blue-500')
+                    }
+                  >
+                    <svg
+                      className="fill-current"
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fill="currentColor"
+                        d="M12 2 2 7v2h2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9h2V7l-10-5Zm6 18H6V9h12v11ZM8 11h2v2H8v-2Zm3 0h2v2h-2v-2Zm3 0h2v2h-2v-2Zm-6 4h2v2H8v-2Zm3 0h2v2h-2v-2Zm3 0h2v2h-2v-2Z"
+                      />
+                    </svg>
+                    WishlistData
+                  </NavLink>
+                </li>
+              )}
+
               {user?.user?.role === 'Warehouse Manager' && (
                 <li>
                   <NavLink
@@ -1187,6 +1214,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
                   </NavLink>
                 </li>
               )}
+
               {user?.user?.role === 'Warehouse Manager' && (
                 <li>
                   <NavLink
